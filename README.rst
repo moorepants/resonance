@@ -1,3 +1,7 @@
+========================================================================
+Resonance: Learning Mechanical Vibration Engineering Through Computation
+========================================================================
+
 **NOTE : This material is very much in draft form. Comments welcome in the
 issues.**
 
