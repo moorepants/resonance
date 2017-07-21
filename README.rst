@@ -69,15 +69,72 @@ Outline
 The course is taught over 20 two hour class periods during a quarter system of
 10 weeks of instructions and 1 week for examinations. One of the 20 class
 periods is reserved for a midterm examination, 2 hours are reserved for exam
-reviews leaving 18 main topics. The following lists the topics for each of the
-class periods:
+reviews leaving 36 hours of in class time. The following lists the topics for
+each of the class periods:
 
-1. Intro to vibrations: do a complete example with minimal overhead
-2. Free harmonic motion with and without viscous damping
-3. Forced harmonic motion with and without viscous damping
-4. Modeling physical systems
-5. Lagrange’s method (conservative and nonconservative forces)
-6. Estimating system parameters from vibrations (live experiment where we give them data)
+1 Introduction [100 mins]
+-------------------------
+
+The goal here is to lead the students through solving a vibration egnineering
+problem while simulataneously introducing the foundation Python commands they
+will need to build on. This shouldn't be overwhelming with too many new Python
+things but should ease them in but show them that they can solve something
+useful the first day.
+
+- Students will be able to use the core Python computing commands in the class.
+- Students Will be able solve an introductory vibration engineering problem.
+
+TODO : What problem to open with?
+
+2 Modeling Vibrating Systems [50 min]
+-------------------------------------
+
+The key thing here is that we want students to be able to look at real physical
+objects and visualize what the essential motion is. They should be able to
+sketch out free body diagrams that indicate:
+
+- an appropriate number of degrees of freedom
+- appropriate generalized coordinate definitions
+- appropriate lumped elements that describe the rigid bodies and lumped
+  elements (springs, dampers) and external loads acting on the system
+
+I'd also like them to come away with an appreciation of why it may be important
+to try to create the simplest model that is capable of explaining the phenomena
+of interest.
+
+3 Formulating Equations of Motion [150 min]
+-------------------------------------------
+
+- recognize that the relationship between mass/inertia, acceleration, and the
+  loads acting on a system are second order ordinary differential equations
+- be able to express the linear and anguar velocity magnitude expressions of
+  important points and rotating reference frames
+- be able to write the system's kinetic energy in terms of generalized
+  coordinates
+- be able to write the system's potential energy in terms of the generalized
+  coordinates
+- be able to form the Lagrangian
+- be able write the lagrange's equation of the first kind and evaluate it
+- add non-conservative forces with Rahliegh's principle
+- recognize advatnages over a Newton-Euler formulation
+- be able to convert between first and second order form
+- be able to convert from canonical form to state space
+- single and multi dof
+- linearizing eoms
+
+https://en.wikipedia.org/wiki/Lagrangian_mechanics
+
+4 Free harmonic motion with and without viscous damping
+-------------------------------------------------------
+
+- determine the natural frequency
+- find the solution to the ODE
+- compare different ways to express ODE solution
+- write the SDoF system in terms of nat. freq and damping ratio
+- underdamped, critically damped, overdamped
+
+5. Estimating system parameters from vibrations (live experiment where we give them data)
+6. Forced harmonic motion with and without viscous damping
 7. Non-linear vibration (Coulomb) + simulation of non-linear systems
 8. Impulse response (heaviside)
 9. Stability: book balance
