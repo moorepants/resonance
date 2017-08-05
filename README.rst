@@ -17,7 +17,7 @@ designed with these ideas in mind:
   writing code to simulate and analyze computational models and experimental
   data.
 - That the computer allows students to solve vibration engineering problems
-  without knowing all of the mathematical theory apriori. This means that we
+  without knowing all of the mathematical theory a priori. This means that we
   can motivate students to dig deeper into the theory and by presenting it
   posteriori when the motivation is high.
 - Students learn best by doing. The content is meant to used in class while the
@@ -75,8 +75,8 @@ each of the class periods:
 1 Introduction [100 mins]
 -------------------------
 
-The goal here is to lead the students through solving a vibration egnineering
-problem while simulataneously introducing the foundation Python commands they
+The goal here is to lead the students through solving a vibration engineering
+problem while simultaneously introducing the foundation Python commands they
 will need to build on. This shouldn't be overwhelming with too many new Python
 things but should ease them in but show them that they can solve something
 useful the first day.
@@ -107,16 +107,16 @@ of interest.
 
 - recognize that the relationship between mass/inertia, acceleration, and the
   loads acting on a system are second order ordinary differential equations
-- be able to express the linear and anguar velocity magnitude expressions of
+- be able to express the linear and angular velocity magnitude expressions of
   important points and rotating reference frames
 - be able to write the system's kinetic energy in terms of generalized
   coordinates
 - be able to write the system's potential energy in terms of the generalized
   coordinates
 - be able to form the Lagrangian
-- be able write the lagrange's equation of the first kind and evaluate it
-- add non-conservative forces with Rahliegh's principle
-- recognize advatnages over a Newton-Euler formulation
+- be able write the Lagrange's equation of the first kind and evaluate it
+- add non-conservative forces with Rayleigh's principle
+- recognize advantages over a Newton-Euler formulation
 - be able to convert between first and second order form
 - be able to convert from canonical form to state space
 - single and multi dof
@@ -141,7 +141,7 @@ https://en.wikipedia.org/wiki/Lagrangian_mechanics
 10. Base excitation: car on bumpy road
 11. Mass imbalance
 12. Arbitrary forcing (convolution integral)
-13. Arbitrary periodic forcing (fourier series)
+13. Arbitrary periodic forcing (Fourier series)
 14. Modal analysis of decomposable systems: building
 15. Modal analysis of non-decomposable: bicycle modeshapes
 16. Isolator design
@@ -154,7 +154,7 @@ Other:
 - Free response to two dof
 - Transform methods
 - Response random inputs
-- Analgoy to electrica circuits or other energy domains
-- More indepth non-linear vibratory systems
+- Analogy to electrical circuits or other energy domains
+- More in-depth non-linear vibratory systems
 - Relationship to FEA of structures
-- Beams and membranes: continous systems (euler’s beam equation)
+- Beams and membranes: continuous systems (Euler’s beam equation)
