@@ -54,6 +54,19 @@ SymPy, SciPy, and matplotlib.
 Learning Objectives
 ===================
 
+There are three broad learning objectives that we focus on in the course:
+
+1. Students will be able to analyze vibrational measurement data to draw
+   conclusions about the measured system's vibrationnal nature and describe how
+   the systems behave vibrationally.
+2. Students will be able to create simple mathematical and computational models
+   of real vibrating systems that can be used to answer specific questions
+   about the system by consisely demonstrate the vibrational phenomena.
+3. Students will be able to design a mechanical structure that has desireable
+   vibrational behavior.
+
+These core 
+
 After completing the course, students will be able to:
 
 - model a physical vibrating system and understand it's essential motion characteristics
