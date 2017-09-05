@@ -41,6 +41,9 @@ Analyzing Vibrating Systems
 1. Introduction to Jupyter
 --------------------------
 
+This notebook introduces students to the Jupyter notebook environment and
+establishes some good practices for creating computational notebooks.
+
 - open Jupyter notebooks and operate basic functionality
 - fetch assignments, complete exercises, submit work and view the graded work
 - solve basic scientific python problems
@@ -48,6 +51,10 @@ Analyzing Vibrating Systems
 
 2. Introduction to vibrations: Book Balancing on a Cup
 ------------------------------------------------------
+
+This notebook introduces a single degree of freedom vibratory system in which
+a textbook balances on a cylindrical cup. The system is implemented as a model
+that students can interact with in order to visualize its free response.
 
 - visualize a system's free response
 - estimate the period of a sinusoidal vibration from a time series
@@ -58,6 +65,11 @@ Analyzing Vibrating Systems
 
 3. Measuring a Bicycle Wheel's Inertia
 --------------------------------------
+
+This notebook introduces the concept of using vibratory characteristics to
+estimate parameters of an existing system. It discusses how vibrations can be
+measured and how these measurements might relate to parameters of interest,
+such as the inertia of a bicycle wheel.
 
 - describe different methods of measuring vibrations
 - choose appropriate sensors and sensor placement
@@ -72,21 +84,31 @@ Analyzing Vibrating Systems
 4. Clock Pendulum with Air Drag Damping
 ---------------------------------------
 
+This notebook introduces the third fundamental characteristic of vibration:
+energy dissipation through damping. A simple pendulum model is implemented that
+allows students to vary the damping parameters and visualize the three regimes
+of linear damping.
+
 - understand the concept of damped natural frequency and its relationship to
   mass/inertia, stiffness, and damping
 - state the three fundamental characteristics that make a system vibrate
 - compute the free response of a linear system with viscous-damping in all
   three damping regimes
 - identify critically damped, underdamped, and overdamped behavior
-- determine whether a system is over/under/critically damped given its dynamic
-  properties
-- understnad the difference between underdamping, overdamping, and crticial
+- determine whether a linear system is over/under/critically damped given its
+  dynamic properties
+- understand the difference between underdamping, overdamping, and crticial
   damping
 
 5. Clock Pendulum with Air Drag and Joint Friction
 --------------------------------------------------
 
-- identify the fucntion that govenrs the decay envelope
+This notebook builds on the previous one by introducing nonlinear damping
+through Coulomb friction. Students will be able to work with both a linear and
+nonlinear version of the same system (pendulum) in order to compare the free
+response in both cases.
+
+- identify the function that governs the decay envelope
 - compare this non-linear behavior to the linear behavior
 - estimate the period of oscillation
 - compute the free response of a non-linear system with viscous and coulomb
@@ -95,37 +117,52 @@ Analyzing Vibrating Systems
 6. Vertical Vibration of a Bus Driver's Seat
 --------------------------------------------
 
+This notebook introduces external forcing of a vibratory system, where the
+external force is modeled as a sinusoidal input to the bottom of a bus driver's
+seat.
+
 - excite a system with a sinusoidal input
 - understand the difference in transient and steady state solutions
 - use autocorrelation to determine period
-- relate the frequence response to the time series
+- relate the frequency response to the time series
 - create a frequency response plot
 - define resonance and determine the parameters that cause resonance
 
 7. Vertical vibration of a Bus Driver's Seat with a Leaf Spring
 ---------------------------------------------------------------
 
+This notebook builds on the previous one by replacing the linear spring with
+a realistic leaf spring.
+
 - create a force versus displacement curve for a leaf spring
-- describe the time repsonse and frequency response of a non-linear system
+- describe the time response and frequency response of a non-linear system
 - show that sinusoidal fitting does not necessarily describe non-linear
   vibration
 
 8. Bicycle Lateral Vibration
 ----------------------------
 
-- get a sense of the couppling of input to output through frequency response
+This notebook introduces a simple lean and steer bicycle model as an example of
+a system with multiple degrees of freedom. Coupling and modes are discussed
+from a data analysis perspective.
+
+- get a sense of the coupling of input to output through frequency response
   plots
 - simulate a 2 DoF vibratory model
-- identify a MDoF system and see effects of couplin through time and frequency
+- identify a MDoF system and see effects of coupling through time and frequency
   domain
 - determine if a general 2 DoF is stable
-- sweeping through frequencies to discover modal frequencies
+- sweep through input frequencies to discover modal frequencies
 
 9. Simulating a building during an earthquake
 ---------------------------------------------
 
-- exmaine time domain and frequency coupling with MDoF
+This notebook uses a lumped parameter multi-story building model as
+a many-degree-of-freedom system with all oscillatory modes.
+
+- examine time domain and frequency coupling with MDoF
 - sweeping through frequencies to discover modal frequencies
+- visualize the system's response at modal frequencies to see mode shapes
 
 Modeling Vibrating Systems
 ==========================
@@ -133,10 +170,14 @@ Modeling Vibrating Systems
 10. Modeling the Bicycle Wheel Inertia Measurement System
 ---------------------------------------------------------
 
+This notebook walks through modeling two different test rigs for determining
+the vibrational characteristics of a bicycle wheel. After coming up with
+a simple model ...
+
 - derive the equations of motion of a compound pendulum with Lagrange's method
 - derive the equations of motion of a torsional pendulum with Lagrange's method
 - linearize the compound pendulum equation
-- put equations in canoncial form
+- put equations in canonical form
 - review solutions to ODEs
 
 11. Modeling a non-linear spring
