@@ -193,45 +193,87 @@ Designing Vibrating Systems
 18. Design a Clock that Keeps Time
 ----------------------------------
 
+The students will be presented with a compound pendulum model of a clock's bob
+that does not keep time well due to friction and air drag. They will be tasked
+with designing a system that adds in the right amount of additional energy so
+that the pendulum has the desired constant period.
+
+After the completion of this assignment students will be able to:
+
+- develop an analytic model of a energy injection system
+- simulate the motion of clock and determine its time varying period
+- choose the energy injection system parameters that will cause the clock to
+  work as intended
+
 19. Isolator Selection
 ----------------------
 
-- discuss and justify tradeoffs and design decisions
-- model the system with additional damping provided by isolation
-- design a vibration isolator to meet given vibration specifications
-- analyze a system's motion ot determine its vibrational characteristics
+The students will be presented with a model of X and asked to select and/or
+design a commercially available vibration isolator that ensures the system
+meets specific vibrational design criteria.
 
-20. Designing a tuned mass damper to earthquake proof a building
+After the completion of this assignment students will be able to:
+
+- discuss and justify trade-offs and design decisions
+- model the system with additional damping provided by isolation
+- select/design a vibration isolator to meet given vibration specifications
+- analyze a system's motion to determine its vibrational characteristics
+
+20. Designing a Tuned Mass Damper to Earthquake Proof a Building
 ----------------------------------------------------------------
 
-- design an absorber that meets their design criteria
-- choose design criteria for the buliding and justify decisions (with ISO
+Students will be presented with a single (or multi?) floor building model. They
+will need to modify the model to includes a laterally actuated mass on the
+roof. They will be asked to design an actuation scheme that prevents the
+building from having too large of displacements or resonance while excited by a
+earthquake-like vibration at its base.
+
+After the completion of this assignment students will be able to:
+
+- add a generic vibration absorber to a building model
+- use a building model to simulate the motion of a building without damping
+- choose design criteria for the building and justify decisions (with ISO
   standards)
-- add a mass damper to the model and use the frequency repsonse function to
-  demonstrate its effect
-- use a buling model to simulate the motion of a building without damping
+- design an absorber that meets their design criteria
+- use the frequency response function to demonstrate the effect of the
+  vibration absorber
 
 21. Designing a stable bicycle
 ------------------------------
 
-- determine parameters which cause the system to be stable
-- determine and descirbe the influence of the dynamic an dgoemetrical
-  parameterss on stability
-- explore the motion of a bicycl ewith difference dynamic parameters through
-  simulation
+The students will be presented with a 2 DoF linear model of a bicycle in
+canonical form with analytical expressions for the M, C, and K  matrix entries
+that are functions of the 25 bicycle parameters. The students will be asked to
+discover bicycle designs that meet certain criteria through eigenanalysis and
+simulation.
 
-22. Designing a shock absorbtion for a car
-------------------------------------------
+After the completion of this assignment students will be able to:
 
-- use experimental data from a car to form a model
-- select a damper to meet given design criteria and demonstrate this with their
-  model
-- validate their designed damper in the underlying (complex) car model
-- discuss why their design doe or does not meet the criteria with the more
-  complex model
+- determine parameters which cause the 2 DoF system to be stable/unstable
+- simulate and visualize the motion of a bicycle with difference parameters
+- determine and describe the influence of the physical parameters, initial
+  conditions, and steering input on the dynamics of the vehicle
+- design a bicycle that meets specific design criteria
+
+22. Designing Shock Absorbtion for a Car
+----------------------------------------
+
+The students will be presented with 2D planar data generated from a "ground
+truth" 3 DoF half car model. Their job will be to design a quarter car model
+that behaves similarly to the ground truth model. Once they have a working
+simple model, then they will design an improved shock absorber for the quarter
+car model using analytic and computational methods. The instructors will then
+provide the students with the ground truth model, i.e. the "real" car, and the
+students will need to show that the ride quality is improved and that design
+criteria is met.
+
+After the completion of this assignment students will be able to:
+
+- develop a simple analytic model that predicts motion provided from
+  planar 2D "experimental" data
+- select springs and dampers to meet given design criteria by demonstrating
+  performance with the simple analytic model
+- demonstrate that the designed shock absorber works well for the "real" car
+- discuss why the design does or does not meet the design criteria
 - reflect on their modeling and design decisions after having tested it against
-  the groun truth model
-
-Implementation: give them just experimental data with a general description of
-the system and inputs, have the form the model and design an absorber, only
-then give them the underlying (complex) model to test their design with
+  the ground truth model
