@@ -8,6 +8,33 @@ periods is reserved for a midterm examination, 2 hours are reserved for exam
 reviews leaving 36 hours of in class time. The following lists the topics for
 each of the class periods:
 
+01 W Sep 27
+02 M Oct 02
+03 W Oct 04
+04 M Oct 09
+05 W Oct 11
+06 M Oct 16
+07 W Oct 18
+08 M Oct 23
+NA T Oct 24 Drop Date
+09 W Oct 25
+10 M Oct 30
+11 W Nov 01
+12 M Nov 06
+13 W Nov 08
+NA F Nov 10 Veterans Day Holiday
+14 M Nov 13
+15 W Nov 15
+16 M Nov 20
+17 W Nov 22
+NA R Nov 23 Thanksgiving Holiday
+NA F Nov 24 Thanksgiving Holiday
+18 M Nov 27
+19 W Nov 29
+20 M Dec 04
+21 W Dec 06
+NA T Dec 12 Final Exam @ 6:00 PM
+
 Analyzing Vibrating Systems
 ===========================
 
