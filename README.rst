@@ -52,6 +52,9 @@ Students that master these three core learning objectives will be well prepared
 to use mechanical vibration concepts, theories, and tools to solve engineering
 problems.
 
+For a more detailed topical outline with specific per-activity learning
+objectives see the `outline <outline.rst>`_.
+
 Assessment
 ==========
 
