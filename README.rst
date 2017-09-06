@@ -10,29 +10,26 @@ Introduction
 
 This repository contains the interactive learning materials designed for the
 upper-level UC Davis engineering course on Mechanical Vibrations (ENG 122). The
-textbook is designed with these ideas in mind:
+materials are designed with these ideas in mind:
 
 - That students can learn about mechanical vibrations engineering through
-  "computational thinking", i.e. actively interacting with a computer and
-  writing code to simulate and analyze computational models and experimental
-  data.
+  "computational thinking" and "computational experimentation", i.e. actively
+  interacting with a computer by writing code to simulate and analyze
+  computational models and experimental data.
 - That the computer allows students to solve vibration engineering problems
   without knowing all of the mathematical theory a priori. This means that we
   can motivate students to dig deeper into the theory and by presenting it
-  posteriori when the motivation is high.
+  posteriori when the motivation is high. The students will be introduced to
+  data analysis techniques to study vibrations before analytical techniques.
 - Students learn best by doing. The content is meant to used in class while the
   instructors act as a coach through the learning.
+- That each lesson should have a motivated real life example that drives the
+  investigation.
 - Open access materials promote easy reuse, remixing, and dissemination.
 
-The course website can be found at https://moorepants.github.io/eng122/
-
-Authors
-=======
-
-- Jason K. Moore, Faculty, Mechanical and Aerospace Engineering Department,
-  University of California, Davis
-- Kenneth Lyons, Graduate Student, Mechanical and Aerospace Engineering
-  Department, University of California, Davis
+The current course website can be found at
+https://moorepants.github.io/eng122/. Note that this will changed to reflect
+the materials in this repository.
 
 Learning Objectives
 ===================
@@ -40,12 +37,12 @@ Learning Objectives
 There are three broad learning objectives that we focus on in the course:
 
 1. Students will be able to analyze vibrational measurement data to draw
-   conclusions about the measured system's vibrationnal nature and describe how
-   the systems behaves vibrationally.
+   conclusions about the measured system's vibrational nature and describe how
+   the systems behaves vibrational.
 2. Students will be able to create simple mathematical and computational models
    of real vibrating systems that can be used to answer specific questions
-   about the system by consisely demonstrating the vibrational phenomena.
-3. Students will be able to design a mechanical structure that has desireable
+   about the system by concisely demonstrating the vibrational phenomena.
+3. Students will be able to design a mechanical structure that has desirable
    vibrational behavior.
 
 Students that master these three core learning objectives will be well prepared
@@ -62,15 +59,13 @@ The students will be assessed through a series of in- and out-of- class
 exercises that focus on individual lesson topics, two examinations, and on an
 individual open-ended vibration design project.
 
-Methodology
-===========
+Authors
+=======
 
-There are a few principles to teaching:
-
-1. We want to maximize the student "doing" both in-class and out.
-2. Computational objects will be used to represent real vibrational systems and
-   the students will interact with these objects to discover vibrational
-   concepts as a first step.
+- Jason K. Moore, Faculty, Mechanical and Aerospace Engineering Department,
+  University of California, Davis
+- Kenneth Lyons, Graduate Student, Mechanical and Aerospace Engineering
+  Department, University of California, Davis
 
 License
 =======
