@@ -223,12 +223,9 @@ class BookOnCupSystem(object):
             vals = np.zeros_like(times)
             x0 = self.coordinates['book_angle']
             for i, thetai in enumerate(coordinate_traj):
-                print(thetai)
                 self.coordinates['book_angle'] = thetai
-                print(self.meas[k])
                 vals[i] = self.meas[k]
             self.coordinates['book_angle'] = x0
-            print(vals)
             df[k] = vals
 
         return df
