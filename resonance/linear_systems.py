@@ -6,17 +6,46 @@ import pandas as pd
 
 
 class MeasurmentsDict(collections.MutableMapping, dict):
-    def __getitem__(self, key):
-        # call function to compute value
+
+    def _compute_value(self, key):
+
         func = self._funcs[key]
+
+        def get_par(k):
+            try:
+                v = self._par[k]
+            except KeyError:
+                try:
+                    v = self._coord[k]
+                except KeyError:
+                    v = self[k]
+            return v
+
         # TODO : getargspec is deprecated, supposedly signature cna do the same
         # thing but the args are in a dictionary and it isn't clear to me they
         # are ordered.
-        args = [self._par[k] for k in getargspec(func).args]
+        args = [get_par(k) for k in getargspec(func).args]
         return func(*args)
 
+    def __getitem__(self, key):
+        return self._compute_value(key)
+
     def __setitem__(self, key, value):
-        raise ValueError('Cannot set')
+        print('Warning : cannot set measurement values.')
+        # ignore and override the value
+        dict.__setitem__(self, key, self._compute_value(key))
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+
+    def __iter__(self):
+        return dict.__iter__(self)
+
+    def __len__(self):
+        return dict.__len__(self)
+
+    def __contains__(self, x):
+        return dict.__contains__(self, x)
 
 
 class BookOnCupSystem(object):
@@ -28,7 +57,7 @@ class BookOnCupSystem(object):
                            'radius': 0.042,  # m
                            'mass': 1.058}  # kg
 
-        sys.coordinates = {'book_angle': 0.0}
+        self.coordinates = {'book_angle': 0.0}
 
         # include references to the necessary attributes on the measurement
         # dict, or should I just store a reference to self on the measurement
@@ -36,11 +65,17 @@ class BookOnCupSystem(object):
         self.meas = MeasurmentsDict({})
         self.meas._funcs = {}
         self.meas._par = self.parameters
+        self.meas._coord = self.coordinates
 
+    # TODO : Should this be moved to the setitem method of the MeasurementDict?
+    # Then you could do: sys.measurements['distance'] = lambda x1, x2: x1 + x2.
+    # I'm not sure if that would be more confusing, because you would set it to
+    # a function and it would return a value which is unexpected.
     def add_meas(self, name, func):
         self.meas._funcs[name] = func
+        self.meas[name] = 0.0  # will get converted to correct number
 
-    def _canoncial_coefficients(self):
+    def _canonical_coefficients(self):
         """A 1 DoF second order system should return the mass, damping, and
         stiffness coefficients."""
 
@@ -53,7 +88,14 @@ class BookOnCupSystem(object):
             k = g * radius - g * height / 2
             return m, c, k
 
-        args = [self.parameters[k] for k in getargspec(coeffs).args]
+        def get_par(k):
+            try:
+                v = self.parameters[k]
+            except KeyError:
+                v = self.coordinates[k]
+            return v
+
+        args = [get_par(k) for k in getargspec(coeffs).args]
 
         return coeffs(*args)
 
@@ -73,8 +115,6 @@ class BookOnCupSystem(object):
 
         m, c, k = self._canonical_coefficients()
 
-        # no damping, underdamped, overdamped, critically damped
-
         if c == 0.0:
             sol_func = self._no_damping_solution
         else:  # damping, so check zeta
@@ -92,6 +132,8 @@ class BookOnCupSystem(object):
         return sol_func
 
     def _no_damping_solution(self, time):
+
+        print('Simulating system with no damping.')
 
         t = time
 
@@ -137,8 +179,10 @@ class BookOnCupSystem(object):
         x0 = self.coordinates['book_angle']
         v0 = 0.0
 
-        a1 = (-v0 + (-z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn / np.sqrt(z**2 - 1)
-        a2 = (v0 + (z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn / np.sqrt(z**2 - 1)
+        a1 = ((-v0 + (-z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn /
+              np.sqrt(z**2 - 1))
+        a2 = ((v0 + (z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn /
+              np.sqrt(z**2 - 1))
 
         decay = wn * np.sqrt(z**2 - 1) * t
         return np.exp(-z * wn * t) * (a1 * np.exp(-decay) + a2 * np.exp(decay))
@@ -161,30 +205,30 @@ class BookOnCupSystem(object):
 
     def simulate(self, initial_time, final_time, num_steps):
         times = np.linspace(initial_time, final_time, num=num_steps)
-        sol_func = self._solution_func
+
+        sol_func = self._solution_func()
+
         coordinate_traj = sol_func(times)
+        # TODO : Make functions that compute the derivative of the coordinate
+        # solution and add the velocity trajectory.
 
         df = pd.DataFrame({'book_angle': coordinate_traj}, index=times)
+        df.index.name = 'Time [s]'
 
         # TODO : Need a way to compute the measurements as array values based
-        # on the book_angle changing at each time.
+        # on the book_angle changing at each time but the current method of
+        # letting the measurement be computed by the stored coordinate scalar
+        # is a bit problematic.
         for k, v in self.meas.items():
-            df[k] = np.nan
+            vals = np.zeros_like(times)
+            x0 = self.coordinates['book_angle']
+            for i, thetai in enumerate(coordinate_traj):
+                print(thetai)
+                self.coordinates['book_angle'] = thetai
+                print(self.meas[k])
+                vals[i] = self.meas[k]
+            self.coordinates['book_angle'] = x0
+            print(vals)
+            df[k] = vals
 
         return df
-
-sys = BookOnCupSystem()
-
-
-def compute(a, b, c):
-    return a + b + c
-
-sys.add_meas('something', compute)
-# TODO : Should it just be this?
-# sys.meas.funcs['something'] = compute
-
-print(sys.meas['something'])
-
-sys.par['a'] = 5
-
-print(sys.meas['something'])
