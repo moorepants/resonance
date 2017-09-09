@@ -3,6 +3,7 @@ from inspect import getargspec
 
 import numpy as np
 import pandas as pd
+import matplotlib.animation as animation
 
 
 class MeasurmentsDict(collections.MutableMapping, dict):
@@ -62,18 +63,32 @@ class BookOnCupSystem(object):
         # include references to the necessary attributes on the measurement
         # dict, or should I just store a reference to self on the measurement
         # dict?
-        self.meas = MeasurmentsDict({})
-        self.meas._funcs = {}
-        self.meas._par = self.parameters
-        self.meas._coord = self.coordinates
+        self.measurements = MeasurmentsDict({})
+        self.measurements._funcs = {}
+        self.measurements._par = self.parameters
+        self.measurements._coord = self.coordinates
+
+        self.configuration_plot_function = None
+        self.configuration_plot_update_function = None
+
+    def _get_par_vals(self, par_name):
+        # TODO : Maybe just merging the three dicts is better?
+        try:
+            v = self.parameters[par_name]
+        except KeyError:
+            try:
+                v = self.coordinates[par_name]
+            except KeyError:
+                v = self.measurements[par_name]
+        return v
 
     # TODO : Should this be moved to the setitem method of the MeasurementDict?
     # Then you could do: sys.measurements['distance'] = lambda x1, x2: x1 + x2.
     # I'm not sure if that would be more confusing, because you would set it to
     # a function and it would return a value which is unexpected.
-    def add_meas(self, name, func):
-        self.meas._funcs[name] = func
-        self.meas[name] = 0.0  # will get converted to correct number
+    def add_measurement(self, name, func):
+        self.measurements._funcs[name] = func
+        self.measurements[name] = 0.0  # will get converted to correct number
 
     def _canonical_coefficients(self):
         """A 1 DoF second order system should return the mass, damping, and
@@ -88,14 +103,7 @@ class BookOnCupSystem(object):
             k = g * radius - g * height / 2
             return m, c, k
 
-        def get_par(k):
-            try:
-                v = self.parameters[k]
-            except KeyError:
-                v = self.coordinates[k]
-            return v
-
-        args = [get_par(k) for k in getargspec(coeffs).args]
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
         return coeffs(*args)
 
@@ -219,13 +227,51 @@ class BookOnCupSystem(object):
         # on the book_angle changing at each time but the current method of
         # letting the measurement be computed by the stored coordinate scalar
         # is a bit problematic.
-        for k, v in self.meas.items():
+        for k, v in self.measurements.items():
             vals = np.zeros_like(times)
             x0 = self.coordinates['book_angle']
             for i, thetai in enumerate(coordinate_traj):
                 self.coordinates['book_angle'] = thetai
-                vals[i] = self.meas[k]
+                vals[i] = self.measurements[k]
             self.coordinates['book_angle'] = x0
             df[k] = vals
 
+        self.result = df
+
         return df
+
+    def plot_configuration(self):
+
+        args = []
+        for k in getargspec(self.configuration_plot_function).args:
+            if k == 'time':
+                args.append(0.0)
+            else:
+                args.append(self._get_par_vals(k))
+
+        return self.configuration_plot_function(*args)
+
+    def animate_configuration(self, **kwargs):
+
+        fig, *objs_to_modify = self.plot_configuration()
+
+        def gen_frame(row_tuple, pop_list):
+            time = row_tuple[0]
+            row = row_tuple[1]
+            # Don't mutate the orginal list.
+            pop_list = pop_list.copy()
+            args = []
+            for k in getargspec(self.configuration_plot_update_function).args:
+                print(k)
+                if k == 'time':
+                    args.append(time)
+                else:
+                    try:
+                        args.append(row[k])
+                    except KeyError:
+                        # requires these to be in the same order
+                        args.append(pop_list.pop(0))
+            self.configuration_plot_update_function(*args)
+
+        return animation.FuncAnimation(fig, gen_frame, fargs=(objs_to_modify, ),
+                                       frames=self.result.iterrows(), **kwargs)

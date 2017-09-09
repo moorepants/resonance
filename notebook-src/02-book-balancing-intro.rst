@@ -2,6 +2,11 @@
 2. What Are Mechanical Vibrations?: Investigating a Book Oscillating on a Cylindrical Cup
 =========================================================================================
 
+.. code-block:: pycon
+
+   >>> import sys
+   >>> sys.path.append('..')
+
 Introduction
 ============
 
@@ -131,7 +136,7 @@ parameter. For example:
 .. code-block:: pycon
 
    >>> import numpy as np
-   >>> def compute_y_mass_location():
+   >>> def compute_y_mass_location(radius, height, book_angle):
    ...     # in the sys class this function will be wrapped and all of the
    ...     # parameters, coordinates, and measurements will be injected into the
    ...     # namespace just above the function so the students can just write
@@ -140,7 +145,7 @@ parameter. For example:
    ...     return ((radius + height / 2) * np.cos(book_angle) + radius *
    ...              book_angle * np.sin(book_angle) + radius)
    ...
-   >>> sys.add_measurement('mass_center_height', compute_vertical_mass_location)
+   >>> sys.add_measurement('mass_center_height', compute_y_mass_location)
 
 .. code-block:: pycon
 
@@ -151,7 +156,7 @@ parameter. For example:
    ...     theta = book_angle
    ...     return r + r * np.cos(theta) + (r * theta + l / 2) * np.sin(theta)
    ...
-   >>> sys.add_meas('bottom_left_y', bottom_left_y)
+   >>> sys.add_measurement('bottom_left_y', bottom_left_y)
 
 .. code-block:: pycon
 
@@ -162,7 +167,7 @@ parameter. For example:
    ...     theta = book_angle
    ...     return r * np.sin(theta) - (r * theta + l / 2) * np.cos(theta)
    ...
-   >>> sys.add_meas('bottom_left_x', bottom_left_x) 
+   >>> sys.add_measurement('bottom_left_x', bottom_left_x) 
 
 TODO : Explain a Python function.
 
@@ -191,7 +196,7 @@ equilibrium state. We will do the later here. We can set the initial angle to 1
 degree and then simulate the system::
 
    >>> sys.coordinates['book_angle'] = np.deg2rad(1)
-   >>> trajectories = sys.simulate(t0=0, tf=5)
+   >>> trajectories = sys.simulate(0, 5, 5 * 60)
 
 This creates what is called a DataFrame. DataFrames are defined in the Pandas
 Python package and are essentially 2D tables with labels for each column and an
@@ -199,7 +204,7 @@ index for each row. In our case the index is the time value and the columns are
 the coordinates and the measurements::
 
    >>> type(trajectories)
-   DataFrame
+   pandas.core.frame.DataFrame
    >>> trajectories
              book_angle  mass_center_height  bottom_left_x  bottom_left_y
    Time [s]
@@ -270,7 +275,7 @@ the coordinates and the measurements::
 The result of the last simulation is always stored on the system for later use.
 Data frames have a ``head()`` function that shows just the first lines::
 
-   >>> sys.results.head()
+   >>> sys.result.head()
             book_angle  mass_center_height  bottom_left_x  bottom_left_y
    Time [s]
    0.000000    0.017453            0.098504      -0.118982       0.086083
@@ -281,26 +286,24 @@ Data frames have a ``head()`` function that shows just the first lines::
 
 ::
 
-   >>> %matplotlib inline
+   >>> %matplotlib notebook
 
 We can now plot these variables, one at a time::
 
-::
-
-   >>> trajectories['book_angle'].plot()
+   >>> trajectories['book_angle'].plot();
 
 altogether::
 
-   >>> trajectories.plot()
+   >>> trajectories.plot();
 
 or in subplots::
 
-   >>> trajectories.plot(subplots=True)
+   >>> trajectories.plot(subplots=True);
 
 Maybe you want to use degrees instead, just make a new column::
 
    >>> trajectories['book_angle_deg'] = np.rad2deg(trajectories['book_angle'])
-   >>> trajectories['book_angle_deg'].plot()
+   >>> trajectories['book_angle_deg'].plot();
 
 Exercise
 --------
@@ -324,7 +327,7 @@ motion. matplotlib has
 
    >>> import matplotlib.pyplot as plt
    >>> from matplotlib.patches import Circle, Rectangle
-   >>> def fig_setup(time, radius, length, height, bottom_left_x, bottom_left_y)):
+   >>> def figure_setup(time, radius, length, height, book_angle, bottom_left_x, bottom_left_y):
    ...     fig, ax = plt.subplots(1, 1)
    ...     ax.set_xlim((-0.15, 0.15))
    ...     ax.set_ylim((0.0, 0.2))
@@ -345,9 +348,11 @@ motion. matplotlib has
    ...     text = ax.text(-0.125, 0.025, 'Time = {:0.3f} s'.format(time))
    ...
    ...     # return the figure first followed by any objects that change during the animation
-   ...     return fig, circ, rect, text
-   >>>
-   >>> def animate(time, book_angle, bottom_left_x, bottom_left_y):
+   ...     return fig, text, rect
+   ...
+   >>> def animate(time, book_angle, bottom_left_x, bottom_left_y, text, rect):
+   ...     """Put all args from parameters, measurements, coordinates and time first (any order),
+   ...     follow by the animation objects in the exact order they were returned in figure setup"""
    ...
    ...     text.set_text('Time = {:0.3f} s'.format(time))
    ...
@@ -355,9 +360,19 @@ motion. matplotlib has
    ...
    ...     # TODO : This should be a public set_angle method.
    ...     rect._angle = -np.rad2deg(book_angle)
+   ...
+
+::
+
    >>> sys.configuration_plot_function = figure_setup
    >>> sys.configuration_plot_update_function = animate
+
+::
+
    >>> sys.plot_configuration()
+
+::
+
    >>> sys.animate_configuration()
 
 Exercise
