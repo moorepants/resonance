@@ -1,0 +1,17 @@
+name: resonance-dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python >=3.5
+  - setuptools
+  - pip
+  - notebook
+  - nbconvert
+  - numpy
+  - matplotlib
+  - scipy
+  - pandas
+  - sympy
+  - pip:
+    - https://github.com/moorepants/rst-to-ipynb/archive/pycon-funcs.zip

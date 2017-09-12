@@ -1,0 +1,14 @@
+name: resonance
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python >=3.5
+  - setuptools
+  - pip
+  - notebook
+  - numpy
+  - matplotlib
+  - scipy
+  - pandas
+  - sympy
