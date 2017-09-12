@@ -69,7 +69,9 @@ accessed by using square brackets and the key like so::
    float
 
 These should be Python floating point numbers. You can set the values of these
-attributes, as such::
+attributes, as such:
+
+.. code-block:: pycon
 
    >>> sys.parameters['height'] = 1.0  # cm
    >>> sys.parameters['width'] = 6.0  # cm
@@ -117,7 +119,9 @@ This number of generalized coordinates corresponds to the number of degrees of
 freedom of a system. The degrees of freedom are XXX. The non-slipping book on a
 cup has 1 degree of freedom which is described by the single generalized
 coordinate, the book's angle. The system's generalized coordinates can be
-accessed as such::
+accessed as such:
+
+.. code-block:: pycon
 
    >>> sys.coordinates
    {'book_angle': 0.0}
@@ -167,7 +171,7 @@ parameter. For example:
    ...     theta = book_angle
    ...     return r * np.sin(theta) - (r * theta + l / 2) * np.cos(theta)
    ...
-   >>> sys.add_measurement('bottom_left_x', bottom_left_x) 
+   >>> sys.add_measurement('bottom_left_x', bottom_left_x)
 
 TODO : Explain a Python function.
 
@@ -373,7 +377,7 @@ motion. matplotlib has
 
 ::
 
-   >>> sys.animate_configuration()
+   >>> sys.animate_configuration(interval=8)
 
 Exercise
 --------
