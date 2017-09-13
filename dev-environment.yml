@@ -7,6 +7,7 @@ dependencies:
   - setuptools
   - pip
   - notebook
+  - ipywidgets
   - nbconvert
   - numpy
   - matplotlib
