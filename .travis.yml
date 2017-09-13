@@ -2,20 +2,22 @@ language: generic
 os:
   - linux
 install:
-    - |
-      MINICONDA_URL="https://repo.continuum.io/miniconda"
-      MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
-      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
-      bash $MINICONDA_FILE -b
-      source ~/miniconda3/bin/activate root
-      conda config --add channels conda-forge
-      conda config --set show_channel_urls true
-      conda config --set always_yes yes
-      conda env create -f dev-environment.yml
-    - bash -c "source activate resonance-dev"
-    - pip install .
+  - |
+    MINICONDA_URL="https://repo.continuum.io/miniconda"
+    MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
+    curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+    bash $MINICONDA_FILE -b
+  - source ~/miniconda3/bin/activate root
+  - conda config --set always_yes yes
+  - conda update -q conda
+  - conda env create -f dev-environment.yml
+  - source activate resonance-dev
+  - pip install .
+before_script:
+  - conda info
+  - conda list
 script:
-    - bash bin/build_notebooks.sh
-    - bash bin/execute_notebooks.sh
+  - bash bin/build_notebooks.sh
+  - bash bin/execute_notebooks.sh
 notifications:
     email: false
