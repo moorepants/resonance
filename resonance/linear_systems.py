@@ -211,8 +211,11 @@ class BookOnCupSystem(object):
 
         return (a1 + a2 * t) * np.exp(-wn * t)
 
-    def simulate(self, initial_time, final_time, num_steps):
-        times = np.linspace(initial_time, final_time, num=num_steps)
+    def free_response(self, initial_time, final_time, num=None):
+        if num is None:
+            delta = final_time - initial_time
+            num = int(60 * delta)
+        times = np.linspace(initial_time, final_time, num=num)
 
         sol_func = self._solution_func()
 
