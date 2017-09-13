@@ -2,11 +2,6 @@
 2. What Are Mechanical Vibrations?: Investigating a Book Oscillating on a Cylindrical Cup
 =========================================================================================
 
-.. code-block:: pycon
-
-   >>> import sys
-   >>> sys.path.append('..')
-
 Introduction
 ============
 
@@ -41,27 +36,35 @@ During this class we will examine and explore many different vibratory systems,
 such as this simple book and cup system. We will have some live demos, as we
 are showing now, but in general we will work with computational representations
 of systems to experiment and learn about the nature of vibration. For example,
-here is a system that represents the book on a cup::
+here is a system that represents the book on a cup:
+
+.. code:: pycon
 
    >>> from resonance.linear_systems import BookOnCupSystem
 
 The line above loads the command that can create systems that behave like the
 live demo at the front of the room. To create a system, execute the following
-cell by pressing the shift and enter key simultaneously::
+cell by pressing the shift and enter key simultaneously:
+
+.. code:: pycon
 
    >>> sys = BookOnCupSystem()
 
 Systems have different parameters, for example this system has geometry, such
 as the book's height, width, and length and the cup's radius. The book also has
 a mass and in this case assumed to be uniformly dense. You can view all of the
-parameters, which are stored in a Python dictionary by typing::
+parameters, which are stored in a Python dictionary by typing:
+
+.. code:: pycon
 
    >>> sys.parameters
    {'height': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
 
 A Python dictionary maps keys to values. For example the key ``'height'`` is
 associated with a value ``0.029``. An individual parameter value can be
-accessed by using square brackets and the key like so::
+accessed by using square brackets and the key like so:
+
+.. code:: pycon
 
    >>> sys.parameters['radius']
    0.042
@@ -71,7 +74,7 @@ accessed by using square brackets and the key like so::
 These should be Python floating point numbers. You can set the values of these
 attributes, as such:
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> sys.parameters['height'] = 1.0  # cm
    >>> sys.parameters['width'] = 6.0  # cm
@@ -83,7 +86,7 @@ Note that you will be responsible for ensuring that the units are consistent
 and that all angles should be in radians. Load the system again to get back the
 default parameters.
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> sys = BookOnCupSystem()
 
@@ -121,7 +124,7 @@ cup has 1 degree of freedom which is described by the single generalized
 coordinate, the book's angle. The system's generalized coordinates can be
 accessed as such:
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> sys.coordinates
    {'book_angle': 0.0}
@@ -137,7 +140,7 @@ relationship. Given the value of a generalized coordinate and the values of the
 system's parameters, we can define a function that computes the measurement
 parameter. For example:
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> import numpy as np
    >>> def compute_y_mass_location(radius, height, book_angle):
@@ -151,7 +154,7 @@ parameter. For example:
    ...
    >>> sys.add_measurement('mass_center_height', compute_y_mass_location)
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> def bottom_left_y(radius, height, length, book_angle):
    ...     r = radius
@@ -162,7 +165,7 @@ parameter. For example:
    ...
    >>> sys.add_measurement('bottom_left_y', bottom_left_y)
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> def bottom_left_x(radius, height, length, book_angle):
    ...     r = radius
@@ -177,7 +180,7 @@ TODO : Explain a Python function.
 
 If you change the book angle you'll get a different measurement:
 
-.. code-block:: pycon
+.. code:: pycon
 
    >>> sys.coordinates['book_angle'] = np.deg2rad(1)
    >>> # calls __getitem__ of a Measurements class and compute the right value using the supplied function
@@ -197,7 +200,9 @@ Now that we have a system with defined constant parameters we can make it move,
 in our case vibrate. There are two ways to create motion: apply perturbing
 forces to the system or set the state values to an initial value other than the
 equilibrium state. We will do the later here. We can set the initial angle to 1
-degree and then simulate the system::
+degree and then simulate the system:
+
+.. code:: pycon
 
    >>> sys.coordinates['book_angle'] = np.deg2rad(1)
    >>> trajectories = sys.simulate(0, 5, 5 * 60)
@@ -205,7 +210,9 @@ degree and then simulate the system::
 This creates what is called a DataFrame. DataFrames are defined in the Pandas
 Python package and are essentially 2D tables with labels for each column and an
 index for each row. In our case the index is the time value and the columns are
-the coordinates and the measurements::
+the coordinates and the measurements:
+
+.. code:: pycon
 
    >>> type(trajectories)
    pandas.core.frame.DataFrame
@@ -277,7 +284,9 @@ the coordinates and the measurements::
    [300 rows x 4 columns]
 
 The result of the last simulation is always stored on the system for later use.
-Data frames have a ``head()`` function that shows just the first lines::
+Data frames have a ``head()`` function that shows just the first lines:
+
+.. code:: pycon
 
    >>> sys.result.head()
             book_angle  mass_center_height  bottom_left_x  bottom_left_y
@@ -288,23 +297,31 @@ Data frames have a ``head()`` function that shows just the first lines::
    0.050167    0.016282            0.098504      -0.118984       0.085943
    0.066890    0.015389            0.098503      -0.118986       0.085836
 
-::
+.. code:: pycon
 
    >>> %matplotlib notebook
 
-We can now plot these variables, one at a time::
+We can now plot these variables, one at a time:
+
+.. code:: pycon
 
    >>> trajectories['book_angle'].plot();
 
-altogether::
+altogether:
+
+.. code:: pycon
 
    >>> trajectories.plot();
 
-or in subplots::
+or in subplots:
+
+.. code:: pycon
 
    >>> trajectories.plot(subplots=True);
 
-Maybe you want to use degrees instead, just make a new column::
+Maybe you want to use degrees instead, just make a new column:
+
+.. code:: pycon
 
    >>> trajectories['book_angle_deg'] = np.rad2deg(trajectories['book_angle'])
    >>> trajectories['book_angle_deg'].plot();
@@ -327,7 +344,7 @@ a very useful way to visualize a system's motion, but it is often quite helpful
 to animate a pictorial diagram of the system for easier visualization of the
 motion. matplotlib has
 
-::
+.. code:: pycon
 
    >>> import matplotlib.pyplot as plt
    >>> from matplotlib.patches import Circle, Rectangle
@@ -354,9 +371,13 @@ motion. matplotlib has
    ...     # return the figure first followed by any objects that change during the animation
    ...     return fig, text, rect
    ...
+
+.. code:: pycon
+
    >>> def animate(time, book_angle, bottom_left_x, bottom_left_y, text, rect):
-   ...     """Put all args from parameters, measurements, coordinates and time first (any order),
-   ...     follow by the animation objects in the exact order they were returned in figure setup"""
+   ...     """Put all args from parameters, measurements, coordinates and time
+   ...     first (any order), follow by the animation objects in the exact
+   ...     order they were returned in figure setup"""
    ...
    ...     text.set_text('Time = {:0.3f} s'.format(time))
    ...
@@ -366,16 +387,16 @@ motion. matplotlib has
    ...     rect._angle = -np.rad2deg(book_angle)
    ...
 
-::
+.. code:: pycon
 
    >>> sys.configuration_plot_function = figure_setup
    >>> sys.configuration_plot_update_function = animate
 
-::
+.. code:: pycon
 
    >>> sys.plot_configuration()
 
-::
+.. code:: pycon
 
    >>> sys.animate_configuration(interval=8)
 
@@ -405,27 +426,28 @@ important times, and finally np.diff() and np.mean() can be useful for finding
 the delta times and averaging. Note that np.diff() returns one fewer item in
 the array it operates on.
 
-::
+.. code:: pycon
 
-   def find_period(t, theta):
-       """Computes the period of oscillation based on the trajectory of theta.
-
-       Parameters
-       ==========
-       t : array_like, shape(n,)
-           An array of monotonically increasing time values.
-       theta : array_like, shape(n,)
-           An array of values for theta at each time in ``t``.
-
-       Returns
-       =======
-       T : float
-           An estimate of the period of oscillation.
-
-       """
-
-       peak_idxs = np.diff(np.sign(theta)) < 0
-       peak_idxs = np.hstack((peak_idxs, False))
-       T = np.diff(t[peak_idxs]).mean()
-
-       return T
+   >>> def find_period(t, theta):
+   ...     """Computes the period of oscillation based on the trajectory of theta.
+   ...
+   ...     Parameters
+   ...     ==========
+   ...     t : array_like, shape(n,)
+   ...         An array of monotonically increasing time values.
+   ...     theta : array_like, shape(n,)
+   ...         An array of values for theta at each time in ``t``.
+   ...
+   ...     Returns
+   ...     =======
+   ...     T : float
+   ...         An estimate of the period of oscillation.
+   ...
+   ...     """
+   ...
+   ...     peak_idxs = np.diff(np.sign(theta)) < 0
+   ...     peak_idxs = np.hstack((peak_idxs, False))
+   ...     T = np.diff(t[peak_idxs]).mean()
+   ...
+   ...     return T
+   ...
