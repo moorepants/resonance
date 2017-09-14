@@ -6,6 +6,7 @@ dependencies:
   - python >=3.5
   - setuptools
   - pip
+  - pytest
   - notebook
   - ipywidgets
   - nbconvert

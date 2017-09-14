@@ -246,7 +246,7 @@ turn it on:
 
 .. code:: pycon
 
-   >>> % matplotlib notebook
+   >>> %matplotlib inline
 
 Just as we did with the measurement functions, you can create a function that
 generates the figure using the system's various parameters.
@@ -284,7 +284,7 @@ A system can have a single configuration plot function and it is set like so:
 
 .. code:: pycon
 
-   >>> sys.configuration_plot_function = create_plot
+   >>> sys.config_plot_func = create_plot
 
 Now have a look at the configuration plot by calling ``plot_configuration()``:
 
@@ -463,7 +463,7 @@ it returns any of the objects that change with time.
    ...     # make sure to return the rectangle, which moves at each time step!
    ...     return fig, rect
    ...
-   >>> sys.configuration_plot_function = create_plot
+   >>> sys.config_plot_func = create_plot
 
 Now, an animation update function can be created which updates the bottom left
 corner's x and y coordinate at each time step. The last argument in the
@@ -471,7 +471,7 @@ function signature must be the object that changes.
 
 .. code:: pycon
 
-   >>> def animate(book_angle, bottom_left_x, bottom_left_y, rect):
+   >>> def update_frame(book_angle, bottom_left_x, bottom_left_y, rect):
    ...     rect.set_xy((bottom_left_x, bottom_left_y))
    ...     rect._angle = -np.rad2deg(book_angle)
    ...
@@ -480,12 +480,13 @@ Lastly, add this function to the system:
 
 .. code:: pycon
 
-   >>> sys.configuration_plot_update_function = animate
+   >>> sys.config_plot_update_func = update_frame
 
 The visualization can now be animated with:
 
 .. code:: pycon
 
+   >>> %matplotlib notebook
    >>> sys.animate_configuration()
 
 Exercie
