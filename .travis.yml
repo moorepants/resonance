@@ -19,5 +19,6 @@ before_script:
 script:
   - bash bin/build_notebooks.sh
   - bash bin/execute_notebooks.sh
+  - py.test resonance/
 notifications:
     email: false
