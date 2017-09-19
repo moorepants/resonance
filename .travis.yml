@@ -1,6 +1,10 @@
 language: generic
 os:
   - linux
+
+env:
+  global:
+    - secure: "M1MRgER9n92ndfjGIwrPmw6wAzVDDzRc01x3kDmbdWJGMlGsuiNvLFcmEQIuE7VUHvaOgqn3G61cAGgisywQvaLnK9+gzizKOIQZeq6wVNaRUvDkP8LufqKE/HgjW3TQfKBOp60dFoKwf7pfyA3oNyA0xQYPSeYBzXuMdnThk5qmYy4i0ciT8wwCVvflA6bBp7GkfjtjzVHZ2HG5kRA+i+isBAMVjD/W3bduJ9LNM9ES/dY/PPgCNSGV0ZrykvRZ5cpqrLCA84ABM9hXDB28+DRnv+qrqvLXtY+2q+jPW7jhZl+9L7UACc/g0h5Mc73FMgc7xDRFbPgc+VbdzHUFlkkc/MahY4xuMIBOAnjcXmWs6H9Mr6dlU+yBJ2VHoThrAdz35X3OKh4Iv1JiFKot5ij9Yfq44fVzgiNNyRoDAne2CuKyHuRmm1NS3dHKrFwelyCR2Q3fLgrlghkX3wihtTMKYR+5/7KQw+f/BQUebiXnEt4IDykr36l/A8HH18nc+dWLDxCxY2uXaaSxZSSdL565S+K5v7KWRxeB48FKdOG86LhChJv4pIHqgPDar2xjhmFcjnCyaV4ROA0IisABTc9iSJGYYNd7k5V8J6gCpuYcgNr7n8Hamp940XxjXPq4DK+z7wT1wXB8gkB9fNcWs2H0cbjXbdnyitYO3RSj4xM="
 install:
   - |
     MINICONDA_URL="https://repo.continuum.io/miniconda"
@@ -20,5 +24,9 @@ script:
   - bash bin/build_notebooks.sh
   - bash bin/execute_notebooks.sh
   - py.test resonance/
+  - set -e
+  - pip install doctr
+  - doctr deploy --built-docs=notebooks/ .
+
 notifications:
     email: false
