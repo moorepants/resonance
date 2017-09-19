@@ -41,3 +41,6 @@ docs/_build/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# vim swap
+*.swp
