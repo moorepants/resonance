@@ -9,11 +9,11 @@ dependencies:
   - pytest
   - ipywidgets
   - nbconvert
+  - notebook<=5.1
   - numpy
   - matplotlib
   - scipy
   - pandas
   - sympy
   - pip:
-    - notebook>=5.1
     - https://github.com/moorepants/rst-to-ipynb/archive/pycon-funcs.zip
