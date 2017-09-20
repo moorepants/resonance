@@ -1,3 +1,7 @@
+./01-intro-jupyter.html
+./01-intro-jupyter.ipynb
+./02-book-balancing-intro.html
+./02-book-balancing-intro.ipynb
 ./balancing-book.html
 ./balancing-book.ipynb
 ./bicycle.html
@@ -15,6 +19,8 @@
 ./fig/vector-diagram.svg
 ./forced-vibrations.html
 ./forced-vibrations.ipynb
+./index.html
+./index.ipynb
 ./nonlinear-vibrations.html
 ./nonlinear-vibrations.ipynb
 ./periodic-forcing.html
