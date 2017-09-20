@@ -21,12 +21,19 @@ before_script:
   - conda info
   - conda list
 script:
-  - bash bin/build_notebooks.sh
-  - bash bin/execute_notebooks.sh
-  - py.test resonance/
   - set -e
+  # run tests on resonance lib
+  - py.test resonance/
+  # build rst files into notebooks, run them, convert to html
+  - bin/build_notebooks.sh
+  - bin/execute_notebooks.sh
+  # set up an area for deployed html/ipynb files and push to gh_pages
+  - bin/prepare_deploy.sh
+  - git reset --hard
+  - git clean -Xdf notebooks/
+  - git clean -xdf notebooks/
   - pip install doctr
-  - doctr deploy --built-docs=notebooks/ .
+  - doctr deploy --built-docs=deploy/ .
 
 notifications:
     email: false
