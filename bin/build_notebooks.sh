@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 for srcpath in notebook-src/*.rst
 do
 	filename=$(basename "$srcpath")
@@ -7,3 +7,5 @@ do
 done
 
 cp notebook-src/fig/* notebooks/fig/
+
+ls -R notebooks
