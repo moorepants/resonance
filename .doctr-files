@@ -1,12 +1,9 @@
 ./balancing-book.html
 ./balancing-book.ipynb
-./balancing-book.nbconvert.ipynb
 ./bicycle.html
 ./bicycle.ipynb
-./bicycle.nbconvert.ipynb
 ./bumpy-road.html
 ./bumpy-road.ipynb
-./bumpy-road.nbconvert.ipynb
 ./fig/balancing-book.svg
 ./fig/bicycle-model.jpg
 ./fig/bicycle-parameters.jpg
@@ -18,14 +15,9 @@
 ./fig/vector-diagram.svg
 ./forced-vibrations.html
 ./forced-vibrations.ipynb
-./forced-vibrations.nbconvert.ipynb
-./index.ipynb
 ./nonlinear-vibrations.html
 ./nonlinear-vibrations.ipynb
-./nonlinear-vibrations.nbconvert.ipynb
 ./periodic-forcing.html
 ./periodic-forcing.ipynb
-./periodic-forcing.nbconvert.ipynb
 ./viscous-damping.html
 ./viscous-damping.ipynb
-./viscous-damping.nbconvert.ipynb
