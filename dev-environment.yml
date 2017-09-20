@@ -7,7 +7,6 @@ dependencies:
   - setuptools
   - pip
   - pytest
-  - notebook
   - ipywidgets
   - nbconvert
   - numpy
@@ -16,4 +15,5 @@ dependencies:
   - pandas
   - sympy
   - pip:
+    - notebook>=5.1
     - https://github.com/moorepants/rst-to-ipynb/archive/pycon-funcs.zip
