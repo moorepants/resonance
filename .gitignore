@@ -47,5 +47,3 @@ docs/_build/
 
 # doctr deployment files
 deploy/
-# files converted from RST to ipynb
-notebooks/
