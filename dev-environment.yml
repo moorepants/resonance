@@ -9,7 +9,7 @@ dependencies:
   - pytest
   - ipywidgets
   - nbconvert
-  - notebook<=5.1
+  - notebook<5.1
   - numpy
   - matplotlib
   - scipy
