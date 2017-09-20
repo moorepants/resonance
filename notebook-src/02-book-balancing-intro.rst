@@ -136,7 +136,7 @@ varying angle of the books surface relative to horizontal to define the
 configuration. The angle of the book is thus a generalized coordinate because
 no fewer number of time varying parameters can possibly be used to describe the
 configuration.  For simple systems, the number of generalized coordinates
-corresponds to the number of *degrees of freedom_* of a system. The degrees of
+corresponds to the number of *degrees of freedom* of a system. The degrees of
 freedom are the number of independent parameters that define the configuration.
 The non-slipping book on a cup has 1 degree of freedom which is described by
 the single generalized coordinate, the book's angle. The system's generalized

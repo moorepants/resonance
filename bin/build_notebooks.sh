@@ -5,7 +5,4 @@ do
 	filename=$(basename "$srcpath")
 	rst2ipynb "$srcpath" "notebooks/${filename%.*}.ipynb"
 done
-
 cp notebook-src/fig/* notebooks/fig/
-
-ls -R notebooks

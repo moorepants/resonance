@@ -45,5 +45,6 @@ docs/_build/
 # vim swap
 *.swp
 
-# doctr deployment files
+# doctr build and deployment files
 deploy/
+notebooks/

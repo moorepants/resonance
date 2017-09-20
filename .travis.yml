@@ -21,11 +21,11 @@ before_script:
   - conda info
   - conda list
 script:
+  - set -e
   # run tests on resonance lib
   - py.test resonance/
   # build rst files into notebooks, run them, convert to html
   - bin/build_notebooks.sh
-  - set -e
   - bin/execute_notebooks.sh
   # set up an area for deployed html/ipynb files and push to gh_pages
   - bin/prepare_deploy.sh
