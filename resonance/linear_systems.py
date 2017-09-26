@@ -384,6 +384,12 @@ class SingleDoFLinearSystem(object):
             The time values will be reported at the initial time and final
             time, along with times space equally based on the sample rate.
 
+        Returns
+        =======
+        df : pandas.DataFrame
+            A data frame index by time with all of the coordinates and
+            measurements as columns.
+
         """
         # TODO : Should have the option to pass in unequally spaced monotonic
         # time arrays.
