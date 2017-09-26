@@ -65,8 +65,8 @@ system applies.
 Constant Parameters
 ===================
 
-Systems have different parameters, for example this system has geometry, such
-as the book's height and length and the cup's radius. The book also has a mass
+Systems have different constants, for example this system has geometry, such
+as the book's thickness and length and the cup's radius. The book also has a mass
 and, in this case, an underlying assumption is that the book is uniformly
 dense. Note that these parameters do not change with time, i.e. they are
 constant with respect to time. You can view all of the constant parameters,
@@ -74,44 +74,44 @@ which are stored in a Python dictionary by typing:
 
 .. code:: pycon
 
-   >>> sys.parameters
-   {'height': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
+   >>> sys.constants
+   {'thickness': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
 
 A Python dictionary maps keys, the variable name, to values, the default
-numerical value. For example the key ``'height'`` is associated with a value
+numerical value. For example the key ``'thickness'`` is associated with a value
 ``0.029``. An individual parameter value can be accessed by using square
 brackets:
 
 .. code:: pycon
 
-   >>> sys.parameters['radius']
+   >>> sys.constants['radius']
    0.042
 
 You can set the values of these attributes as such:
 
 .. code:: pycon
 
-   >>> sys.parameters['height'] = 1.0  # cm
-   >>> sys.parameters['width'] = 6.0  # cm
-   >>> sys.parameters['length'] = 10.0  # cm
-   >>> sys.parameters['radius'] = 3.0  # cm
-   >>> sys.parameters['mass'] = 1.0  # kg
+   >>> sys.constants['thickness'] = 1.0  # cm
+   >>> sys.constants['width'] = 6.0  # cm
+   >>> sys.constants['length'] = 10.0  # cm
+   >>> sys.constants['radius'] = 3.0  # cm
+   >>> sys.constants['mass'] = 1.0  # kg
 
 *Note that you will be responsible for ensuring that the units are consistent
 and that all angles should be in radians.* Overwrite the ``sys`` variable by
-loading the system again to get back the default parameters.
+loading the system again to get back the default constants.
 
 .. code:: pycon
 
    >>> sys = BookOnCupSystem()
-   >>> sys.parameters
-   {'height': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
+   >>> sys.constants
+   {'thickness': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
 
-All systems will have different sets of constant parameters. This system could
-also have more parameters, for example what if you were on the moon? Maybe the
+All systems will have different sets of constant constants. This system could
+also have more constants, for example what if you were on the moon? Maybe the
 acceleration due to gravity could be changed. Or what if the book to cup
 connection was very slippery? Maybe the coefficient of friction would be a
-specific parameter. It is important to note that the system parameters, as
+specific parameter. It is important to note that the system constants, as
 we've defined here, are constant with respect to time.
 
 Time Varying Parameters
@@ -169,7 +169,7 @@ scalars and arrays, so import NumPy to make use of array aware functions like
 
    >>> import numpy as np
 
-The height of the bottom left corner of the book relative to the origin is
+The thickness of the bottom left corner of the book relative to the origin is
 defined by this mathematical function:
 
 .. math::
@@ -180,9 +180,9 @@ and the Python function that implements this would look like:
 
 .. code:: pycon
 
-   >>> def bottom_left_y(radius, height, length, book_angle):
+   >>> def bottom_left_y(radius, thickness, length, book_angle):
    ...     r = radius
-   ...     h = height
+   ...     h = thickness
    ...     l = length
    ...     theta = book_angle
    ...     return r + r * np.cos(theta) + (r * theta + l / 2) * np.sin(theta)
@@ -208,9 +208,9 @@ Similarly, you can add the horizontal position:
 
 .. code:: pycon
 
-   >>> def bottom_left_x(radius, height, length, book_angle):
+   >>> def bottom_left_x(radius, thickness, length, book_angle):
    ...     r = radius
-   ...     h = height
+   ...     h = thickness
    ...     l = length
    ...     theta = book_angle
    ...     return r * np.sin(theta) - (r * theta + l / 2) * np.cos(theta)
@@ -253,7 +253,7 @@ generates the figure using the system's various parameters.
 
 .. code:: pycon
 
-   >>> def create_plot(radius, length, height, book_angle, bottom_left_x, bottom_left_y):
+   >>> def create_plot(radius, length, thickness, book_angle, bottom_left_x, bottom_left_y):
    ...     # create a blank figure and set basic settings on the axis
    ...     fig, ax = plt.subplots(1, 1)
    ...     ax.set_xlim((-0.15, 0.15))
@@ -266,11 +266,11 @@ generates the figure using the system's various parameters.
    ...     circ = Circle((0.0, radius), radius=radius)
    ...
    ...     # rectangles are created by supplying the (x, y) pair locating the
-   ...     # bottom left corner, the width, the height, and the to rotation
+   ...     # bottom left corner, the width, the thickness, and the to rotation
    ...     # angle. notice that the rotation angle is defined in the opposite
    ...     # direction as we have and it is supposed to be in degrees not radians
    ...     rect = Rectangle((bottom_left_x, bottom_left_y),
-   ...                      length, height,
+   ...                      length, thickness,
    ...                      angle=-np.rad2deg(book_angle),
    ...                      color='black')
    ...
@@ -315,7 +315,7 @@ and then call ``free_repsonse)``, storing the result in a variable named
 .. code:: pycon
 
    >>> sys.coordinates['book_angle'] = np.deg2rad(1)
-   >>> trajectories = sys.free_response(0, 5)
+   >>> trajectories = sys.free_response(5.0)
 
 This creates what is called a data frame. Data frames are defined in the Pandas
 Python package and are one of the most common Python data types. They are
@@ -442,7 +442,7 @@ it returns any of the objects that change with time.
 
 .. code:: pycon
 
-   >>> def create_plot(radius, length, height, book_angle, bottom_left_x, bottom_left_y):
+   >>> def create_plot(radius, length, thickness, book_angle, bottom_left_x, bottom_left_y):
    ...     fig, ax = plt.subplots(1, 1)
    ...     ax.set_xlim((-0.15, 0.15))
    ...     ax.set_ylim((0.0, 0.2))
@@ -452,8 +452,9 @@ it returns any of the objects that change with time.
    ...
    ...     circ = Circle((0.0, radius), radius=radius)
    ...
+   ...     # NOTE : The rectangle's position and angle will change with time.
    ...     rect = Rectangle((bottom_left_x, bottom_left_y),
-   ...                      length, height,
+   ...                      length, thickness,
    ...                      angle=-np.rad2deg(book_angle),
    ...                      color='black')
    ...
@@ -487,10 +488,10 @@ The visualization can now be animated with:
 .. code:: pycon
 
    >>> %matplotlib notebook
-   >>> sys.animate_configuration()
+   >>> sys.animate_configuration(interval=8)
 
-Exercie
--------
+Exercise
+--------
 
 There is a special variable ``time`` that can be specified in the plot setup
 and update functions. Add this variable to the function signatures and create
