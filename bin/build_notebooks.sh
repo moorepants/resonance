@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -x  # print all executed commands
 for srcpath in notebook-src/*.rst
 do
 	filename=$(basename "$srcpath")
