@@ -230,7 +230,7 @@ class SingleDoFLinearSystem(object):
             of the available choices and any order is permitted. The function
             must be able to operate on arrys, i.e. use NumPy vectorized
             functions inside. It should return a single variable, scalar or
-            array, that gives the values of the measurement. For example::
+            array, that gives the values of the measurement.
 
 
         Examples
@@ -497,21 +497,21 @@ class BookOnCupSystem(SingleDoFLinearSystem):
     atop a cylinder (a coffee cup) such that the book can vibrate without slip
     on the curvature of the cup. It is described by:
 
-    Constants
-    =========
-    thickness, t [meters]
-        the thickness of the book
-    length, l [meters]
-        the length of the edge of the book which is tagent to the cup's surface
-    mass, m [kilograms]
-        the mass of the book
-    radius, r [meters]
-        the outer radius of the cup
-
-    Coordinates
-    ===========
-    book_angle, theta [radians]
-        the angle of the book with respect to the gravity vector
+    Attributes
+    ==========
+    constants
+        thickness, t [meters]
+            the thickness of the book
+        length, l [meters]
+            the length of the edge of the book which is tagent to the cup's
+            surface
+        mass, m [kilograms]
+            the mass of the book
+        radius, r [meters]
+            the outer radius of the cup
+    coordinates
+        book_angle, theta [radians]
+            the angle of the book with respect to the gravity vector
 
     """
 

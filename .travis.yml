@@ -34,6 +34,9 @@ script:
   - git clean -xdf notebooks/
   - pip install doctr
   - doctr deploy --built-docs=deploy/ .
+  # try building the documentation
+  - cd doc
+  - make html
 
 notifications:
     email: false
