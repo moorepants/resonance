@@ -7,6 +7,7 @@ dependencies:
   - setuptools
   - pip
   - pytest
+  - sphinx
   - ipywidgets
   - nbconvert
   - notebook<5.1
