@@ -6,9 +6,9 @@ Introduction
 ============
 
 This notebook introduces a single degree of freedom vibratory system of a
-textbook balancing on a cylindrical cup. The system is implemented as a model
-that students can interact with in order to visualize its free response and
-compare the computer simulation to a demonstration in the classroom.
+textbook balancing on a cylindrical coffee cup. The system is implemented as a
+model that students can interact with in order to visualize its free response
+and compare the computer simulation to a demonstration in the classroom.
 
 Learning Objectives
 -------------------
@@ -16,14 +16,15 @@ Learning Objectives
 After the completion of this assignment students will be able to:
 
 - load a specific system
-- view and set parameters on a system
+- view and set parameters (constants, coordinates) on a system
 - create a visualization that depicts the system's configuration
-- visualize a system's free response
+- compute the system's free response
+- visualize the change in configuration wrt to the free response
+- interactively adjust the book shape to see the affect on system response
+- understand the concept of natural frequency and its relationship to
+  mass/inertia
 - estimate the period of a sinusoidal vibration from a time series
 - compare a computer simulation result to experimental result
-- interactively adjust the book inertia to see the affect on system response
-- understand the concept of natural frequency nd its relationship to
-  mass/inertia
 
 What are vibrations?
 ====================
