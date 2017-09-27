@@ -8,6 +8,7 @@ done
 # %matplotlib notebook will not cause plots to render, so swap it.
 if [ "$TRAVIS" = "true" ]
 then
-	sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' "notebooks/*.ipynb"
+	echo "hello"
+	sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' notebooks/*.ipynb
 fi
 cp notebook-src/fig/* notebooks/fig/
