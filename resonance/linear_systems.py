@@ -158,7 +158,7 @@ class SingleDoFLinearSystem(object):
         return self._coordinates
 
     @coordinates.setter
-    def coordinatess(self, val):
+    def coordinates(self, val):
         msg = ('It is not allowed to replace the entire coordinates '
                'dictionary, add or delete coordinates one by one.')
         raise ValueError(msg)
