@@ -19,9 +19,6 @@ able to:
 - open Jupyter notebooks on the JupyterHub and operate the notebook interface
 - fetch, validate, and submit assignments
 - create well-formatted, fully operational notebooks
-- solve basic scientific problems with Python
-- (optional) replicate the JupyterHub environment locally to have the option of
-  working offline
 
 
 Tour de JupyterHub
@@ -50,6 +47,10 @@ You're now presented with the Jupyter interface. This is the screen from which
 you will create notebooks, launch existing notebooks, and work with
 assignments.
 
+
+Working with Notebooks
+======================
+
 Fetching Notebooks
 ------------------
 
@@ -57,18 +58,18 @@ Let's start by getting ahold of this very notebook so you can open it, modify
 it, and submit it during class.
 
 1. Go to the "Assignments" tab near the top of the Jupyter interface.
-2. Under the "Released assignments" section, you should see ``eng122_01``. Go
+2. Under the "Released assignments" section, you should see ``eng122_cw01``. Go
    ahead and fetch this assignment.
 3. Now there are two ways to open the notebooks in this assignment.
     a. If you go back to the "Files" tab of the Jupyter interface, you should
-       see a folder named ``eng122_01`` which contains the fetched notebooks.
+       see a folder named ``eng122_cw01`` which contains the fetched notebooks.
     b. Alternatively, you can see the notebooks from the "Assignments" tab in
        the "Downloaded assignments" section.
-4. Go ahead and open up the notebook ``eng122_01/classwork.ipynb`` and navigate
-   to this point.
+4. Go ahead and open up the notebook ``eng122_cw01/01-intro-jupyter.ipynb`` and
+   navigate to this point.
 
-Working with Notebooks
-----------------------
+Notebook Basics
+---------------
 
 Throughout the course, we will be using Jupyter notebooks to perform,
 demonstrate, and explain computational analyses of vibrational systems. These
@@ -79,7 +80,7 @@ features of the notebook to get started.
 
 Notebooks are made up of *cells*, of which there are a couple different types.
 *Markdown cells* handle text, equations, and images. *Code cells* handle Python
-code. These four elements, equations, images, and code--are the four
+code. These four elements--text, equations, images, and code--are the four
 ingredients that constitute a notebook.
 
 The key to creating a notebook that efficiently conveys your thoughts about an
@@ -224,61 +225,6 @@ documentation`_ and these `introductory examples`_.
 Submitting Notebooks
 --------------------
 
-The Assigments tab, where you fetched this notebook, is also where you can
-submit your work for the course. We'll walk through this in detail at the end
-of this notebook.
-
-
-Introduction to Python
-======================
-
-In this course, we'll be using the Python programming language along with a few
-of its wonderful libraries for scientific computing. Just to get some idea of
-what Python is like, let's see how to do a few basic things.
-
-In Python, you declare which libraries you want to make use of with the
-``import`` statement. One import you might see often is:
-
-.. code:: pycon
-
-   >>> import numpy as np
-
-Go ahead and run that cell. This brings in the `NumPy <http://www.numpy.org/>`_
-library and makes its functionality available with the shorthand ``np``. NumPy
-has some functions that may look familiar to MATLAB users. Here's one:
-
-.. code:: pycon
-
-   >>> np.linspace(0, 1, 5)
-
-This function ``linspace`` takes a starting point, a stopping point, a number
-of points between, and generates an array of linearly spaced values
-accordingly.
-
-Most of the time, you'll want to store the outputs so you can use them later.
-This is done as follows:
-
-.. code:: pycon
-
-   >>> x = np.linspace(0, 1, 5)
-
-This code generates the same array as above, but now it is stored and given the
-name ``x``. We can see the contents of ``x`` using the ``print`` function:
-
-.. code:: pycon
-
-   >>> print(x)
-
-or it will display below a cell if it is the last statement in a code cell.
-
-.. code:: pycon
-
-   >>> x
-
-
-Submit This Notebook
-====================
-
 We're done with this notebook, so it's time to submit it. Click the "Kernel"
 menu and then click "Restart & Run All". **It is very important that you do
 this every time you're finished with a notebook and you're ready to submit
@@ -289,7 +235,8 @@ bugs that cause the notebook to fail when it is run from scratch.
 
 To submit the notebook, go to the tab in your browser that you launched this
 notebook from and get to the "Assignments" tab in the Jupyter interface. Now
-you can click the "Submit" button next to the assignment called ``eng122_01``.
+you can click the "Submit" button next to the assignment called
+``eng122_cw01``.
 
 
 .. _bicycle.ucdavis.edu: https://bicycle.ucdavis.edu
