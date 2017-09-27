@@ -2,8 +2,11 @@
 Resonance: Learning Mechanical Vibration Engineering Through Computation
 ========================================================================
 
-**NOTE : This material is very much in draft form. Comments welcome in the
-issues.**
+.. image:: https://img.shields.io/pypi/v/resonance.svg
+   :target: http://pypi.org/project/resonance
+
+.. image:: https://travis-ci.org/moorepants/resonance.svg?branch=master
+   :target: https://travis-ci.org/moorepants/resonance
 
 Introduction
 ============
