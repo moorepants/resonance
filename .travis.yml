@@ -35,7 +35,7 @@ script:
   - pip install doctr
   - doctr deploy --built-docs=deploy/ .
   # try building the documentation
-  - cd doc
+  - cd docs
   - make html
 
 notifications:
