@@ -169,7 +169,7 @@ class SingleDoFLinearSystem(object):
         return self._measurements
 
     @measurements.setter
-    def measurementss(self, val):
+    def measurements(self, val):
         msg = ('It is not allowed to replace the entire measurements '
                'dictionary; add measurement functions using the '
                'add_measurement() method.')
