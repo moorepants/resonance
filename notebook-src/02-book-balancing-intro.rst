@@ -19,7 +19,7 @@ After the completion of this assignment students will be able to:
 - view and set parameters (constants, coordinates) on a system
 - create a visualization that depicts the system's configuration
 - compute the system's free response
-- visualize the change in configuration wrt to the free response
+- visualize the change in configuration wit respect to the free response
 - interactively adjust the book shape to see the affect on system response
 - understand the concept of natural frequency and its relationship to
   mass/inertia
@@ -37,65 +37,74 @@ small non-horizontal angle. Note that it oscillates about a horizontal
 position. This position is called an *equilibrium point*, *equilibrium state*,
 or *equilibrium configuration* which is a natural position the system comes to
 when there is no motion. Vibration is formally defined as an *oscillation about
-an equilibrium*.
+an equilibrium*. The video below shows the real system in action:
 
-During this class we will examine and explore many different vibratory systems,
-such as this simple book on a cup system. We will have some live demos, as we
-are showing now, but in general we will work with computational representations
-of systems to experiment and learn about the nature of vibration. For example,
-here is a system that represents the book on a cup.  To execute the following
-Jupyter code cell press the shift and enter key simultaneously:
+.. code:: python
+
+   from IPython.display import YouTubeVideo
+   YouTubeVideo('B12HbAOKnqI')
+
+During this class, we will examine and explore many different vibratory
+systems, such as this simple book on a cup system. We will have some live
+demos, as we are showing now, but in general we will work with computational
+representations of systems to experiment and learn about the nature of
+vibration. For example, the following code loads a system that represents the
+book on a cup. To execute the following Jupyter code cell press the shift and
+enter key simultaneously:
 
 .. code:: pycon
 
    >>> from resonance.linear_systems import BookOnCupSystem
 
-The line above loads the command, ``BookOnCupSystem``, that can create systems
-that behave like the live demo at the front of the room. To create a system and
-assign it to a variable called ``sys``, execute the following cell:
+The line above loads (imports) the command, ``BookOnCupSystem``, from the
+appropriate resonance package. This command can create systems that behave like
+the live demo. To create a new system append parentheses the command and assign
+the result that it returns it to a variable called ``sys``, execute the
+following cell:
 
 .. code:: pycon
 
    >>> sys = BookOnCupSystem()
 
-This system has many variables and functions associated with it. You can see
-what the system has and can do by using the Python dot notation. Type ``sys.``
-and press the tab key to see a list of all the variables and functions that the
-system applies.
+``sys`` is now a new system object that you can interact with. This system has
+many variables and functions associated with it. You can see what the system
+has and can do by using the Python dot notation. Type ``sys.`` and press the
+tab key to see a list of all the variables and functions that are associated
+with this system.
 
-Constant Parameters
-===================
+Constants
+=========
 
-Systems have different constants, for example this system has geometry, such
-as the book's thickness and length and the cup's radius. The book also has a mass
-and, in this case, an underlying assumption is that the book is uniformly
-dense. Note that these parameters do not change with time, i.e. they are
-constant with respect to time. You can view all of the constant parameters,
-which are stored in a Python dictionary by typing:
+One thing that systems have are different constants, for example this system
+has geometry, such as the book's thickness and length and the cup's radius. The
+book also has a mass and, in this case, an underlying assumption is that the
+book is uniformly dense. Note that all of these do not change with time, i.e.
+they are constant. You can view all of the constants, which are stored in a
+Python dictionary by typing:
 
 .. code:: pycon
 
    >>> sys.constants
    {'thickness': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
 
-A Python dictionary maps keys, the variable name, to values, the default
-numerical value. For example the key ``'thickness'`` is associated with a value
-``0.029``. An individual parameter value can be accessed by using square
-brackets:
+A Python dictionary maps keys, in this case the constant's names, to values,
+the numerical values you'd like to assign to the constant. For example the key
+``'thickness'`` is associated with a value ``0.029``. An individual constant's
+value can be accessed by using square brackets:
 
 .. code:: pycon
 
    >>> sys.constants['radius']
    0.042
 
-You can set the values of these attributes as such:
+You can set the values of the constants as such:
 
 .. code:: pycon
 
-   >>> sys.constants['thickness'] = 1.0  # cm
-   >>> sys.constants['width'] = 6.0  # cm
-   >>> sys.constants['length'] = 10.0  # cm
-   >>> sys.constants['radius'] = 3.0  # cm
+   >>> sys.constants['thickness'] = 1.0  # m
+   >>> sys.constants['width'] = 6.0  # m
+   >>> sys.constants['length'] = 10.0  # m
+   >>> sys.constants['radius'] = 3.0  # m
    >>> sys.constants['mass'] = 1.0  # kg
 
 *Note that you will be responsible for ensuring that the units are consistent
@@ -108,39 +117,42 @@ loading the system again to get back the default constants.
    >>> sys.constants
    {'thickness': 0.029, 'length': 0.238, 'radius': 0.042, 'mass': 1.058}
 
-All systems will have different sets of constant constants. This system could
-also have more constants, for example what if you were on the moon? Maybe the
-acceleration due to gravity could be changed. Or what if the book to cup
-connection was very slippery? Maybe the coefficient of friction would be a
-specific parameter. It is important to note that the system constants, as
-we've defined here, are constant with respect to time.
+All systems will have different sets of constants. There is no unique way to
+define the constants either. For example, we could have chosen area and one
+linear dimension instead of three linear dimensions. This system could also
+have more constants, for example what if you were on the moon? Maybe the
+acceleration due to gravity should be an explicit constant. Or what if the book
+to cup connection was very slippery? Maybe the coefficient of friction would be
+a specific constant. It is important to note that the system constants, as
+we've defined here, are all constant with respect to time.
 
-Time Varying Parameters
-=======================
+Coordinates
+===========
 
-There are other types of parameters too. Another very important type of
-parameter are those that vary with time.
+There are other system values of interest too. Another very important type are
+those that vary with time.
 
-Exercise
---------
+  **Exercise**: What might be the time varying parameters of this system?
 
-What are the time varying parameters of this system?
+There are are an infinite number of time varying parameters, but it is often
+preferable to choose a uniquely simple set of time varying parameters, often
+called *generalized coordinates*. These coordinates define the
+**configuration** of the system. In our case, the vertical and horizontal
+location of the book's mass center could uniquely describe the configuration of
+the system (if the book can't slip on the cup). But a better choice would be to
+use the single time varying angle of the books surface relative to horizontal
+to define the configuration.
 
+.. image:: fig/book-balance.svg
+   :width: 600px
 
-There are are an infinite number of time varying parameters. Most systems are
-described by a uniquely simple set of time varying parameters, often called
-*generalized coordinates*. These coordinates define the configuration of the
-system. In our case the vertical and horizontal location of the book's mass
-center could uniquely describe the configuration of the system (if the book
-can't slip on the cup). But a better choice would be to use the single time
-varying angle of the books surface relative to horizontal to define the
-configuration. The angle of the book is thus a generalized coordinate because
-no fewer number of time varying parameters can possibly be used to describe the
-configuration.  For simple systems, the number of generalized coordinates
-corresponds to the number of *degrees of freedom* of a system. The degrees of
-freedom are the number of independent parameters that define the configuration.
-The non-slipping book on a cup has 1 degree of freedom which is described by
-the single generalized coordinate, the book's angle. The system's generalized
+The angle of the book is thus a generalized coordinate because no fewer number
+of time varying parameters can possibly be used to describe the configuration.
+For simple systems, the number of generalized coordinates corresponds to the
+number of *degrees of freedom* of a system. The degrees of freedom are the
+number of independent parameters that define the configuration.  The
+non-slipping book on a cup has 1 degree of freedom which is described by the
+single generalized coordinate, the book's angle. The system's generalized
 coordinates can be accessed as such:
 
 .. code:: pycon
@@ -152,19 +164,22 @@ coordinates can be accessed as such:
 
 .. _degrees of freedom: https://en.wikipedia.org/wiki/Degrees_of_freedom_(mechanics)
 
+Measurements
+============
+
 Another type of time varying parameter that can be extracted from systems are
 non-generalized coordinates or other combinations of constant parameters. We
-will call these *measurement parameters*. For example, maybe you are interested
-in the vertical and horizontal location of the book's lower left corner. If you
-had an appropriate dynamics distance sensor you could measure this location as
-it changes with time. Or you can define how these two measurement parameters
-are a function of the book angle and the system's geometry. You can add
-measurement parameters to a system by defining a Python functions that compute
-the geometric relationship. Given the value of a generalized coordinate and the
-values of the system's constant parameters, we can define a function that
-computes the measurement parameter. These functions need to be to accept
-scalars and arrays, so import NumPy to make use of array aware functions like
-``cos()`` and ``sin()``:
+will call these *measurements*. For example, maybe you are interested in the
+vertical and horizontal location of the book's lower left corner. If you had an
+appropriate dynamics distance sensor you could measure this location as it
+changes with time. Or you can define how these two measurement parameters are a
+function of the book angle and the system's geometry. You can add measurement
+parameters to a system by defining Python functions that compute the geometric
+relationship. Given the value of a generalized coordinate and the values of the
+system's constant parameters, we can define a function that computes the
+measurement parameter. These functions need to be to accept scalars and arrays,
+so import NumPy as a shorthand variable ``np`` to make use of array aware
+functions like ``np.cos()`` and ``np.sin()``:
 
 .. code:: pycon
 
@@ -181,44 +196,47 @@ and the Python function that implements this would look like:
 
 .. code:: pycon
 
-   >>> def bottom_left_y(radius, thickness, length, book_angle):
+   >>> def bottom_left_y(radius, length, book_angle):
+   ...     # define new simpler variables here in the function so the math is
+   ...     # is easier to type
    ...     r = radius
-   ...     h = thickness
    ...     l = length
    ...     theta = book_angle
    ...     return r + r * np.cos(theta) + (r * theta + l / 2) * np.sin(theta)
    ...
 
-Note that the variable names in the function signature must be exactly as you
-have defined them in the parameters. This function can be used independently
-like so:
+Note that the variable names in the function signature ``(radius, length,
+book_angle)`` must be exactly as you have defined them in the ``constants``.
+This function can now be used like so:
 
 .. code:: pycon
 
    >>> angles = np.deg2rad(np.arange(10))
-   >>> bottom_left_y(0.042, 0.029, 0.238, angles)
+   >>> angles
+   >>> bottom_left_y(0.042, 0.029, angles)
 
-And you can add this measurement function to the system, so that it
-automatically calculates the measurement for you with:
+Now that you know it works, you can add this measurement function to the
+system, so that it automatically calculates the measurement for you with:
 
 .. code:: pycon
 
    >>> sys.add_measurement('bottom_left_y', bottom_left_y)
 
-Similarly, you can add the horizontal position:
+``add_measurement()`` is an example of a function that is associated with the
+system and the parentheses give that away. Similarly, you can add the
+horizontal position of the bottom left corner:
 
 .. code:: pycon
 
-   >>> def bottom_left_x(radius, thickness, length, book_angle):
+   >>> def bottom_left_x(radius, length, book_angle):
    ...     r = radius
-   ...     h = thickness
    ...     l = length
    ...     theta = book_angle
    ...     return r * np.sin(theta) - (r * theta + l / 2) * np.cos(theta)
    ...
    >>> sys.add_measurement('bottom_left_x', bottom_left_x)
 
-Now, if you change the book angle you'll get a different measurement:
+Now, if you change the book angle you'll get an updated measurement:
 
 .. code:: pycon
 
@@ -227,10 +245,10 @@ Now, if you change the book angle you'll get a different measurement:
    5.8
 
 Notice that all angles must be in radians and that we use the NumPy function
-``rad2deg()`` to do this.
+``np.deg2rad()`` to do this.
 
-Visualizing the Configuration
-=============================
+Visualizing the Configuration of the System
+===========================================
 
 It is often very helpful to visualize a system's configuration. In this case we
 need a two dimensional drawing similar to the diagram above. The package
@@ -247,10 +265,11 @@ turn it on:
 
 .. code:: pycon
 
-   >>> %matplotlib inline
+   >>> %matplotlib notebook
 
 Just as we did with the measurement functions, you can create a function that
-generates the figure using the system's various parameters.
+generates the matplotlib figure using the system's various constants,
+coordinates, and measurements:
 
 .. code:: pycon
 
@@ -281,23 +300,22 @@ generates the figure using the system's various parameters.
    ...     return fig
    ...
 
-A system can have a single configuration plot function and it is set like so:
+A system can have a single configuration plot function and you let the system
+know about it by assigning it to the ``config_plot_func`` variable.
 
 .. code:: pycon
 
    >>> sys.config_plot_func = create_plot
 
-Now have a look at the configuration plot by calling ``plot_configuration()``:
+Now, have a look at the configuration plot by calling the function
+``plot_configuration()``:
 
 .. code:: pycon
 
    >>> sys.plot_configuration();
 
-Exercise
---------
-
-Change the system's parameters (constant parameters and the book angle) and see
-how the plot reflects these changes.
+  **Exercise:** Change the system's constants and the book angle and see how
+  the plot reflects these changes.
 
 Free Response
 =============
@@ -308,21 +326,24 @@ the system or set the coordinate to an initial angle other than the equilibrium
 angle. We will do the later here. The resulting motion is called the *free
 response* of the system, meaning that no external forces are causing the
 motion. To simulate the free response of the system, some values of time are
-needed. In this case an initial time value and a final time value are passed
+needed. In this case a final time value, effectively the duration, is passed
 into the ``free_response()`` function. First, set the initial angle of the book
-and then call ``free_repsonse)``, storing the result in a variable named
-``trajectories``:
+and then call ``free_repsonse()``, storing the returned result in a variable
+named ``trajectories``:
 
 .. code:: pycon
 
    >>> sys.coordinates['book_angle'] = np.deg2rad(1)
    >>> trajectories = sys.free_response(5.0)
 
-This creates what is called a data frame. Data frames are defined in the Pandas
-Python package and are one of the most common Python data types. They are
-essentially a 2D table with labels for each column and an index for each row.
-In our case the index is the time value and the columns are the values of the
-coordinates and the measurements at that particular time:
+This creates what is called a `data frame`_. Data frames are defined in the
+Pandas_ Python package and are one of the most common Python data types. They
+are essentially a 2D table with labels for each column and an index for each
+row. In our case the index is the time value and the columns are the values of
+the coordinates and the measurements at that particular time:
+
+.. _data frame: https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html
+.. _Pandas: http://pandas.pydata.org/
 
 .. code:: pycon
 
@@ -393,7 +414,7 @@ coordinates and the measurements at that particular time:
    4.983278    0.007958            0.098501      -0.118996       0.084948
    5.000000    0.009801            0.098501      -0.118994       0.085168
 
-   [300 rows x 4 columns]
+   [500 rows x 4 columns]
 
 The data frames have useful plotting functions associated with them, so it is
 rather easy to plot the various coordinates and measurements versus time:
@@ -413,6 +434,7 @@ A single column can be accessed and plotted too:
 
 .. code:: pycon
 
+   >>> plt.figure()
    >>> trajectories['book_angle'].plot();
 
 Maybe you want to use degrees for the book angle instead, just make a new
@@ -421,25 +443,26 @@ column:
 .. code:: pycon
 
    >>> trajectories['book_angle_deg'] = np.rad2deg(trajectories['book_angle'])
+   >>> plt.figure()
    >>> trajectories['book_angle_deg'].plot();
 
-Exercise
---------
+  **Exercise:** Create the free response of the system with different initial
+  coordinate values and parameter values.
 
-Create the free response of the system with different initial coordinate values
-and parameter values.
-
-- Does the simulation always work, if not what doesn't work? *Hint: try a tall
-  stack of books, can you find a stack height that is significant?*
-- What mathematical function can be used describe the change in the book angle?
+  - Does the simulation always work, if not what doesn't work? *Hint: try a
+    tall stack of books, can you find a stack height that is significant?*
+  - What mathematical function can be used describe the change in the book
+    angle?
+  - Why does the book corner x position seem to oscillate faster?
 
 Animate The Motion
 ==================
 
-Now that we we have a time varying response, we can animate the configure
+Now that we we have a time varying response, we can animate the configuration
 figure to visualize how the system moves. There is one minor change that needs
 to be made to the configuration plot function first. We need to make sure that
-it returns any of the objects that change with time.
+it also returns any of the objects that change with time. Update the function
+by add the ``Rectangle`` as a second returned value:
 
 .. code:: pycon
 
@@ -469,7 +492,7 @@ it returns any of the objects that change with time.
 
 Now, an animation update function can be created which updates the bottom left
 corner's x and y coordinate at each time step. The last argument in the
-function signature must be the object that changes.
+function signature must be the object(s) that changes.
 
 .. code:: pycon
 
@@ -488,64 +511,68 @@ The visualization can now be animated with:
 
 .. code:: pycon
 
-   >>> %matplotlib notebook
    >>> sys.animate_configuration(interval=8)
 
-Exercise
---------
+The interval parameter helps speed it up closer to real time. See the
+documentation for matplotlib's FuncAnimation_ for more options.
 
-There is a special variable ``time`` that can be specified in the plot setup
-and update functions. Add this variable to the function signatures and create
-some text on the plot that displays the current time using:
+  **Exercise:** There is a special variable ``time`` that can be specified in
+  the plot setup and update functions. Add this variable to the function
+  signatures and create some text on the plot that displays the current time
+  using:
 
-.. code:: python
+  - ``text = ax.text(-0.125, 0.025, 'Time = {:0.3f} s'.format(time))``
+  - ``text.set_text('Time = {:0.3f} s'.format(time))``
 
-   # text = ax.text(-0.125, 0.025, 'Time = {:0.3f} s'.format(time))
-   # text.set_text('Time = {:0.3f} s'.format(time))
+.. _FuncAnimation: https://matplotlib.org/api/_as_gen/matplotlib.animation.FuncAnimation.html#matplotlib.animation.FuncAnimation
 
 Time Series Analysis
 ====================
 
-From the above plots you can see that the oscillation is periodic and
-sinusoidal. Using your program, create a function that calculates the period of
-the non-linear model to three significant figures of the 11 oscillations when
-the initial book angle is X degrees. Compare the period predicted by the system
-to the period measured in class.
+Now that we have some data produced from the simulation we can see how it
+compares to what we can measure in real life.
 
-*Hint: Look for sign changes with np.sign(), use boolean indexing to extract
-important times, and finally np.diff() and np.mean() can be useful for finding
-the delta times and averaging. Note that np.diff() returns one fewer item in
-the array it operates on.*
+  **Exercise:** Either using the video of the oscillation or the demo
+  available in the classroom, count the number of oscillations in a few
+  seconds and compute the period of the oscillation.
+
+  **Exercise:** From the above plots you can see that the oscillation is
+  periodic and sinusoidal. Using your program, create a function that
+  calculates the period of the oscillations to three significant figures when
+  the initial book angle is 2 degrees. Compare the period predicted by the
+  system to the period measured in class. You can also compare it to the value
+  given from ``sys.period()``.
+
+  *Hint: Look for sign changes with np.sign(), use boolean indexing to extract
+  important times, and finally np.diff() and np.mean() can be useful for
+  finding the delta times and averaging. Note that np.diff() returns one fewer
+  item in the array it operates on.*
 
 .. code:: pycon
 
-   >>> def find_period(t, theta):
+   >>> def find_period(time, theta):
    ...     """Computes the period of oscillation based on the trajectory of theta.
    ...
    ...     Parameters
    ...     ==========
-   ...     t : array_like, shape(n,)
+   ...     time : array_like, shape(n,)
    ...         An array of monotonically increasing time values.
    ...     theta : array_like, shape(n,)
    ...         An array of values for theta at each time in ``t``.
    ...
    ...     Returns
    ...     =======
-   ...     T : float
+   ...     period : float
    ...         An estimate of the period of oscillation.
    ...
    ...     """
+   ...     # delete the following line and replace with your code
+   ...     period = None
    ...
-   ...     peak_idxs = np.diff(np.sign(theta)) < 0
-   ...     peak_idxs = np.hstack((peak_idxs, False))
-   ...     T = np.diff(t[peak_idxs]).mean()
-   ...
-   ...     return T
+   ...     return period
    ...
    >>> find_period(trajectories.index, trajectories.book_angle)
 
-Exercise
---------
-
-Plot the period versus change in mass, length, and radius. Is there anything
-interesting about these plots?
+  **Exercise:** Plot the period versus change in mass, length, and radius. Is
+  there anything interesting about these plots? Explain you interpretations in
+  a markdown cell.
