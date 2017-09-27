@@ -364,6 +364,13 @@ class SingleDoFLinearSystem(object):
 
         return (a1 + a2 * t) * np.exp(-wn * t)
 
+    def period(self):
+        """Returns the period of oscillation of the coordinate."""
+        m, c, k = self._canonical_coefficients()
+        wn = self._natural_frequency(m, k)
+        z = self._damping_ratio(m, c, wn)
+        return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
+
     def free_response(self, final_time, initial_time=0.0, sample_rate=100):
         """Returns a Pandas data frame with monotonic time values as the index
         and columns for each coordinate and measurement at the time value for
