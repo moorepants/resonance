@@ -1,5 +1,5 @@
 include LICENSE
-include doc/*.rst
-include doc/conf.py
-include doc/Makefile
-include doc/make.bat
+include docs/*.rst
+include docs/conf.py
+include docs/Makefile
+include docs/make.bat
