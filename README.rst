@@ -5,6 +5,10 @@ Resonance: Learning Mechanical Vibration Engineering Through Computation
 .. image:: https://img.shields.io/pypi/v/resonance.svg
    :target: http://pypi.org/project/resonance
 
+.. image:: https://readthedocs.org/projects/resonance/badge/?version=latest
+   :target: http://resonance.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
 .. image:: https://travis-ci.org/moorepants/resonance.svg?branch=master
    :target: https://travis-ci.org/moorepants/resonance
 
@@ -30,9 +34,13 @@ materials are designed with these ideas in mind:
   investigation.
 - Open access materials promote easy reuse, remixing, and dissemination.
 
-The current course website can be found at
-https://moorepants.github.io/eng122/. Note that this will changed to reflect
-the materials in this repository.
+The current course website can be found at:
+
+https://moorepants.github.io/eng122/
+
+All of the Jupyter notebooks are rendered at:
+
+http://moorepants.github.io/resonance
 
 Learning Objectives
 ===================
