@@ -1,0 +1,43 @@
+{% set name = "resonance" %}
+{% set version = "0.1.0" %}
+{% set sha256 = "478b5b85e43cbd7676aca9d13dc2fb87c90fa6e9d52890d2e07b4de41647f896" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record record.txt
+
+requirements:
+  build:
+    - python >=3.5
+    - setuptools
+  run:
+    - python >=3.5
+    - numpy >=1.13
+    - scipy >=0.19
+    - pandas >=0.20
+
+test:
+  imports:
+    - resonance
+    - resonance.version
+    - resonance.linear_systems
+    - resonance.tests
+
+about:
+  home: http://github.com/moorepants/resonance
+  license: CC-BY-4.0
+  summary: 'Learning mechanical vibrations through computation.'
+
+extra:
+    recipe-maintainers:
+        - moorepants
+        - ixjlyons
