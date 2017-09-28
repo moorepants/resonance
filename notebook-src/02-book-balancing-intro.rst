@@ -101,11 +101,7 @@ You can set the values of the constants as such:
 
 .. code:: pycon
 
-   >>> sys.constants['thickness'] = 1.0  # m
-   >>> sys.constants['width'] = 6.0  # m
-   >>> sys.constants['length'] = 10.0  # m
-   >>> sys.constants['radius'] = 3.0  # m
-   >>> sys.constants['mass'] = 1.0  # kg
+   >>> sys.constants['length'] = 0.184  # m, short side of book
 
 *Note that you will be responsible for ensuring that the units are consistent
 and that all angles should be in radians.* Overwrite the ``sys`` variable by
