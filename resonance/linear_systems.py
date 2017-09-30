@@ -14,6 +14,7 @@ class _ParametersDict(collections.MutableMapping, dict):
         return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
+        # TODO : Only allow one coordinate to be added on a SDoF system.
         # TODO : It would be nice to check to ensure that these names do not
         # clash with names in measurements or coordinates. Not quite sure how
         # one would do that.
@@ -25,6 +26,42 @@ class _ParametersDict(collections.MutableMapping, dict):
             msg = ('{} is a reserved parameter name. '
                    'Choose something different.')
             raise ValueError(msg.format(key))
+        else:
+            dict.__setitem__(self, key, value)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+
+    def __iter__(self):
+        return dict.__iter__(self)
+
+    def __len__(self):
+        return dict.__len__(self)
+
+    def __contains__(self, x):
+        return dict.__contains__(self, x)
+
+
+class _CoordinatesDict(collections.MutableMapping, dict):
+    """A custom dictionary for storing coordinates and speeds."""
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key)
+
+    def __setitem__(self, key, value):
+        if not key.isidentifier():
+            msg = ('{} is not a valid coordinate or speed name. '
+                   'It must be a valid Python variable name.')
+            raise ValueError(msg.format(key))
+        elif key.lower() == 'time':
+            msg = ('{} is a reserved parameter name. '
+                   'Choose something different.')
+            raise ValueError(msg.format(key))
+        elif len(self.keys()) >= 1:
+            msg = ("There is already a coordinate set for this system, only "
+                   "one coordinate is permitted. Use del to remove the "
+                   "coordinate if you'd like to add a new one.")
+            raise ValueError(msg)
         else:
             dict.__setitem__(self, key, value)
 
@@ -123,19 +160,23 @@ class SingleDoFLinearSystem(object):
     """
 
     _time_var_name = 'time'
+    _vel_append = '_vel'
+    _acc_append = '_acc'
 
     # TODO : Only allow a single coordinate to be set on a 1 DoF system.
 
     def __init__(self):
 
-        # TODO : Allow pars, coords, and meas to be set on intialization.
+        # TODO : Allow constants, coords, and meas to be set on intialization.
 
         self._constants = _ParametersDict({})
-        self._coordinates = _ParametersDict({})
+        self._coordinates = _CoordinatesDict({})
+        self._speeds = _CoordinatesDict({})
         self._measurements = _MeasurementsDict({})
 
         self._measurements._constants = self._constants
         self._measurements._coordinates = self._coordinates
+        self._measurements._speeds = self._speeds
         self._measurements._funcs = {}
 
         self._config_plot_func = None
@@ -161,6 +202,17 @@ class SingleDoFLinearSystem(object):
     def coordinates(self, val):
         msg = ('It is not allowed to replace the entire coordinates '
                'dictionary, add or delete coordinates one by one.')
+        raise ValueError(msg)
+
+    @property
+    def speeds(self):
+        """A dictionary containing the all of the system's speeds."""
+        return self._speeds
+
+    @speeds.setter
+    def speeds(self, val):
+        msg = ('It is not allowed to replace the entire speeds '
+               'dictionary, add or delete speeds one by one.')
         raise ValueError(msg)
 
     @property
@@ -303,12 +355,16 @@ class SingleDoFLinearSystem(object):
         wn = self._natural_frequency(m, k)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         c1 = v0 / wn
         c2 = x0
 
-        return c1 * np.sin(wn * t) + c2 * np.cos(wn * t)
+        pos = c1 * np.sin(wn * t) + c2 * np.cos(wn * t)
+        vel = c1 * wn * np.cos(wn * t) - c2 * wn * np.sin(wn * t)
+        acc = -c1 * wn**2 * np.sin(wn * t) - c2 * wn**2 * np.cos(wn * t)
+
+        return pos, vel, acc
 
     def _underdamped_solution(self, time):
 
@@ -321,12 +377,12 @@ class SingleDoFLinearSystem(object):
         wd = self._damped_natural_frequency(wn, z)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         A = np.sqrt(((v0 + z * wn * x0)**2 + (x0 * wd)**2) / wd**2)
         phi = np.atan(x0 * wd / (v0 + z * wn * x0))
 
-        return A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
+        return A * np.exp(-z * wn * t) * np.sin(wd * t + phi), None, None
 
     def _overdamped_solution(self, time):
 
@@ -338,7 +394,7 @@ class SingleDoFLinearSystem(object):
         z = self._damping_ratio(m, c, wn)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         a1 = ((-v0 + (-z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn /
               np.sqrt(z**2 - 1))
@@ -346,7 +402,7 @@ class SingleDoFLinearSystem(object):
               np.sqrt(z**2 - 1))
 
         decay = wn * np.sqrt(z**2 - 1) * t
-        return np.exp(-z * wn * t) * (a1 * np.exp(-decay) + a2 * np.exp(decay))
+        return np.exp(-z * wn * t) * (a1 * np.exp(-decay) + a2 * np.exp(decay)), None, None
 
     def _critically_damped_solution(self, time):
 
@@ -357,12 +413,12 @@ class SingleDoFLinearSystem(object):
         wn = self._natural_frequency(m, k)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         a1 = x0
         a2 = v0 + wn * x0
 
-        return (a1 + a2 * t) * np.exp(-wn * t)
+        return (a1 + a2 * t) * np.exp(-wn * t), None, None
 
     def period(self):
         """Returns the period of oscillation of the coordinate."""
@@ -410,13 +466,18 @@ class SingleDoFLinearSystem(object):
 
         sol_func = self._solution_func()
 
-        coordinate_traj = sol_func(times)
+        pos_traj, vel_traj, acc_traj = sol_func(times)
 
         coord_name = list(self.coordinates.keys())[0]
 
-        df = pd.DataFrame({coord_name: coordinate_traj}, index=times)
+        # TODO : What if they added a coordinate with the vel or acc names?
+        df = pd.DataFrame({coord_name: pos_traj,
+                           coord_name + self._vel_append: vel_traj,
+                           coord_name + self._acc_append: acc_traj},
+                          index=times)
         df.index.name = self._time_var_name
 
+        # TODO : Allow vel and acc to be used in measurements.
         # TODO : Need a way to compute the measurements as array values based
         # on the coordinate changing at each time but the current method of
         # letting the measurement be computed by the stored coordinate scalar
@@ -424,7 +485,7 @@ class SingleDoFLinearSystem(object):
         for k, v in self.measurements.items():
             vals = np.zeros_like(times)
             x0 = list(self.coordinates.values())[0]
-            for i, xi in enumerate(coordinate_traj):
+            for i, xi in enumerate(pos_traj):
                 self.coordinates[coord_name] = xi
                 vals[i] = self.measurements[k]
             self.coordinates[coord_name] = x0
@@ -525,6 +586,9 @@ class BookOnCupSystem(SingleDoFLinearSystem):
     coordinates
         book_angle, theta [radians]
             the angle of the book with respect to the gravity vector
+    speeds
+        book_angle_vel, theta [radians]
+            the angular rate of the book with repsect to the gravity vector
 
     """
 
@@ -537,6 +601,7 @@ class BookOnCupSystem(SingleDoFLinearSystem):
         self.constants['radius'] = 0.042  # m
         self.constants['mass'] = 1.058  # kg
         self.coordinates['book_angle'] = 0.0  # rad
+        self.speeds['book_angle_vel'] = 0.0  # rad/s
 
     # TODO : This needs to be added in the super class with the add_coef_func()
     # method.
@@ -552,6 +617,36 @@ class BookOnCupSystem(SingleDoFLinearSystem):
             c = 0.0
             k = g * radius - g * thickness / 2
             return m, c, k
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+
+class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
+
+    def __init__(self):
+
+        super(BicycleWheelRadialInertiaSystem, self).__init__()
+
+        self.constants['wheel_mass'] = 0.0  # kg
+        self.constants['wheel_radius'] = 0.0  # m
+        self.constants['rod_stiffness'] = 0.0  # N/m
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['torsion_angle'] = 0.0
+        self.speeds['torsion_angle_vel'] = 0.0
+
+    def _canonical_coefficients(self):
+        """A 1 DoF second order system should return the mass, damping, and
+        stiffness coefficients."""
+
+        def coeffs(wheel_mass, wheel_radius, rod_stiffness):
+            I = wheel_mass * wheel_radius**2 / 2.0
+            c = 0.0
+            k = rod_stiffness
+            return I, c, k
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
