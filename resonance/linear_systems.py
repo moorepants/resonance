@@ -57,7 +57,7 @@ class _CoordinatesDict(collections.MutableMapping, dict):
             msg = ('{} is a reserved parameter name. '
                    'Choose something different.')
             raise ValueError(msg.format(key))
-        elif len(self.keys()) >= 1:
+        elif len(self.keys()) == 1 and key != list(self.keys())[0]:
             msg = ("There is already a coordinate set for this system, only "
                    "one coordinate is permitted. Use del to remove the "
                    "coordinate if you'd like to add a new one.")
@@ -629,8 +629,7 @@ class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
 
         super(BicycleWheelRadialInertiaSystem, self).__init__()
 
-        self.constants['wheel_mass'] = 0.0  # kg
-        self.constants['wheel_radius'] = 0.0  # m
+        self.constants['radial_inertia'] = 0.0  # kg m^2
         self.constants['rod_stiffness'] = 0.0  # N/m
 
         # TODO : When a coordinate is added the speed should be automatically
@@ -642,11 +641,8 @@ class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
         """A 1 DoF second order system should return the mass, damping, and
         stiffness coefficients."""
 
-        def coeffs(wheel_mass, wheel_radius, rod_stiffness):
-            I = wheel_mass * wheel_radius**2 / 2.0
-            c = 0.0
-            k = rod_stiffness
-            return I, c, k
+        def coeffs(radial_inertia, rod_stiffness):
+            return radial_inertia, 0.0, rod_stiffness
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
