@@ -132,6 +132,10 @@ Here are some values for the system's geometry and mass:
 
 .. topic:: Exercise
 
+   Calculate the stiffness of the steel rod used as a torsional spring. The modulus of rigidity, $G$, is 77 GPa, the length of the rod, $l$, is 1.05 m, and the diameter of the rod, is 6.35 mm.
+
+.. topic:: Exercise
+
    Use the above constants and simulate the system with an initial angle of 2 degrees. Be sure to use consistent units. Calculate the period of oscillation of this system and see if it is similar to the data.
 
 Interactive Plots
