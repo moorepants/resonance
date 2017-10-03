@@ -275,7 +275,7 @@ class SingleDoFLinearSystem(object):
         ==========
         name : string
             This must be a valid Python variable name and it should not clash
-            with any names in the parameters or coordinates dictionary.
+            with any names in the constants or coordinates dictionary.
         func : function
             This function must only have existing parameter, coordinate, or
             measurement names in the function signature. These can be a subset
@@ -380,9 +380,19 @@ class SingleDoFLinearSystem(object):
         v0 = list(self.speeds.values())[0]
 
         A = np.sqrt(((v0 + z * wn * x0)**2 + (x0 * wd)**2) / wd**2)
-        phi = np.atan(x0 * wd / (v0 + z * wn * x0))
+        phi = np.arctan2(x0 * wd, v0 + z * wn * x0)
 
-        return A * np.exp(-z * wn * t) * np.sin(wd * t + phi), None, None
+        pos = A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
+
+        vel = (A * -z * wn * np.exp(-z * wn * t) * np.sin(wd * t + phi) +
+               A * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi))
+
+        acc = (A * (-z * wn)**2 * np.exp(-z * wn * t) * np.sin(wd * t + phi) +
+               A * -z * wn * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi) +
+               A * -z * wn * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi) -
+               A * np.exp(-z * wn * t) * wd**2 * np.sin(wd * t + phi))
+
+        return pos, vel, acc
 
     def _overdamped_solution(self, time):
 
@@ -401,8 +411,26 @@ class SingleDoFLinearSystem(object):
         a2 = ((v0 + (z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn /
               np.sqrt(z**2 - 1))
 
-        decay = wn * np.sqrt(z**2 - 1) * t
-        return np.exp(-z * wn * t) * (a1 * np.exp(-decay) + a2 * np.exp(decay)), None, None
+        time_const = wn * np.sqrt(z**2 - 1)
+
+        pos = np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
+                               a2*np.exp(time_const*t))
+
+        vel = (-z*wn*np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
+                                      a2*np.exp(time_const*t)) +
+               np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                a2*time_const*np.exp(time_const*t)))
+
+        acc = ((-z*wn)**2*np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
+                                           a2*np.exp(time_const*t)) +
+               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                      a2*time_const*np.exp(time_const*t)) +
+               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                      a2*time_const*np.exp(time_const*t)) +
+               np.exp(-z*wn*t)*(a1*time_cont**2*np.exp(-time_const*t) +
+                                a2*time_const**2*np.exp(time_const*t)))
+
+        return pos, vel, acc
 
     def _critically_damped_solution(self, time):
 
@@ -418,10 +446,16 @@ class SingleDoFLinearSystem(object):
         a1 = x0
         a2 = v0 + wn * x0
 
-        return (a1 + a2 * t) * np.exp(-wn * t), None, None
+        pos = (a1 + a2 * t) * np.exp(-wn * t)
+        vel = a2 * np.exp(-wn * t) + (a1 + a2 * t) * -wn * np.exp(-wn * t)
+        acc = (a2 * -wn * np.exp(-wn * t) + a2 * -wn * np.exp(-wn * t) +
+               (a1 + a2 * t) * wn**2 * np.exp(-wn * t))
+
+        return pos, vel, acc
 
     def period(self):
-        """Returns the period of oscillation of the coordinate."""
+        """Returns the (damped) period of oscillation of the coordinate in
+        seconds."""
         m, c, k = self._canonical_coefficients()
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
@@ -631,6 +665,7 @@ class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
 
         self.constants['radial_inertia'] = 0.0  # kg m^2
         self.constants['rod_stiffness'] = 0.0  # N/m
+        self.constants['viscous_damping'] = 0.0  # Ns/m
 
         # TODO : When a coordinate is added the speed should be automatically
         # added.
@@ -641,8 +676,8 @@ class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
         """A 1 DoF second order system should return the mass, damping, and
         stiffness coefficients."""
 
-        def coeffs(radial_inertia, rod_stiffness):
-            return radial_inertia, 0.0, rod_stiffness
+        def coeffs(radial_inertia, viscous_damping, rod_stiffness):
+            return radial_inertia, viscous_damping, rod_stiffness
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
