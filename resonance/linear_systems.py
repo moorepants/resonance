@@ -657,15 +657,38 @@ class BookOnCupSystem(SingleDoFLinearSystem):
         return coeffs(*args)
 
 
-class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
+class TorsionalPendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple torsional pendulum in which
+    the torsionally elastic member's axis is aligned with gravity and the axis
+    of the torsion member passes through the mass center of an object attached
+    to it's lower end. The top of the torsion rod is rigidly attached to the
+    "ceiling". It is described by:
+
+    Attributes
+    ==========
+    constants
+        rotational_inertia, I [kg m**2]
+            The moment of inertia of the object attached to the pendulum.
+        torsional_damping, C [N s / m]
+            The viscous linear damping coefficient which represents any energy
+            disipation from things like air resistance, slip, etc.
+        torsional_stiffness, K [N / m]
+            The linear elastic stiffness coefficient of the torsion member,
+            typically a round slender rod.
+    coordinates
+        torsional_angle, theta [rad]
+    speeds
+        torsional_angle_vel, theta_dot [rad / s]
+
+    """
 
     def __init__(self):
 
-        super(BicycleWheelRadialInertiaSystem, self).__init__()
+        super(TorsionalPendulumSystem, self).__init__()
 
-        self.constants['radial_inertia'] = 0.0  # kg m^2
-        self.constants['rod_stiffness'] = 0.0  # N/m
-        self.constants['viscous_damping'] = 0.0  # Ns/m
+        self.constants['rotational_inertia'] = 0.0  # kg m^2
+        self.constants['torsional_damping'] = 0.0  # Ns/m
+        self.constants['torsional_stiffness'] = 0.0  # N/m
 
         # TODO : When a coordinate is added the speed should be automatically
         # added.
@@ -673,8 +696,6 @@ class BicycleWheelRadialInertiaSystem(SingleDoFLinearSystem):
         self.speeds['torsion_angle_vel'] = 0.0
 
     def _canonical_coefficients(self):
-        """A 1 DoF second order system should return the mass, damping, and
-        stiffness coefficients."""
 
         def coeffs(radial_inertia, viscous_damping, rod_stiffness):
             return radial_inertia, viscous_damping, rod_stiffness
