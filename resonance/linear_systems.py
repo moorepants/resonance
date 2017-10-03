@@ -1,6 +1,7 @@
 import math
 import collections
 from inspect import getargspec
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -264,11 +265,22 @@ class SingleDoFLinearSystem(object):
 
     @staticmethod
     def _natural_frequency(mass, stiffness):
-        return np.sqrt(stiffness / mass)
+        """Returns the real or complex valued natural frequency of the
+        system."""
+        wn = np.lib.scimath.sqrt(stiffness / mass)
+        if isinstance(wn, complex):
+            msg = ('The combination of system constants produces a complex '
+                   'natural frequency, which results in an unstable system.')
+            warnings.warn(msg)
+        return wn
 
     @staticmethod
     def _damping_ratio(mass, damping, natural_frequency):
-        return damping / 2.0 / mass / natural_frequency
+        zeta = damping / 2.0 / mass / natural_frequency
+        if zeta * natural_frequency < 0.0:
+            msg = ('The combination of system constants produces a negative '
+                   'damping ratio, which results in an unstable system.')
+            warnings.warn(msg)
 
     @staticmethod
     def _damped_natural_frequency(natural_frequency, damping_ratio):
@@ -277,11 +289,14 @@ class SingleDoFLinearSystem(object):
     def _solution_func(self):
 
         m, c, k = self._canonical_coefficients()
+        omega_n = self._natural_frequency(m, k)
 
         if math.isclose(c, 0.0):
-            sol_func = self._no_damping_solution
+            if isinstance(omega_n, complex):
+                sol_func = self._no_damping_unstable_solution
+            else:
+                sol_func = self._no_damping_solution
         else:  # damping, so check zeta
-            omega_n = self._natural_frequency(m, k)
             zeta = self._damping_ratio(m, c, omega_n)
             if zeta < 1.0:
                 sol_func = self._underdamped_solution
@@ -309,6 +324,22 @@ class SingleDoFLinearSystem(object):
         c2 = x0
 
         return c1 * np.sin(wn * t) + c2 * np.cos(wn * t)
+
+    def _no_damping_unstable_solution(self, time):
+
+        t = time
+
+        m, c, k = self._canonical_coefficients()
+
+        wn = self._natural_frequency(m, k)
+
+        x0 = list(self.coordinates.values())[0]
+        v0 = 0.0
+
+        c1 = v0 / wn.imag
+        c2 = x0
+
+        return c1 * np.sinh(wn.imag * t) + c2 * np.cosh(wn.imag * t)
 
     def _underdamped_solution(self, time):
 
