@@ -15,7 +15,6 @@ class _ParametersDict(collections.MutableMapping, dict):
         return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
-        # TODO : Only allow one coordinate to be added on a SDoF system.
         # TODO : It would be nice to check to ensure that these names do not
         # clash with names in measurements or coordinates. Not quite sure how
         # one would do that.
@@ -50,7 +49,12 @@ class _CoordinatesDict(collections.MutableMapping, dict):
         return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
-        if not key.isidentifier():
+        if len(self.keys()) == 1 and key != list(self.keys())[0]:
+            msg = ("There is already a coordinate set for this system, only "
+                   "one coordinate is permitted. Use del to remove the "
+                   "coordinate if you'd like to add a new one.")
+            raise ValueError(msg)
+        elif not key.isidentifier():
             msg = ('{} is not a valid coordinate or speed name. '
                    'It must be a valid Python variable name.')
             raise ValueError(msg.format(key))
@@ -58,11 +62,6 @@ class _CoordinatesDict(collections.MutableMapping, dict):
             msg = ('{} is a reserved parameter name. '
                    'Choose something different.')
             raise ValueError(msg.format(key))
-        elif len(self.keys()) == 1 and key != list(self.keys())[0]:
-            msg = ("There is already a coordinate set for this system, only "
-                   "one coordinate is permitted. Use del to remove the "
-                   "coordinate if you'd like to add a new one.")
-            raise ValueError(msg)
         else:
             dict.__setitem__(self, key, value)
 
@@ -333,6 +332,7 @@ class SingleDoFLinearSystem(object):
             msg = ('The combination of system constants produces a negative '
                    'damping ratio, which results in an unstable system.')
             warnings.warn(msg)
+        return zeta
 
     @staticmethod
     def _damped_natural_frequency(natural_frequency, damping_ratio):
@@ -387,15 +387,20 @@ class SingleDoFLinearSystem(object):
 
         m, c, k = self._canonical_coefficients()
 
-        wn = self._natural_frequency(m, k)
+        wn = self._natural_frequency(m, k).imag
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
-        c1 = v0 / wn.imag
+        # TODO : Verify these are correct.
+        c1 = v0 / wn
         c2 = x0
 
-        return c1 * np.sinh(wn.imag * t) + c2 * np.cosh(wn.imag * t)
+        pos = c1 * np.sinh(wn * t) + c2 * np.cosh(wn * t)
+        vel = wn * (c1 * np.cosh(wn * t) + c2 * np.sinh(wn * t))
+        acc = wn**2 * (c1 * np.sinh(wn * t) + c2 * np.cosh(wn * t))
+
+        return pos, vel, acc
 
     def _underdamped_solution(self, time):
 
