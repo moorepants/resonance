@@ -11787,9 +11787,9 @@ div#notebook {
 <li>discover the center of percussion of a compound pendulum</li>
 </ul>
 <h2 id="Inertia-and-Vibration">Inertia and Vibration<a class="anchor-link" href="#Inertia-and-Vibration">&#182;</a></h2><p>One of the fundamental properties that affects how systems vibrate is the inertia of a system. Inertia is colloquially defined as the <em>tendency to do nothing or to remain unchanged</em>. A vibrating system is changing with respect to time, thus we may infer that inertia will try to prevent the system from changing. There are two specific types of inertia that we will address in this class: <a href="https://en.wikipedia.org/wiki/Mass">mass</a> which is a resistance to linear motion and <a href="https://en.wikipedia.org/wiki/Moment_of_inertia">moment of inertia</a> which is a resistenace to rotational motion. The moment of inertia is more specifically a descriptor for the distribution of mass in a system.</p>
-<p>Most people are familiar with an ordinary bicycle wheel, so we will look into the inertial characteristics of bicycle wheels and how this relates to vibration. A bicycle wheel is mostly symetric about a plane that passes through the cross sectional center line of the circular rim in addition to being symmetric about any radial plane normal to the wheel plane. Recalling from dynamics, this means that the moment of inertia will have three <a href="http://www.physics.arizona.edu/~varnes/Teaching/321Fall2004/Notes/Lecture34.pdf">priniciapl moments of inertia</a>, two of which are equal due to the nature of the symmetry. The inertia about the axle of the wheel is the rotational inertia (resists the wheel rolling) and the inertia about any radial axis resists motions like turning the handlebars, etc. We demonstrated in the previous lesson that the inertia of the book affected the period of oscillation, and thus if a bicycle wheel is vibrated its inertia should affect the vibration in some way also.</p>
+<p>Most people are familiar with an ordinary bicycle wheel, so we will look into the inertial characteristics of bicycle wheels and how this relates to vibration. A bicycle wheel is mostly symetric about a plane that passes through the cross sectional center line of the circular rim in addition to being symmetric about any radial plane normal to the wheel plane. Recalling from dynamics, this means that the moment of inertia will have three <a href="http://www.physics.arizona.edu/~varnes/Teaching/321Fall2004/Notes/Lecture34.pdf">prinicipal moments of inertia</a>, two of which are equal due to the nature of the symmetry. The inertia about the axle of the wheel is the rotational inertia (resists the wheel rolling) and the inertia about any radial axis resists motions like turning the handlebars, etc. We demonstrated in the previous lesson that the inertia of the book affected the period of oscillation, and thus if a bicycle wheel is vibrated its inertia should affect the vibration in some way also.</p>
 <h1 id="Torsional-Pendulum">Torsional Pendulum<a class="anchor-link" href="#Torsional-Pendulum">&#182;</a></h1><p>Vibrations of a mass or inertia occur when there is a force that acts on the system which displaces it from its equilibrium. A common way to measure inertia is to use a torsional spring with a known linear force/displacement ratio, the spring constant or stiffness, to resist motion and thus create this force. If we attach a torsional spring along a radial line of the bicycle wheel, through its center of mass and glue the other end to the ceiling it is possible to create a <em>torsional pendulum</em>. If you twist the wheel about the axis of the torsional spring it will start vibrating.</p>
-<p>The video belows shows such a setup. A bicycle wheel is attached to the ceiling by a slender steel rod. The rod's axis passes through the center of mass of the wheel. When the bicycle wheel is given an initial angular displacement from the equilibrium, it vibrates.</p>
+<p>The video belows shows such a setup. A bicycle wheel is attached to the ceiling by a slender steel rod. The rod's axis passes through the center of mass of the wheel. When the bicycle wheel is given an initial angular displacement from the equilibrium and then released, it vibrates.</p>
 
 </div>
 </div>
@@ -11860,7 +11860,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Data">Data<a class="anchor-link" href="#Data">&#182;</a></h2><p>During the experiment shown in the above video I recorded some important constants about the system and measured the angular velocity of the system about the rod's axis with a <a href="https://en.wikipedia.org/wiki/Vibrating_structure_gyroscope">angular velocity gyro</a> (which also functions internally based on vibrations). A gyro is a micro electromechanical device that outputs a voltage proportional to the angular velocity it experiences. The data is stored in a plain text comma separated value file. The Unix <code>head</code> command can show the first set of lines and can be invoke in Jupyter using the prepended <code>!</code>.</p>
+<h2 id="Data">Data<a class="anchor-link" href="#Data">&#182;</a></h2><p>During the experiment shown in the above video I recorded some important constants about the system and measured the angular velocity of the system about the rod's axis with a <a href="https://en.wikipedia.org/wiki/Vibrating_structure_gyroscope">angular velocity gyro</a> (which also functions internally based on vibrations). A gyro is a micro electromechanical device that outputs a voltage proportional to the angular velocity it experiences. The data is stored in a plain text comma separated value (CSV) file. The Unix <code>head</code> command can show the first set of lines and can be invoke in Jupyter using the prepended <code>!</code>.</p>
 
 </div>
 </div>
@@ -12741,8 +12741,9 @@ QxoAAAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Interactive-Plots">Interactive Plots<a class="anchor-link" href="#Interactive-Plots">&#182;</a></h2><p>You should see that the computational system does not quite predict the actual period of the oscillation. One useful tool for interactively changing the constants of the system is a Jupyter "widget". Widgets let you create sliders, drop downs, value entry boxes, etc to interactively change the results of the simulation. Below is an example of how you can create a widget that updates a plot interactively. In this case we'd like to adjust the inertia value until the period of oscillation of the simulation matches the period of the actual data.</p>
-<p>The first step is to create a plot of the data, as we did above, but make sure to assign the axis that command creates to a variable <code>ax</code> so that we can add more information to the plot. The second step is to define a function which has an input that you want to adjust interactively, in our case the radial inertia. This function should compute the new simulation trajectory, set the values for the simulation line with the new data, and finally redraw the figure.</p>
+<h2 id="Interactive-Plots">Interactive Plots<a class="anchor-link" href="#Interactive-Plots">&#182;</a></h2><p>You should see that the computational system does not quite predict the actual period of the oscillation. One useful tool for interactively changing the constants of the system is a Jupyter "widget". Widgets let you create sliders, drop downs, value entry boxes, etc. to interactively change the results of the simulation. Below is an example of how you can create a widget that updates a plot interactively. In this case we'd like to adjust the inertia value until the period of oscillation of the simulation matches the period of the actual data.</p>
+<p>The first step is to create a plot of the data, as we did above, but make sure to assign the axis that command creates to a variable <code>ax</code> so that we can add more information to the plot.</p>
+<p>The second step is to define a function which has an input that you want to adjust interactively, in our case the radial inertia. This function should compute the new simulation trajectory, set the values for the simulation line with the new data, and finally redraw the figure.</p>
 
 </div>
 </div>
@@ -12767,8 +12768,11 @@ QxoAAAAAAElFTkSuQmCC
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-<span class="n">meas_lines</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">angular_velocity</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>  <span class="c1"># create initial plot</span>
-<span class="n">sim_lines</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">torsion_angle_vel</span><span class="p">)</span>  <span class="c1"># add a line to the plot</span>
+<span class="c1"># create initial plot</span>
+<span class="n">meas_lines</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">angular_velocity</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+<span class="c1"># add a line to the plot</span>
+<span class="n">sim_lines</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">torsion_angle_vel</span><span class="p">)</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Angular Rate [rad/s]&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
@@ -12777,10 +12781,14 @@ QxoAAAAAAElFTkSuQmCC
 <span class="c1"># now create a function that has an input that you&#39;d like to varying interactively</span>
 <span class="c1"># the function should compute the updated trajectory with this new value and change the data on the line</span>
 <span class="k">def</span> <span class="nf">plot_trajectory_comparison</span><span class="p">(</span><span class="n">rotational_inertia</span><span class="o">=</span><span class="mf">0.04</span><span class="p">):</span>
-   <span class="n">sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;rotational_inertia&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotational_inertia</span>  <span class="c1"># set the new inertia value</span>
-   <span class="n">trajectory</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>  <span class="c1"># simulate the system with new value</span>
-   <span class="n">sim_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">torsion_angle_vel</span><span class="p">)</span>  <span class="c1"># set the x and y data of the simulation line to new data</span>
-   <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>  <span class="c1"># redraw the figure with the updated line</span>
+    <span class="c1"># set the new inertia value</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;rotational_inertia&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotational_inertia</span>
+    <span class="c1"># simulate the system with new value</span>
+    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+    <span class="c1"># set the x and y data of the simulation line to new data</span>
+    <span class="n">sim_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">torsion_angle_vel</span><span class="p">)</span>
+    <span class="c1"># redraw the figure with the updated line</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
 <span class="c1"># call the function to make the initial plot</span>
 <span class="n">plot_trajectory_comparison</span><span class="p">()</span>
@@ -13362,7 +13370,7 @@ AABJRU5ErkJggg==
 <div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span> <span class="o">=</span> <span class="n">interact</span><span class="p">(</span><span class="n">plot_trajectory_comparison</span><span class="p">,</span> <span class="n">rotational_inertia</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">));</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span> <span class="o">=</span> <span class="n">interact</span><span class="p">(</span><span class="n">plot_trajectory_comparison</span><span class="p">,</span> <span class="n">rotational_inertia</span><span class="o">=</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">));</span>
 </pre></div>
 
 </div>
@@ -13403,7 +13411,7 @@ AABJRU5ErkJggg==
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(FloatSlider(value=0.04, description=&#39;rotational_inertia&#39;, max=0.2, step=0.001),
+<pre>(FloatSlider(value=0.04, description=&#39;rotational_inertia&#39;, max=0.2, min=0.01, step=0.001),
  Output())</pre>
 </div>
 
@@ -13485,7 +13493,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Python-For-Loops">Python For Loops<a class="anchor-link" href="#Python-For-Loops">&#182;</a></h2><p>Instead of typing the simulation code out for each of the 50 inertia values, we can use a loop to iterate through each value and save some typing. Python loops are constructed with the <code>for</code> command and, in the simplest case, the <code>in</code> command. Here is an example that iterates through the inertia values, computes what the hoop radius would be in the mass was fixed, and prints the value of the radius on each iteration:</p>
+<h2 id="Python-For-Loops">Python For Loops<a class="anchor-link" href="#Python-For-Loops">&#182;</a></h2><p>Instead of typing the simulation code out for each of the 50 inertia values, we can use a loop to iterate through each value and save some typing. Python loops are constructed with the <code>for</code> command and, in the simplest case, the <code>in</code> command. Here is an example that iterates through the inertia values, computes what the hoop radius would be if the mass was fixed, and prints the value of the radius on each iteration:</p>
 
 </div>
 </div>
@@ -13808,7 +13816,7 @@ radii = np.array(radii)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>386 µs ± 1.48 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+<pre>290 µs ± 31.5 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 </pre>
 </div>
 </div>
@@ -13841,7 +13849,7 @@ np.sqrt(2.0 * inertias / mass)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>9.79 µs ± 454 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+<pre>9.79 µs ± 747 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 </pre>
 </div>
 </div>
@@ -14728,7 +14736,7 @@ YII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The fundamental frequency of osciallation of the generalized coordinate of a single degree of freedom system is called the <a href="https://en.wikipedia.org/wiki/Natural_frequency"><em>natural frequency</em></a>. The natural frequency is named because it is the frequency a system tends to osciallate at when no driving forces are applied.</p>
+<p>The fundamental frequency of osciallation of the generalized coordinate of a single degree of freedom system is called the <a href="https://en.wikipedia.org/wiki/Natural_frequency"><em>natural frequency</em></a>. The natural frequency is named because it is the frequency a system tends to oscillate at when no driving forces are applied.</p>
 
 </div>
 </div>
@@ -14737,7 +14745,7 @@ YII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Curve-Fitting">Curve Fitting<a class="anchor-link" href="#Curve-Fitting">&#182;</a></h1><p>Above, we interactive adjusted the inertia such that the simulation's period matched the measured data. Another way to determine the period of oscillation more accurately is to try and find the best fitting curve through the data points. The Python package <code>scipy</code> provides a very conveinent function called <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html"><code>curve_fit</code></a>. This function implements a <a href="https://en.wikipedia.org/wiki/Least_squares">least squares method</a> that finds an optimal fit based on parameterized function provided by the user. Let's see how it works.</p>
+<h1 id="Curve-Fitting">Curve Fitting<a class="anchor-link" href="#Curve-Fitting">&#182;</a></h1><p>Above, we interactively adjusted the inertia such that the simulation's period matched the measured data. Another way to determine the period of oscillation more accurately is to try and find the best fitting curve through the data points. The Python package <code>scipy</code> provides a very conveinent function called <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html"><code>curve_fit</code></a>. This function implements a <a href="https://en.wikipedia.org/wiki/Least_squares">least squares method</a> that finds an optimal fit based on parameterized function provided by the user. Let's see how it works.</p>
 
 </div>
 </div>
@@ -14833,7 +14841,7 @@ YII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, provide this function to <code>curve_fit</code> along with the measure data (x and y) and an initial guess for the amplitude and frequency. A good initial guess is important, as the optimal solution can't always be found from an arbitrary initial guess. The function <code>curve_fit</code> returns to items. The first is the optimal values of the two parametes and the second is the covariance matrix that gives an idea of how certain the value of the parameters are. We will just work with the first value for now.</p>
+<p>Now, provide this function to <code>curve_fit</code> along with the measure data (x and y) and an initial guess for the amplitude and frequency. A good initial guess is important, as the optimal solution can't always be found from an arbitrary initial guess. The function <code>curve_fit</code> returns two items. The first is the optimal values of the two parametes and the second is the covariance matrix that gives an idea of how certain the value of the parameters are. We will just work with the first value for now.</p>
 
 </div>
 </div>
@@ -15625,7 +15633,7 @@ EYlAKncRkQikchcRiUAqdxGRCPT/AejCJpzj1j9IAAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Use decaying oscillation mathematical function to create a curve fitting function and find the values of $A$, $\lambda$, and $\omega$ that best fit the data. Calculate the period of oscillation and compare it to the period from the purely sinusoid fit from above. Is there any difference in the period of oscillation?</p>
+<p>Use decaying oscillation mathematical function to create a curve fitting function and find the values of $A$, $\lambda$, and $\omega$ that best fit the data. Calculate the period of oscillation and compare it to the period from the purely sinusoidal fit from above. Is there any difference in the period of oscillation?</p>
 
 </div>
 </div>
@@ -16761,7 +16769,7 @@ DAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span> <span class="o">=</span> <span class="n">interact</span><span class="p">(</span><span class="n">plot_trajectory_comparison</span><span class="p">,</span>
-                  <span class="n">rotational_inertia</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span>
+                  <span class="n">rotational_inertia</span><span class="o">=</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span>
                   <span class="n">torsional_damping</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">));</span>
 </pre></div>
 
@@ -16781,7 +16789,7 @@ DAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 
 
 <div class="output_text output_subarea ">
-<pre>&lt;matplotlib.figure.Figure at 0x7f0a5fdabdd8&gt;</pre>
+<pre>&lt;matplotlib.figure.Figure at 0x7fec282be198&gt;</pre>
 </div>
 
 </div>
@@ -16860,7 +16868,7 @@ DAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Compound-Pendulum">Compound Pendulum<a class="anchor-link" href="#Compound-Pendulum">&#182;</a></h1><p>At this point we have figured out the moment of inertia about any radial axis that passes through the center of the wheel. We would also like to find the moment of inertia about the wheel's axle, the <em>spin moment of inertia</em>. This momennt of interia affects how fast the bicycle wheel can be acelerated and decelerated. We could potentally hang the bicycle wheel on the torsion rod such that the axle's axis aligns with the torsion bar's axis. But there is a simpler way that only requires a fulcrum point and gravity to act as our (constant force) "spring". The video below shows a children's bicycle wheel hanging by the inner diameter of the rim on a small circular rod and a angular velocity gyro is attached to the wheel with it's measurement axis align with the wheel's axle. This arrangement is called a <a href="https://en.wikipedia.org/wiki/Pendulum#Compound_pendulum"><em>compound pendulum</em></a>. A compound pendulum is any single degree of freedom pendulum in whch the swinging portion can be considered a <a href="https://en.wikipedia.org/wiki/Rigid_body"><em>rigid body</em></a>.</p>
+<h1 id="Compound-Pendulum">Compound Pendulum<a class="anchor-link" href="#Compound-Pendulum">&#182;</a></h1><p>At this point we have figured out the moment of inertia about any radial axis that passes through the center of the wheel. We would also like to find the moment of inertia about the wheel's axle, the <em>spin moment of inertia</em>. This moment of interia affects how fast the bicycle wheel can be acelerated and decelerated. We could potentally hang the bicycle wheel on the torsion rod such that the axle's axis aligns with the torsion bar's axis. But there is a simpler way that only requires a fulcrum point and gravity to act as our (constant force) "spring". The video below shows a children's bicycle wheel hanging by the inner diameter of the rim on a small circular rod and a angular velocity gyro is attached to the wheel with it's measurement axis align with the wheel's axle. This arrangement is called a <a href="https://en.wikipedia.org/wiki/Pendulum#Compound_pendulum"><em>compound pendulum</em></a>. A compound pendulum is any single degree of freedom pendulum in whch the swinging portion can be considered a <a href="https://en.wikipedia.org/wiki/Rigid_body"><em>rigid body</em></a>.</p>
 
 </div>
 </div>
@@ -17371,7 +17379,7 @@ CSCEaAXwLhHtAvCTGN7iFgBfJKL3AewGtx9lLAynejIMwzgQnvkzDMM4EDb+DMMwDoSNP8MwjANh
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that this measurement has much less damping than the torsional pendulum. ONce again our goal is to determine what the moment of the inertia of the bicycle wheel is. We can use a <code>CompoundPedulumSystem</code> to simulate this motion:</p>
+<p>Note that this measurement has much less damping than the torsional pendulum. Once again our goal is to determine what the moment of the inertia of the bicycle wheel is. We can use a <code>CompoundPendulumSystem</code> to simulate this motion:</p>
 
 </div>
 </div>
@@ -18646,7 +18654,7 @@ mqOxuwAAAABJRU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, using the period of oscialltion, $T$, from the data above, you can compute the inertia about the joint using the <code>CompoundPendulumSystem</code> or this relationship:</p>
+<p>Finally, using the period of oscillation, $T$, from the data above, you can compute the inertia about the joint using the <code>CompoundPendulumSystem</code> or this relationship:</p>
 <p>$$ I_o = T^2 \frac{mgl}{4\pi^2} $$</p>
 
 </div>
