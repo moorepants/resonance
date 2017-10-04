@@ -94,3 +94,31 @@ Educational Effectiveness.
 This work is also made possible by the broad open source software stack that
 underpins the Scientific Python Ecosystem, in particular: Jupyter, NumPy,
 SymPy, SciPy, and matplotlib.
+
+Installation
+============
+
+For users, you can create a conda environment called ``resonance`` by
+downloading the ``user-environment.yml`` file and typing the following at the
+command line::
+
+   $ conda env create -f user-environment.yml
+
+This environment can be activated with::
+
+   $ conda activate resonance
+
+To properly view the exercises you will need to enable the exercise2 notebook
+extension::
+
+   (resonance)$ jupyter nbextension enable exercise2/main
+
+If you want to develop resonance, use the ``dev-environment.yml`` file::
+
+   $ conda env create -f dev-environment.yml
+   $ conda activate resonance-dev
+
+If you don't want to use our environments, you can use pip to install
+resonance::
+
+   $ pip install resonance
