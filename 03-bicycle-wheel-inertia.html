@@ -12498,6 +12498,19 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
@@ -12509,7 +12522,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">resonance.linear_systems</span> <span class="k">import</span> <span class="n">TorsionalPendulumSystem</span>
@@ -12522,7 +12535,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sys</span> <span class="o">=</span> <span class="n">TorsionalPendulumSystem</span><span class="p">()</span>
@@ -12544,7 +12557,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sys</span><span class="o">.</span><span class="n">constants</span>
@@ -12560,7 +12573,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[13]:</div>
+<div class="prompt output_prompt">Out[14]:</div>
 
 
 
@@ -12595,16 +12608,15 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="n">stiffness</span> <span class="o">=</span> <span class="mf">77.0E9</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">0.00635</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="mi">32</span> <span class="o">/</span> <span class="mf">1.05</span>  <span class="c1"># N/m</span>
-<span class="n">stiffness</span>
-
-<span class="n">sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;torsional_stiffness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stiffness</span>
-
+<span class="n">l</span> <span class="o">=</span> <span class="mf">1.05</span>  <span class="c1"># m</span>
+<span class="n">d</span> <span class="o">=</span> <span class="mf">0.00635</span>  <span class="c1"># m</span>
+<span class="n">G</span> <span class="o">=</span> <span class="mf">77.0E9</span>  <span class="c1"># Pa</span>
+<span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">d</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="mi">32</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;torsional_stiffness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">J</span> <span class="o">/</span> <span class="n">l</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">constants</span>
 </pre></div>
 
@@ -12618,7 +12630,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[14]:</div>
+<div class="prompt output_prompt">Out[15]:</div>
 
 
 
@@ -12631,6 +12643,19 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 
 </div>
 
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
+</pre></div>
+
+</div>
 </div>
 </div>
 
@@ -12652,7 +12677,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">mass</span> <span class="o">=</span> <span class="mf">1.55</span>  <span class="c1"># kg</span>
@@ -12672,7 +12697,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[15]:</div>
+<div class="prompt output_prompt">Out[17]:</div>
 
 
 
@@ -12701,7 +12726,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sys</span><span class="o">.</span><span class="n">speeds</span><span class="p">[</span><span class="s1">&#39;torsion_angle_vel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="s1">&#39;angular_velocity&#39;</span><span class="p">]</span>
@@ -12723,7 +12748,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[16]:</div>
+<div class="prompt output_prompt">Out[18]:</div>
 
 
 
@@ -12751,7 +12776,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -12764,7 +12789,7 @@ OxwOR8r4/1axlS0DQxoAAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -13356,7 +13381,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="k">import</span> <span class="n">interact</span>
@@ -13369,7 +13394,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span> <span class="o">=</span> <span class="n">interact</span><span class="p">(</span><span class="n">plot_trajectory_comparison</span><span class="p">,</span> <span class="n">rotational_inertia</span><span class="o">=</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">));</span>
@@ -13391,7 +13416,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">children</span>
@@ -13407,7 +13432,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[21]:</div>
+<div class="prompt output_prompt">Out[23]:</div>
 
 
 
@@ -13425,7 +13450,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
@@ -13441,7 +13466,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[22]:</div>
+<div class="prompt output_prompt">Out[24]:</div>
 
 
 
@@ -13467,7 +13492,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -13480,7 +13505,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">inertias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
@@ -13502,7 +13527,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">inertia</span> <span class="ow">in</span> <span class="n">inertias</span><span class="p">:</span>
@@ -13593,7 +13618,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">radii</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># create an empty list</span>
@@ -13601,97 +13626,6 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
     <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inertia</span> <span class="o">/</span> <span class="n">mass</span><span class="p">)</span>
     <span class="n">radii</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>  <span class="c1"># add the radius to the end of the list</span>
 <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">radii</span><span class="p">)</span>  <span class="c1"># convert the list to a NumPy array</span>
-<span class="n">radii</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[26]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>array([ 0.03592106,  0.0808122 ,  0.10849379,  0.13042696,  0.1491693 ,
-        0.16580643,  0.18092004,  0.19486495,  0.2078765 ,  0.22012026,
-        0.23171797,  0.24276225,  0.25332548,  0.26346554,  0.27322953,
-        0.28265645,  0.29177895,  0.30062476,  0.30921762,  0.31757806,
-        0.32572399,  0.3336711 ,  0.3414333 ,  0.3490229 ,  0.35645094,
-        0.36372732,  0.37086096,  0.37785995,  0.38473164,  0.39148272,
-        0.39811934,  0.40464713,  0.41107127,  0.41739655,  0.4236274 ,
-        0.42976792,  0.43582193,  0.44179298,  0.44768441,  0.4534993 ,
-        0.45924058,  0.46491096,  0.47051301,  0.47604913,  0.48152162,
-        0.4869326 ,  0.49228411,  0.49757807,  0.50281629,  0.50800051])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>If you want to work with the NumPy array up front you can create an empty NumPy array and then fill it by using the correct index value. This index value can be exposed using the <code>enumerate()</code> function. For example:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inertias</span><span class="p">)</span>
-<span class="n">radii</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[27]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
-        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
-        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
-        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inertia</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inertias</span><span class="p">):</span>
-    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inertia</span> <span class="o">/</span> <span class="n">mass</span><span class="p">)</span>
-    <span class="n">radii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span>
 <span class="n">radii</span>
 </pre></div>
 
@@ -13733,7 +13667,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It is also worth noting that NumPy provides <em>vectorized</em> functions and that loops are not needed for the above example, for example:</p>
+<p>If you want to work with the NumPy array up front you can create an empty NumPy array and then fill it by using the correct index value. This index value can be exposed using the <code>enumerate()</code> function. For example:</p>
 
 </div>
 </div>
@@ -13741,6 +13675,97 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inertias</span><span class="p">)</span>
+<span class="n">radii</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[29]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inertia</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inertias</span><span class="p">):</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inertia</span> <span class="o">/</span> <span class="n">mass</span><span class="p">)</span>
+    <span class="n">radii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span>
+<span class="n">radii</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[30]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([ 0.03592106,  0.0808122 ,  0.10849379,  0.13042696,  0.1491693 ,
+        0.16580643,  0.18092004,  0.19486495,  0.2078765 ,  0.22012026,
+        0.23171797,  0.24276225,  0.25332548,  0.26346554,  0.27322953,
+        0.28265645,  0.29177895,  0.30062476,  0.30921762,  0.31757806,
+        0.32572399,  0.3336711 ,  0.3414333 ,  0.3490229 ,  0.35645094,
+        0.36372732,  0.37086096,  0.37785995,  0.38473164,  0.39148272,
+        0.39811934,  0.40464713,  0.41107127,  0.41739655,  0.4236274 ,
+        0.42976792,  0.43582193,  0.44179298,  0.44768441,  0.4534993 ,
+        0.45924058,  0.46491096,  0.47051301,  0.47604913,  0.48152162,
+        0.4869326 ,  0.49228411,  0.49757807,  0.50281629,  0.50800051])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It is also worth noting that NumPy provides <em>vectorized</em> functions and that loops are not needed for the above example, for example:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inertias</span> <span class="o">/</span> <span class="n">mass</span><span class="p">)</span>
@@ -13757,7 +13782,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[29]:</div>
+<div class="prompt output_prompt">Out[31]:</div>
 
 
 
@@ -13792,7 +13817,7 @@ biamAaPQPgqDIVDMCMFgMBgMgBkhGAwGg8HCKASDwWAwAEYhGAwGg8HCKASDwWAwAEYhGAwGg8Hi
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">timeit</span> -n 1000
@@ -13818,7 +13843,7 @@ radii = np.array(radii)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>417 µs ± 10.4 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+<pre>198 µs ± 1.53 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 </pre>
 </div>
 </div>
@@ -13829,7 +13854,7 @@ radii = np.array(radii)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">timeit</span>  -n 1000
@@ -13851,7 +13876,7 @@ np.sqrt(2.0 * inertias / mass)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>8.63 µs ± 254 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+<pre>4.66 µs ± 299 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 </pre>
 </div>
 </div>
@@ -13872,7 +13897,7 @@ np.sqrt(2.0 * inertias / mass)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">periods</span> <span class="o">=</span> <span class="p">[]</span>
@@ -14124,7 +14149,7 @@ EREpo6QgIiJllBRERKSMkoKIiJRRUhARkTL/H/v5Xmd+21BYAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
@@ -14335,7 +14360,7 @@ QmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
@@ -14569,6 +14594,14 @@ YrQAAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Frequency-and-Period">Frequency and Period<a class="anchor-link" href="#Frequency-and-Period">&#182;</a></h1><p>We've been talking about the period of oscillation so far, which is defined as the time between a repeating configuration, i.e. seconds per cycle of oscillation. The inverse of period is frequency: the number of cycles per second. The unit <a href="https://en.wikipedia.org/wiki/Hertz">Hertz</a> is a special unit for cycles per second.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
 <p>Given a period of 1.35 seconds, (1) what is the frequency in Hertz? and (2) what is the is frequency in radians per second? (3) create two functions, one that coverts period to frequency in radians per second called <code>period2freq</code> and one that does the opposite called <code>freq2period</code>.</p>
 
@@ -14577,107 +14610,25 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="mf">1.35</span>  <span class="c1"># s</span>
 <span class="n">f</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">1.35</span>  <span class="c1"># H</span>
-<span class="n">f</span>
-</pre></div>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequency: </span><span class="si">{}</span><span class="s1"> H&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 
-</div>
-</div>
-</div>
+<span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span>  <span class="c1"># rad/s</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequency: </span><span class="si">{}</span><span class="s1"> rad/s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">omega</span><span class="p">))</span>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[35]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.7407407407407407</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span>  <span class="c1"># rad/s</span>
-<span class="n">omega</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[36]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>4.654211338651545</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">period2freq</span><span class="p">(</span><span class="n">period</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">period2freq</span><span class="p">(</span><span class="n">period</span><span class="p">):</span>
     <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">period</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-</pre></div>
 
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">freq2period</span><span class="p">(</span><span class="n">freq</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">freq2period</span><span class="p">(</span><span class="n">freq</span><span class="p">):</span>
     <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-</pre></div>
 
-</div>
-</div>
-</div>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Period from frequency: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">period2freq</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)))</span>
 
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[39]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">period2freq</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequency from period: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">freq2period</span><span class="p">(</span><span class="mf">6.283185</span><span class="p">)))</span>
 </pre></div>
 
 </div>
@@ -14690,48 +14641,16 @@ YrQAAAAASUVORK5CYII=
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[39]:</div>
+<div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>6.283185307179586</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Frequency: 0.7407407407407407 H
+Frequency: 4.654211338651545 rad/s
+Period from frequency: 6.283185307179586
+Frequency from period: 1.000000048889152
+</pre>
 </div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[40]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">freq2period</span><span class="p">(</span><span class="mf">6.283185</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[40]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>1.000000048889152</pre>
-</div>
-
 </div>
 
 </div>
@@ -14758,7 +14677,7 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">curve_fit</span>
@@ -14780,7 +14699,7 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">cos_func</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
@@ -14803,7 +14722,7 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">cos_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
@@ -14819,7 +14738,7 @@ YrQAAAAASUVORK5CYII=
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[43]:</div>
+<div class="prompt output_prompt">Out[40]:</div>
 
 
 
@@ -14854,7 +14773,7 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">cos_func</span><span class="p">,</span>  <span class="c1"># our function</span>
@@ -14879,7 +14798,7 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span>
@@ -14895,7 +14814,7 @@ YrQAAAAASUVORK5CYII=
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[45]:</div>
+<div class="prompt output_prompt">Out[42]:</div>
 
 
 
@@ -14921,7 +14840,7 @@ YrQAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -15392,7 +15311,7 @@ MP4fFg9n/HYWq2cAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">freq2period</span><span class="p">(</span><span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -15408,7 +15327,7 @@ MP4fFg9n/HYWq2cAAAAASUVORK5CYII=
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[47]:</div>
+<div class="prompt output_prompt">Out[44]:</div>
 
 
 
@@ -15439,7 +15358,7 @@ MP4fFg9n/HYWq2cAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
@@ -15648,42 +15567,22 @@ FxGJQCp3EZEIpHIXEYlAKncRkQikchcRiUAqdxGRCPT/AejCJpzj1j9IAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">decaying_sinusoid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lam</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
-</pre></div>
 
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">decaying_sinusoid</span><span class="p">,</span>
+<span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">decaying_sinusoid</span><span class="p">,</span>
                        <span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                        <span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">angular_velocity</span><span class="p">,</span>
                        <span class="n">p0</span><span class="o">=</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0002</span><span class="p">,</span> <span class="n">period2freq</span><span class="p">(</span><span class="mf">0.44</span><span class="p">)))</span>
-</pre></div>
 
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[51]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">radial_gyro_meas</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">decaying_sinusoid</span><span class="p">(</span><span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">]));</span>
+
+<span class="n">freq2period</span><span class="p">(</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -15693,6 +15592,19 @@ FxGJQCp3EZEIpHIXEYlAKncRkQikchcRiUAqdxGRCPT/AejCJpzj1j9IAAAAAElFTkSuQmCC
 <div class="output_wrapper">
 <div class="output">
 
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[46]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.4211942223551739</pre>
+</div>
+
+</div>
 
 <div class="output_area">
 
@@ -16148,33 +16060,13 @@ QmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">freq2period</span><span class="p">(</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write solution here</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[52]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.4211942223551739</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16209,7 +16101,7 @@ QmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">radial_gyro_meas</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
@@ -16776,7 +16668,20 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write solutin here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span> <span class="o">=</span> <span class="n">interact</span><span class="p">(</span><span class="n">plot_trajectory_comparison</span><span class="p">,</span>
@@ -16800,7 +16705,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 
 
 <div class="output_text output_subarea ">
-<pre>&lt;matplotlib.figure.Figure at 0x7fe73c600ba8&gt;</pre>
+<pre>&lt;matplotlib.figure.Figure at 0x7fa60cedaf60&gt;</pre>
 </div>
 
 </div>
@@ -16811,7 +16716,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
@@ -16827,7 +16732,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[55]:</div>
+<div class="prompt output_prompt">Out[51]:</div>
 
 
 
@@ -16844,7 +16749,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">widget</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
@@ -16860,7 +16765,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[56]:</div>
+<div class="prompt output_prompt">Out[52]:</div>
 
 
 
@@ -16886,7 +16791,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">YouTubeVideo</span><span class="p">(</span><span class="s1">&#39;D2tSoGqhtx0&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">480</span><span class="p">)</span>
@@ -16902,7 +16807,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[57]:</div>
+<div class="prompt output_prompt">Out[53]:</div>
 
 
 
@@ -16945,7 +16850,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">axial_gyro_meas</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/03/bicycle-wheel-axial-inertia-rate-gyro-measurement.csv&#39;</span><span class="p">,</span>
@@ -16959,7 +16864,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[59]:</div>
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -16975,7 +16880,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[59]:</div>
+<div class="prompt output_prompt">Out[55]:</div>
 
 
 
@@ -17039,7 +16944,7 @@ jMIwGAwGgyOMwjAYDAaDI4zCMBgMBoMjjMIwGAwGgyP+H8OigLKsKuf0AAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">);</span>
@@ -17399,7 +17304,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">resonance.linear_systems</span> <span class="k">import</span> <span class="n">CompoundPendulumSystem</span>
@@ -17412,7 +17317,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">cpend_sys</span> <span class="o">=</span> <span class="n">CompoundPendulumSystem</span><span class="p">()</span>
@@ -17427,9 +17332,17 @@ AABJRU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The mass and radius of the wheel is the same as above. You can estimate the moment of inertia about the axle as:</p>
+<p>The mass and radius of the wheel is the same as above. You can estimate the rotational moment of inertia about the axle as:</p>
 <p>$$ I = m r^2 $$</p>
 <p>But the inertia about the joint has to be computed using the parallel axis theorem.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
 <p>Using the parallel axis thereom, compute an estimate of the inertia about the joint if the distance from the axle to the joint is 0.296 meters. Store both results in variables named <code>inertia_about_axle</code> and <code>inertia_about_joint</code>.</p>
 <p><a href="https://en.wikipedia.org/wiki/Parallel_axis_theorem">https://en.wikipedia.org/wiki/Parallel_axis_theorem</a></p>
@@ -17439,13 +17352,16 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[63]:</div>
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">mass</span> <span class="o">=</span> <span class="mf">1.55</span>  <span class="c1"># kg</span>
 <span class="n">radius</span> <span class="o">=</span> <span class="mf">0.336</span>  <span class="c1"># m</span>
 <span class="n">inertia_about_axle</span> <span class="o">=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">radius</span><span class="o">**</span><span class="mi">2</span>
-<span class="n">inertia_about_axle</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">inertia_about_axle</span><span class="p">)</span>
+
+<span class="n">inertia_about_joint</span> <span class="o">=</span> <span class="n">inertia_about_axle</span> <span class="o">+</span> <span class="n">mass</span> <span class="o">*</span> <span class="mf">0.296</span><span class="o">**</span><span class="mi">2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">inertia_about_joint</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -17458,15 +17374,14 @@ AABJRU5ErkJggg==
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[63]:</div>
+<div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.17498880000000003</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>0.17498880000000003
+0.3107936
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -17475,34 +17390,13 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">inertia_about_joint</span> <span class="o">=</span> <span class="n">inertia_about_axle</span> <span class="o">+</span> <span class="n">mass</span> <span class="o">*</span> <span class="mf">0.296</span><span class="o">**</span><span class="mi">2</span>
-<span class="n">inertia_about_joint</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your solution here</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[64]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.3107936</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -17518,7 +17412,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[65]:</div>
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">cpend_sys</span><span class="o">.</span><span class="n">constants</span>
@@ -17534,7 +17428,7 @@ AABJRU5ErkJggg==
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[65]:</div>
+<div class="prompt output_prompt">Out[61]:</div>
 
 
 
@@ -17554,7 +17448,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">cpend_sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;acc_due_to_gravity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">9.81</span>  <span class="c1"># m/**2</span>
@@ -17570,7 +17464,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">cpend_sys</span><span class="o">.</span><span class="n">speeds</span><span class="p">[</span><span class="s1">&#39;angle_vel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="s1">&#39;angular_velocity&#39;</span><span class="p">]</span>
@@ -17583,7 +17477,7 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[68]:</div>
+<div class="prompt input_prompt">In&nbsp;[64]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">trajectory</span> <span class="o">=</span> <span class="n">cpend_sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -17596,12 +17490,13 @@ AABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[69]:</div>
+<div class="prompt input_prompt">In&nbsp;[65]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">axial_gyro_meas</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
 <span class="n">line</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">trajectory</span><span class="p">[</span><span class="s1">&#39;angle_vel&#39;</span><span class="p">])</span>
+
 <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">inertia</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
     <span class="n">cpend_sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;inertia_about_joint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inertia</span>
     <span class="n">traj</span> <span class="o">=</span> <span class="n">cpend_sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -18073,7 +17968,7 @@ MSaELPkbY0wIWfI3xpgQsuRvjDEhZMnfGGNCyJK/McaE0P8BjqziswUOsCYAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[70]:</div>
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">interact</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">inertia</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">));</span>
@@ -18088,6 +17983,7 @@ MSaELPkbY0wIWfI3xpgQsuRvjDEhZMnfGGNCyJK/McaE0P8BjqziswUOsCYAAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Exercise</strong></p>
 <p>Use your <code>decaying_sinusoid</code> function to find a best fit for this data.</p>
 
 </div>
@@ -18095,26 +17991,18 @@ MSaELPkbY0wIWfI3xpgQsuRvjDEhZMnfGGNCyJK/McaE0P8BjqziswUOsCYAAAAASUVORK5CYII=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[71]:</div>
+<div class="prompt input_prompt">In&nbsp;[67]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">decaying_sinusoid</span><span class="p">,</span>
                        <span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                        <span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">angular_velocity</span><span class="p">,</span>
                        <span class="n">p0</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0002</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
-</pre></div>
 
-</div>
-</div>
-</div>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">decaying_sinusoid</span><span class="p">(</span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="n">popt</span><span class="p">));</span>
 
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[72]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span>
+<span class="n">freq2period</span><span class="p">(</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -18127,37 +18015,16 @@ MSaELPkbY0wIWfI3xpgQsuRvjDEhZMnfGGNCyJK/McaE0P8BjqziswUOsCYAAAAASUVORK5CYII=
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[72]:</div>
+<div class="prompt output_prompt">Out[67]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>array([ 0.66570798, -0.02310175,  4.39126144])</pre>
+<pre>1.430838358947675</pre>
 </div>
 
 </div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[73]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">decaying_sinusoid</span><span class="p">(</span><span class="n">axial_gyro_meas</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="n">popt</span><span class="p">));</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
 
 <div class="output_area">
 
@@ -18634,33 +18501,13 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="prompt input_prompt">In&nbsp;[68]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">freq2period</span><span class="p">(</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write you answer here</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[74]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>1.430838358947675</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -18669,15 +18516,30 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Exercise</strong></p>
 <p>Finally, using the period of oscillation, $T$, from the data above, you can compute the inertia about the joint using the <code>CompoundPendulumSystem</code> or this relationship:</p>
 <p>$$ I_o = T^2 \frac{mgl}{4\pi^2} $$</p>
+<p>Store the result of this calculation in a variable called <code>actual_inertia_about_the_joint</code>.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="prompt input_prompt">In&nbsp;[69]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your solution here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[70]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">actual_inertia_about_joint</span> <span class="o">=</span> <span class="n">freq2period</span><span class="p">(</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">4</span><span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mass</span> <span class="o">*</span> <span class="mf">9.81</span> <span class="o">*</span> <span class="mf">0.296</span>
@@ -18694,7 +18556,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[75]:</div>
+<div class="prompt output_prompt">Out[70]:</div>
 
 
 
@@ -18714,14 +18576,14 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
-<p>Use the parallel axis thereom to find the moment of inertia about the axle.</p>
+<p>Use the parallel axis thereom to find the moment of inertia about the axle (the location of the center of mass) and store it in a variable called <code>acutal_inertia_about_axle</code>.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="prompt input_prompt">In&nbsp;[71]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">actual_inertia_about_axle</span> <span class="o">=</span> <span class="n">actual_inertia_about_joint</span> <span class="o">-</span> <span class="n">mass</span> <span class="o">*</span> <span class="mf">0.296</span><span class="o">**</span><span class="mi">2</span>
@@ -18738,7 +18600,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[76]:</div>
+<div class="prompt output_prompt">Out[71]:</div>
 
 
 
@@ -18749,6 +18611,19 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 
 </div>
 
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
+</pre></div>
+
+</div>
 </div>
 </div>
 
@@ -18764,7 +18639,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">YouTubeVideo</span><span class="p">(</span><span class="s1">&#39;Dw3UpKQVhVY&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">480</span><span class="p">)</span>
@@ -18780,7 +18655,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[77]:</div>
+<div class="prompt output_prompt">Out[73]:</div>
 
 
 
@@ -18813,7 +18688,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">resonance.linear_systems</span> <span class="k">import</span> <span class="n">SimplePendulumSystem</span>
@@ -18827,7 +18702,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[79]:</div>
+<div class="prompt input_prompt">In&nbsp;[75]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">spend_sys</span><span class="o">.</span><span class="n">constants</span>
@@ -18843,7 +18718,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[79]:</div>
+<div class="prompt output_prompt">Out[75]:</div>
 
 
 
@@ -18860,7 +18735,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[80]:</div>
+<div class="prompt input_prompt">In&nbsp;[76]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">spend_sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;acc_due_to_gravity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">9.81</span>
@@ -18876,7 +18751,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="prompt input_prompt">In&nbsp;[77]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">spend_traj</span> <span class="o">=</span> <span class="n">spend_sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -18889,7 +18764,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="prompt input_prompt">In&nbsp;[78]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">cpend_sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;inertia_about_joint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actual_inertia_about_joint</span>
@@ -18903,7 +18778,7 @@ DGOunoZhGHGIjfwNwzDiEBN/wzCMOMTE3zAMIw4x8TcMw4hDTPwNwzDiEBN/wzCMOMTE3zAMIw4x
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="prompt input_prompt">In&nbsp;[79]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -19407,7 +19282,7 @@ NxRTAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[84]:</div>
+<div class="prompt input_prompt">In&nbsp;[80]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">interact</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">pend_length</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">));</span>
