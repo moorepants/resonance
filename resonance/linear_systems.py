@@ -131,18 +131,22 @@ class SingleDoFLinearSystem(object):
     constants : _ParametersDict
         A custom dictionary that contains parameters that do not vary with
         time.
-    coordinates : _ParametersDict
-        A custom dictionary that contains parameters that do vary with time.
+    coordinates : _CoordinatesDict
+        A custom dictionary that contains the generalized coordinate which
+        varies with time.
+    speeds : _CoordinatesDict
+        A custom dictionary that contains the generalized speed which varies
+        with time.
     measurements : _MeasurementsDict
         A custom dictionary that contains parameters that are functions of the
-        constants and coordinates.
+        constants, coordinates, and other measurements.
     config_plot_func : function
         A function that generates a matplotlib plot that uses the instantaneous
         values of the constants, coordinates, and measurements.
     config_plot_update_func : function
         A function that updates the configuration plot that uses the time
         series values of the constants, coordinates, and measurements. Defines
-        an matplotlib animation frame.
+        a matplotlib animation frame.
 
     Methods
     =======
@@ -156,14 +160,14 @@ class SingleDoFLinearSystem(object):
     animate_configutation
         Generates the animation defined by ``config_plot_func`` and
         ``config_plot_update_func``.
+    period
+        Returns the damped natural period of the system.
 
     """
 
     _time_var_name = 'time'
     _vel_append = '_vel'
     _acc_append = '_acc'
-
-    # TODO : Only allow a single coordinate to be set on a 1 DoF system.
 
     def __init__(self):
 
@@ -184,7 +188,25 @@ class SingleDoFLinearSystem(object):
 
     @property
     def constants(self):
-        """A dictionary containing the all of the system's constants."""
+        """A dictionary containing the all of the system's constants.
+
+        Examples
+        ========
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants
+        {}
+        >>> sys.constants['mass'] = 5.0
+        >>> sys.constants
+        {'mass': 5.0}
+        >>> del sys.constants['mass']
+        >>> sys.constants
+        {}
+        >>> sys.constants['length'] = 10.0
+        >>> sys.constants
+        {'length': 10.0}
+
+
+        """
         return self._constants
 
     @constants.setter
@@ -195,7 +217,7 @@ class SingleDoFLinearSystem(object):
 
     @property
     def coordinates(self):
-        """A dictionary containing the all of the system's coordinates."""
+        """A dictionary containing the system's generalized coordinate."""
         return self._coordinates
 
     @coordinates.setter
@@ -206,7 +228,7 @@ class SingleDoFLinearSystem(object):
 
     @property
     def speeds(self):
-        """A dictionary containing the all of the system's speeds."""
+        """A dictionary containing the system's generalized speed."""
         return self._speeds
 
     @speeds.setter
@@ -233,7 +255,26 @@ class SingleDoFLinearSystem(object):
         system's constants, coordinates, measurements, or 'time'. No other
         arguments are valid. The function has to return the matplotlib figure
         as the first item but can be followed by any number of mutable
-        matplotlib objects that you may want to change during an animation."""
+        matplotlib objects that you may want to change during an animation.
+        Refer to the matplotlib documentation for tips on creating figures.
+
+        Examples
+        ========
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['radius'] = 5.0
+        >>> sys.constants['center_y'] = 10.0
+        >>> sys.coordinates['center_x'] = 0.0
+        >>> def plot(radius, center_x, center_y, time):
+        ...     fig, ax = plt.subplots(1, 1)
+        ...     circle = Circle((center_x, center_y), radius=radius)
+        ...     ax.add_patch(circle)
+        ...     ax.set_title(time)
+        ...     return fig, circle, ax
+        ...
+        >>> sys.config_plot_function = plot
+        >>> sys.plot_configuration()
+
+        """
         return self._config_plot_func
 
     @config_plot_func.setter
@@ -243,8 +284,39 @@ class SingleDoFLinearSystem(object):
     @property
     def config_plot_update_func(self):
         """The configuration plot update function arguments should be any of
-        the system's constants, coordinates, measurements, or 'time'. No other
-        arguments are valid. Nothing need be returned from the function."""
+        the system's constants, coordinates, measurements, or 'time' in any
+        order with the returned values from the ``config_plot_func`` as the
+        last arguments in the exact order as in the configuration plot return
+        statement. No other arguments are valid. Nothing need be returned from
+        the function. See the matplotlib animation documentation for tips on
+        creating these update functions.
+
+        Examples
+        ========
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['radius'] = 5.0
+        >>> sys.constants['center_y'] = 10.0
+        >>> sys.coordinates['center_x'] = 0.0
+        >>> def plot(radius, center_x, center_y, time):
+        ...     fig, ax = plt.subplots(1, 1)
+        ...     circle = Circle((center_x, center_y), radius=radius)
+        ...     ax.add_patch(circle)
+        ...     ax.set_title(time)
+        ...     return fig, circle, ax
+        ...
+        >>> sys.config_plot_function = plot
+        >>> def update(center_y, center_x, time, circle, ax):
+        ...     # NOTE : that circle and ax have to be the last arguments and be
+        ...     # in the same order as returned from plot()
+        ...     circle.set_xy((center_x, center_y))
+        ...     ax.set_title(time)
+        ...     fig.canvas.draw()
+        ...
+        >>> sys.config_plot_update_func = update
+        >>> sys.animate_configuration()
+
+
+        """
         return self._config_plot_update_func
 
     @config_plot_update_func.setter
@@ -567,12 +639,15 @@ class SingleDoFLinearSystem(object):
 
     def plot_configuration(self):
         """Returns a matplotlib figure generated by the function assigned to
-        the config_plot_func attribute. You may need to call
+        the ``config_plot_func`` attribute. You may need to call
         ``matplotlib.pyplot.show()`` to display the figure.
 
         Returns
         =======
         fig : matplotlib.figure.Figure
+            The first returned object is always a figure.
+        *args : matplotlib objects
+            Any matplotlib objects can be returned after the figure.
 
         """
         # TODO : Most plots in pandas, etc return the axes not the figure. I
