@@ -8,13 +8,14 @@ dependencies:
   - pip
   - pytest
   - sphinx
-  - ipywidgets
-  - nbconvert
-  - notebook<5.1
   - numpy
-  - matplotlib
   - scipy
+  - matplotlib
   - pandas
   - sympy
+  - notebook<5.1
+  - ipywidgets
+  - nbconvert
+  - jupyter_contrib_nbextensions
   - pip:
     - https://github.com/moorepants/rst-to-ipynb/archive/pycon-funcs.zip

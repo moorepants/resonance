@@ -6,10 +6,13 @@ dependencies:
   - python >=3.5
   - setuptools
   - pip
-  - notebook
-  - ipywidgets
   - numpy
-  - matplotlib
   - scipy
+  - matplotlib
   - pandas
   - sympy
+  - notebook
+  - ipywidgets
+  - jupyter_contrib_nbextensions
+  - pip:
+    - resonance
