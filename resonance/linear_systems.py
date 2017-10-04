@@ -42,6 +42,42 @@ class _ParametersDict(collections.MutableMapping, dict):
         return dict.__contains__(self, x)
 
 
+class _CoordinatesDict(collections.MutableMapping, dict):
+    """A custom dictionary for storing coordinates and speeds."""
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key)
+
+    def __setitem__(self, key, value):
+        if len(self.keys()) == 1 and key != list(self.keys())[0]:
+            msg = ("There is already a coordinate set for this system, only "
+                   "one coordinate is permitted. Use del to remove the "
+                   "coordinate if you'd like to add a new one.")
+            raise ValueError(msg)
+        elif not key.isidentifier():
+            msg = ('{} is not a valid coordinate or speed name. '
+                   'It must be a valid Python variable name.')
+            raise ValueError(msg.format(key))
+        elif key.lower() == 'time':
+            msg = ('{} is a reserved parameter name. '
+                   'Choose something different.')
+            raise ValueError(msg.format(key))
+        else:
+            dict.__setitem__(self, key, value)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+
+    def __iter__(self):
+        return dict.__iter__(self)
+
+    def __len__(self):
+        return dict.__len__(self)
+
+    def __contains__(self, x):
+        return dict.__contains__(self, x)
+
+
 class _MeasurementsDict(collections.MutableMapping, dict):
 
     def _compute_value(self, key):
@@ -95,18 +131,22 @@ class SingleDoFLinearSystem(object):
     constants : _ParametersDict
         A custom dictionary that contains parameters that do not vary with
         time.
-    coordinates : _ParametersDict
-        A custom dictionary that contains parameters that do vary with time.
+    coordinates : _CoordinatesDict
+        A custom dictionary that contains the generalized coordinate which
+        varies with time.
+    speeds : _CoordinatesDict
+        A custom dictionary that contains the generalized speed which varies
+        with time.
     measurements : _MeasurementsDict
         A custom dictionary that contains parameters that are functions of the
-        constants and coordinates.
+        constants, coordinates, and other measurements.
     config_plot_func : function
         A function that generates a matplotlib plot that uses the instantaneous
         values of the constants, coordinates, and measurements.
     config_plot_update_func : function
         A function that updates the configuration plot that uses the time
         series values of the constants, coordinates, and measurements. Defines
-        an matplotlib animation frame.
+        a matplotlib animation frame.
 
     Methods
     =======
@@ -120,23 +160,27 @@ class SingleDoFLinearSystem(object):
     animate_configutation
         Generates the animation defined by ``config_plot_func`` and
         ``config_plot_update_func``.
+    period
+        Returns the damped natural period of the system.
 
     """
 
     _time_var_name = 'time'
-
-    # TODO : Only allow a single coordinate to be set on a 1 DoF system.
+    _vel_append = '_vel'
+    _acc_append = '_acc'
 
     def __init__(self):
 
-        # TODO : Allow pars, coords, and meas to be set on intialization.
+        # TODO : Allow constants, coords, and meas to be set on intialization.
 
         self._constants = _ParametersDict({})
-        self._coordinates = _ParametersDict({})
+        self._coordinates = _CoordinatesDict({})
+        self._speeds = _CoordinatesDict({})
         self._measurements = _MeasurementsDict({})
 
         self._measurements._constants = self._constants
         self._measurements._coordinates = self._coordinates
+        self._measurements._speeds = self._speeds
         self._measurements._funcs = {}
 
         self._config_plot_func = None
@@ -144,7 +188,25 @@ class SingleDoFLinearSystem(object):
 
     @property
     def constants(self):
-        """A dictionary containing the all of the system's constants."""
+        """A dictionary containing the all of the system's constants.
+
+        Examples
+        ========
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants
+        {}
+        >>> sys.constants['mass'] = 5.0
+        >>> sys.constants
+        {'mass': 5.0}
+        >>> del sys.constants['mass']
+        >>> sys.constants
+        {}
+        >>> sys.constants['length'] = 10.0
+        >>> sys.constants
+        {'length': 10.0}
+
+
+        """
         return self._constants
 
     @constants.setter
@@ -155,13 +217,24 @@ class SingleDoFLinearSystem(object):
 
     @property
     def coordinates(self):
-        """A dictionary containing the all of the system's coordinates."""
+        """A dictionary containing the system's generalized coordinate."""
         return self._coordinates
 
     @coordinates.setter
     def coordinates(self, val):
         msg = ('It is not allowed to replace the entire coordinates '
                'dictionary, add or delete coordinates one by one.')
+        raise ValueError(msg)
+
+    @property
+    def speeds(self):
+        """A dictionary containing the system's generalized speed."""
+        return self._speeds
+
+    @speeds.setter
+    def speeds(self, val):
+        msg = ('It is not allowed to replace the entire speeds '
+               'dictionary, add or delete speeds one by one.')
         raise ValueError(msg)
 
     @property
@@ -178,26 +251,76 @@ class SingleDoFLinearSystem(object):
 
     @property
     def config_plot_func(self):
-        return self._config_plot_func
-
-    @config_plot_func.setter
-    def config_plot_func(self, func):
         """The configuration plot function arguments should be any of the
         system's constants, coordinates, measurements, or 'time'. No other
         arguments are valid. The function has to return the matplotlib figure
         as the first item but can be followed by any number of mutable
-        matplotlib objects that you may want to change during an animation."""
+        matplotlib objects that you may want to change during an animation.
+        Refer to the matplotlib documentation for tips on creating figures.
+
+        Examples
+        ========
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['radius'] = 5.0
+        >>> sys.constants['center_y'] = 10.0
+        >>> sys.coordinates['center_x'] = 0.0
+        >>> def plot(radius, center_x, center_y, time):
+        ...     fig, ax = plt.subplots(1, 1)
+        ...     circle = Circle((center_x, center_y), radius=radius)
+        ...     ax.add_patch(circle)
+        ...     ax.set_title(time)
+        ...     return fig, circle, ax
+        ...
+        >>> sys.config_plot_function = plot
+        >>> sys.plot_configuration()
+
+        """
+        return self._config_plot_func
+
+    @config_plot_func.setter
+    def config_plot_func(self, func):
         self._config_plot_func = func
 
     @property
     def config_plot_update_func(self):
+        """The configuration plot update function arguments should be any of
+        the system's constants, coordinates, measurements, or 'time' in any
+        order with the returned values from the ``config_plot_func`` as the
+        last arguments in the exact order as in the configuration plot return
+        statement. No other arguments are valid. Nothing need be returned from
+        the function. See the matplotlib animation documentation for tips on
+        creating these update functions.
+
+        Examples
+        ========
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['radius'] = 5.0
+        >>> sys.constants['center_y'] = 10.0
+        >>> sys.coordinates['center_x'] = 0.0
+        >>> def plot(radius, center_x, center_y, time):
+        ...     fig, ax = plt.subplots(1, 1)
+        ...     circle = Circle((center_x, center_y), radius=radius)
+        ...     ax.add_patch(circle)
+        ...     ax.set_title(time)
+        ...     return fig, circle, ax
+        ...
+        >>> sys.config_plot_function = plot
+        >>> def update(center_y, center_x, time, circle, ax):
+        ...     # NOTE : that circle and ax have to be the last arguments and be
+        ...     # in the same order as returned from plot()
+        ...     circle.set_xy((center_x, center_y))
+        ...     ax.set_title(time)
+        ...     fig.canvas.draw()
+        ...
+        >>> sys.config_plot_update_func = update
+        >>> sys.animate_configuration()
+
+
+        """
         return self._config_plot_update_func
 
     @config_plot_update_func.setter
     def config_plot_update_func(self, func):
-        """The configuration plot update function arguments should be any of
-        the system's constants, coordinates, measurements, or 'time'. No other
-        arguments are valid. Nothing need be returned from the function."""
         self._config_plot_update_func = func
 
     def _get_par_vals(self, par_name):
@@ -224,7 +347,7 @@ class SingleDoFLinearSystem(object):
         ==========
         name : string
             This must be a valid Python variable name and it should not clash
-            with any names in the parameters or coordinates dictionary.
+            with any names in the constants or coordinates dictionary.
         func : function
             This function must only have existing parameter, coordinate, or
             measurement names in the function signature. These can be a subset
@@ -281,6 +404,7 @@ class SingleDoFLinearSystem(object):
             msg = ('The combination of system constants produces a negative '
                    'damping ratio, which results in an unstable system.')
             warnings.warn(msg)
+        return zeta
 
     @staticmethod
     def _damped_natural_frequency(natural_frequency, damping_ratio):
@@ -318,12 +442,16 @@ class SingleDoFLinearSystem(object):
         wn = self._natural_frequency(m, k)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         c1 = v0 / wn
         c2 = x0
 
-        return c1 * np.sin(wn * t) + c2 * np.cos(wn * t)
+        pos = c1 * np.sin(wn * t) + c2 * np.cos(wn * t)
+        vel = c1 * wn * np.cos(wn * t) - c2 * wn * np.sin(wn * t)
+        acc = -c1 * wn**2 * np.sin(wn * t) - c2 * wn**2 * np.cos(wn * t)
+
+        return pos, vel, acc
 
     def _no_damping_unstable_solution(self, time):
 
@@ -331,15 +459,20 @@ class SingleDoFLinearSystem(object):
 
         m, c, k = self._canonical_coefficients()
 
-        wn = self._natural_frequency(m, k)
+        wn = self._natural_frequency(m, k).imag
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
-        c1 = v0 / wn.imag
+        # TODO : Verify these are correct.
+        c1 = v0 / wn
         c2 = x0
 
-        return c1 * np.sinh(wn.imag * t) + c2 * np.cosh(wn.imag * t)
+        pos = c1 * np.sinh(wn * t) + c2 * np.cosh(wn * t)
+        vel = wn * (c1 * np.cosh(wn * t) + c2 * np.sinh(wn * t))
+        acc = wn**2 * (c1 * np.sinh(wn * t) + c2 * np.cosh(wn * t))
+
+        return pos, vel, acc
 
     def _underdamped_solution(self, time):
 
@@ -352,12 +485,22 @@ class SingleDoFLinearSystem(object):
         wd = self._damped_natural_frequency(wn, z)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         A = np.sqrt(((v0 + z * wn * x0)**2 + (x0 * wd)**2) / wd**2)
-        phi = np.atan(x0 * wd / (v0 + z * wn * x0))
+        phi = np.arctan2(x0 * wd, v0 + z * wn * x0)
 
-        return A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
+        pos = A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
+
+        vel = (A * -z * wn * np.exp(-z * wn * t) * np.sin(wd * t + phi) +
+               A * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi))
+
+        acc = (A * (-z * wn)**2 * np.exp(-z * wn * t) * np.sin(wd * t + phi) +
+               A * -z * wn * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi) +
+               A * -z * wn * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi) -
+               A * np.exp(-z * wn * t) * wd**2 * np.sin(wd * t + phi))
+
+        return pos, vel, acc
 
     def _overdamped_solution(self, time):
 
@@ -369,15 +512,33 @@ class SingleDoFLinearSystem(object):
         z = self._damping_ratio(m, c, wn)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         a1 = ((-v0 + (-z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn /
               np.sqrt(z**2 - 1))
         a2 = ((v0 + (z + np.sqrt(z**2 - 1)) * wn * x0) / 2 / wn /
               np.sqrt(z**2 - 1))
 
-        decay = wn * np.sqrt(z**2 - 1) * t
-        return np.exp(-z * wn * t) * (a1 * np.exp(-decay) + a2 * np.exp(decay))
+        time_const = wn * np.sqrt(z**2 - 1)
+
+        pos = np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
+                               a2*np.exp(time_const*t))
+
+        vel = (-z*wn*np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
+                                      a2*np.exp(time_const*t)) +
+               np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                a2*time_const*np.exp(time_const*t)))
+
+        acc = ((-z*wn)**2*np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
+                                           a2*np.exp(time_const*t)) +
+               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                      a2*time_const*np.exp(time_const*t)) +
+               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                      a2*time_const*np.exp(time_const*t)) +
+               np.exp(-z*wn*t)*(a1*time_cont**2*np.exp(-time_const*t) +
+                                a2*time_const**2*np.exp(time_const*t)))
+
+        return pos, vel, acc
 
     def _critically_damped_solution(self, time):
 
@@ -388,15 +549,21 @@ class SingleDoFLinearSystem(object):
         wn = self._natural_frequency(m, k)
 
         x0 = list(self.coordinates.values())[0]
-        v0 = 0.0
+        v0 = list(self.speeds.values())[0]
 
         a1 = x0
         a2 = v0 + wn * x0
 
-        return (a1 + a2 * t) * np.exp(-wn * t)
+        pos = (a1 + a2 * t) * np.exp(-wn * t)
+        vel = a2 * np.exp(-wn * t) + (a1 + a2 * t) * -wn * np.exp(-wn * t)
+        acc = (a2 * -wn * np.exp(-wn * t) + a2 * -wn * np.exp(-wn * t) +
+               (a1 + a2 * t) * wn**2 * np.exp(-wn * t))
+
+        return pos, vel, acc
 
     def period(self):
-        """Returns the period of oscillation of the coordinate."""
+        """Returns the (damped) period of oscillation of the coordinate in
+        seconds."""
         m, c, k = self._canonical_coefficients()
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
@@ -441,13 +608,18 @@ class SingleDoFLinearSystem(object):
 
         sol_func = self._solution_func()
 
-        coordinate_traj = sol_func(times)
+        pos_traj, vel_traj, acc_traj = sol_func(times)
 
         coord_name = list(self.coordinates.keys())[0]
 
-        df = pd.DataFrame({coord_name: coordinate_traj}, index=times)
+        # TODO : What if they added a coordinate with the vel or acc names?
+        df = pd.DataFrame({coord_name: pos_traj,
+                           coord_name + self._vel_append: vel_traj,
+                           coord_name + self._acc_append: acc_traj},
+                          index=times)
         df.index.name = self._time_var_name
 
+        # TODO : Allow vel and acc to be used in measurements.
         # TODO : Need a way to compute the measurements as array values based
         # on the coordinate changing at each time but the current method of
         # letting the measurement be computed by the stored coordinate scalar
@@ -455,7 +627,7 @@ class SingleDoFLinearSystem(object):
         for k, v in self.measurements.items():
             vals = np.zeros_like(times)
             x0 = list(self.coordinates.values())[0]
-            for i, xi in enumerate(coordinate_traj):
+            for i, xi in enumerate(pos_traj):
                 self.coordinates[coord_name] = xi
                 vals[i] = self.measurements[k]
             self.coordinates[coord_name] = x0
@@ -467,12 +639,15 @@ class SingleDoFLinearSystem(object):
 
     def plot_configuration(self):
         """Returns a matplotlib figure generated by the function assigned to
-        the config_plot_func attribute. You may need to call
+        the ``config_plot_func`` attribute. You may need to call
         ``matplotlib.pyplot.show()`` to display the figure.
 
         Returns
         =======
         fig : matplotlib.figure.Figure
+            The first returned object is always a figure.
+        *args : matplotlib objects
+            Any matplotlib objects can be returned after the figure.
 
         """
         # TODO : Most plots in pandas, etc return the axes not the figure. I
@@ -556,6 +731,9 @@ class BookOnCupSystem(SingleDoFLinearSystem):
     coordinates
         book_angle, theta [radians]
             the angle of the book with respect to the gravity vector
+    speeds
+        book_angle_vel, theta [radians]
+            the angular rate of the book with repsect to the gravity vector
 
     """
 
@@ -568,6 +746,7 @@ class BookOnCupSystem(SingleDoFLinearSystem):
         self.constants['radius'] = 0.042  # m
         self.constants['mass'] = 1.058  # kg
         self.coordinates['book_angle'] = 0.0  # rad
+        self.speeds['book_angle_vel'] = 0.0  # rad/s
 
     # TODO : This needs to be added in the super class with the add_coef_func()
     # method.
@@ -583,6 +762,166 @@ class BookOnCupSystem(SingleDoFLinearSystem):
             c = 0.0
             k = g * radius - g * thickness / 2
             return m, c, k
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+
+class TorsionalPendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple torsional pendulum in which
+    the torsionally elastic member's axis is aligned with gravity and the axis
+    of the torsion member passes through the mass center of an object attached
+    to it's lower end. The top of the torsion rod is rigidly attached to the
+    "ceiling". It is described by:
+
+    Attributes
+    ==========
+    constants
+        rotational_inertia, I [kg m**2]
+            The moment of inertia of the object attached to the pendulum.
+        torsional_damping, C [N s / m]
+            The viscous linear damping coefficient which represents any energy
+            disipation from things like air resistance, slip, etc.
+        torsional_stiffness, K [N / m]
+            The linear elastic stiffness coefficient of the torsion member,
+            typically a round slender rod.
+    coordinates
+        torsional_angle, theta [rad]
+    speeds
+        torsional_angle_vel, theta_dot [rad / s]
+
+    """
+
+    def __init__(self):
+
+        super(TorsionalPendulumSystem, self).__init__()
+
+        self.constants['rotational_inertia'] = 0.0  # kg m^2
+        self.constants['torsional_damping'] = 0.0  # Ns/m
+        self.constants['torsional_stiffness'] = 0.0  # N/m
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['torsion_angle'] = 0.0
+        self.speeds['torsion_angle_vel'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(rotational_inertia, torsional_damping, torsional_stiffness):
+            return rotational_inertia, torsional_damping, torsional_stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+
+class CompoundPendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple compound pendulum in which a
+    rigid body is attached via a revolute joint to a fixed point. Gravity acts
+    on the pendulum to bring it to an equilibrium state and there is no
+    friction in the joint. It is described by:
+
+    Attributes
+    ==========
+    constants
+        pendulum_mass, m [kg]
+            The mass of the compound pendulum.
+        inertia_about_joint, i [kg m**2]
+            The moment of inertia of the compound pendulum about the revolute
+            joint.
+        joint_to_mass_center, l [m]
+            The distance from the revolute joint to the mass center of the
+            compound pendulum.
+        acc_due_to_gravity, g [m/s**2]
+            The acceleration due to gravity.
+    coordinates
+        angle, theta [rad]
+            The angle of the pendulum relative to the direction of gravity.
+            When theta is zero the pendulum is hanging down in it's equilibrium
+            state.
+    speeds
+        angle_vel, theta_dot [rad / s]
+            The angular velocity of the pendulum about the revolute joint axis.
+
+    """
+
+    def __init__(self):
+
+        super(CompoundPendulumSystem, self).__init__()
+
+        self.constants['pendulum_mass'] = 0.0  # kg
+        self.constants['inertia_about_joint'] = 0.0  # kg m**2
+        self.constants['joint_to_mass_center'] = 0.0  # m
+        self.constants['acc_due_to_gravity'] = 0.0  # m / s**2
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['angle'] = 0.0
+        self.speeds['angle_vel'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(pendulum_mass, inertia_about_joint, joint_to_mass_center,
+                   acc_due_to_gravity):
+            m = pendulum_mass
+            i = inertia_about_joint
+            l = joint_to_mass_center
+            g = acc_due_to_gravity
+
+            return i, 0.0, m * g * l
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+class SimplePendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple pendulum in which a point
+    mass is fixed on a massless pendulum arm of some length to a revolute
+    joint. Gravity acts on the pendulum to bring it to an equilibrium state and
+    there is no friction in the joint. It is described by:
+
+    Attributes
+    ==========
+    constants
+        pendulum_mass, m [kg]
+            The mass of the compound pendulum.
+        pendulum_length, l [m]
+            The distance from the revolute joint to the point mass location.
+        acc_due_to_gravity, g [m/s**2]
+            The acceleration due to gravity.
+    coordinates
+        angle, theta [rad]
+            The angle of the pendulum relative to the direction of gravity.
+            When theta is zero the pendulum is hanging down in it's equilibrium
+            state.
+    speeds
+        angle_vel, theta_dot [rad / s]
+            The angular velocity of the pendulum about the revolute joint axis.
+
+    """
+
+    def __init__(self):
+
+        super(SimplePendulumSystem, self).__init__()
+
+        self.constants['pendulum_mass'] = 0.0  # kg
+        self.constants['pendulum_length'] = 0.0  # m
+        self.constants['acc_due_to_gravity'] = 0.0  # m / s**2
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['angle'] = 0.0
+        self.speeds['angle_vel'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(pendulum_mass, pendulum_length, acc_due_to_gravity):
+            m = pendulum_mass
+            l = pendulum_length
+            g = acc_due_to_gravity
+
+            return m * l**2, 0.0, m * g * l
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
