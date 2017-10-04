@@ -229,26 +229,26 @@ class SingleDoFLinearSystem(object):
 
     @property
     def config_plot_func(self):
-        return self._config_plot_func
-
-    @config_plot_func.setter
-    def config_plot_func(self, func):
         """The configuration plot function arguments should be any of the
         system's constants, coordinates, measurements, or 'time'. No other
         arguments are valid. The function has to return the matplotlib figure
         as the first item but can be followed by any number of mutable
         matplotlib objects that you may want to change during an animation."""
+        return self._config_plot_func
+
+    @config_plot_func.setter
+    def config_plot_func(self, func):
         self._config_plot_func = func
 
     @property
     def config_plot_update_func(self):
+        """The configuration plot update function arguments should be any of
+        the system's constants, coordinates, measurements, or 'time'. No other
+        arguments are valid. Nothing need be returned from the function."""
         return self._config_plot_update_func
 
     @config_plot_update_func.setter
     def config_plot_update_func(self, func):
-        """The configuration plot update function arguments should be any of
-        the system's constants, coordinates, measurements, or 'time'. No other
-        arguments are valid. Nothing need be returned from the function."""
         self._config_plot_update_func = func
 
     def _get_par_vals(self, par_name):
@@ -697,8 +697,120 @@ class TorsionalPendulumSystem(SingleDoFLinearSystem):
 
     def _canonical_coefficients(self):
 
-        def coeffs(radial_inertia, viscous_damping, rod_stiffness):
-            return radial_inertia, viscous_damping, rod_stiffness
+        def coeffs(rotational_inertia, torsional_damping, torsional_stiffness):
+            return rotational_inertia, torsional_damping, torsional_stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+
+class CompoundPendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple compound pendulum in which a
+    rigid body is attached via a revolute joint to a fixed point. Gravity acts
+    on the pendulum to bring it to an equilibrium state and there is no
+    friction in the joint. It is described by:
+
+    Attributes
+    ==========
+    constants
+        pendulum_mass, m [kg]
+            The mass of the compound pendulum.
+        inertia_about_joint, i [kg m**2]
+            The moment of inertia of the compound pendulum about the revolute
+            joint.
+        joint_to_mass_center, l [m]
+            The distance from the revolute joint to the mass center of the
+            compound pendulum.
+        acc_due_to_gravity, g [m/s**2]
+            The acceleration due to gravity.
+    coordinates
+        angle, theta [rad]
+            The angle of the pendulum relative to the direction of gravity.
+            When theta is zero the pendulum is hanging down in it's equilibrium
+            state.
+    speeds
+        angle_vel, theta_dot [rad / s]
+            The angular velocity of the pendulum about the revolute joint axis.
+
+    """
+
+    def __init__(self):
+
+        super(CompoundPendulumSystem, self).__init__()
+
+        self.constants['pendulum_mass'] = 0.0  # kg
+        self.constants['inertia_about_joint'] = 0.0  # kg m**2
+        self.constants['joint_to_mass_center'] = 0.0  # m
+        self.constants['acc_due_to_gravity'] = 0.0  # m / s**2
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['angle'] = 0.0
+        self.speeds['angle_vel'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(pendulum_mass, inertia_about_joint, joint_to_mass_center,
+                   acc_due_to_gravity):
+            m = pendulum_mass
+            i = inertia_about_joint
+            l = joint_to_mass_center
+            g = acc_due_to_gravity
+
+            return i, 0.0, m * g * l
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+class SimplePendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple pendulum in which a point
+    mass is fixed on a massless pendulum arm of some length to a revolute
+    joint. Gravity acts on the pendulum to bring it to an equilibrium state and
+    there is no friction in the joint. It is described by:
+
+    Attributes
+    ==========
+    constants
+        pendulum_mass, m [kg]
+            The mass of the compound pendulum.
+        pendulum_length, l [m]
+            The distance from the revolute joint to the point mass location.
+        acc_due_to_gravity, g [m/s**2]
+            The acceleration due to gravity.
+    coordinates
+        angle, theta [rad]
+            The angle of the pendulum relative to the direction of gravity.
+            When theta is zero the pendulum is hanging down in it's equilibrium
+            state.
+    speeds
+        angle_vel, theta_dot [rad / s]
+            The angular velocity of the pendulum about the revolute joint axis.
+
+    """
+
+    def __init__(self):
+
+        super(SimplePendulumSystem, self).__init__()
+
+        self.constants['pendulum_mass'] = 0.0  # kg
+        self.constants['pendulum_length'] = 0.0  # m
+        self.constants['acc_due_to_gravity'] = 0.0  # m / s**2
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['angle'] = 0.0
+        self.speeds['angle_vel'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(pendulum_mass, pendulum_length, acc_due_to_gravity):
+            m = pendulum_mass
+            l = pendulum_length
+            g = acc_due_to_gravity
+
+            return m * l**2, 0.0, m * g * l
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
