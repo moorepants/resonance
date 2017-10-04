@@ -5,7 +5,7 @@ set -x  # print all executed commands
 for srcpath in notebook-src/*.ipynb
 do
 	filename=$(basename "$srcpath")
-    cp "$srcpath" "notebooks/$filename"
+	cp "$srcpath" "notebooks/$filename"
 done
 
 # copy figures over
