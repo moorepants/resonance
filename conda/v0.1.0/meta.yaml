@@ -17,10 +17,10 @@ build:
 
 requirements:
   build:
-    - python >=3.5
+    - python
     - setuptools
   run:
-    - python >=3.5
+    - python
     - numpy >=1.13
     - scipy >=0.19
     - pandas >=0.20
