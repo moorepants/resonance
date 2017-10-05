@@ -4,7 +4,8 @@ import pytest
 import numpy as np
 
 from ..linear_systems import (_ParametersDict, _MeasurementsDict,
-                              _CoordinatesDict, TorsionalPendulumSystem)
+                              _CoordinatesDict, TorsionalPendulumSystem,
+                              SimplePendulumSystem)
 
 
 def test_nonvalid_parameters_key():
@@ -96,3 +97,14 @@ def test_torsional_pendulum_system():
     expected_pos = A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
     traj = sys.free_response(1.0)
     np.testing.assert_allclose(traj.torsion_angle, expected_pos)
+
+
+def test_simple_pendulum_system():
+
+    sys = SimplePendulumSystem()
+
+    sys.constants['pendulum_mass'] = 1.0  # kg
+    sys.constants['pendulum_length'] = 1.0  # m
+    sys.constants['acc_due_to_gravity'] = 9.81  # m/s**2
+
+    assert isclose(sys.period(), 2.0 * np.pi * np.sqrt(1.0 / 9.81))

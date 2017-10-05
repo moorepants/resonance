@@ -592,7 +592,7 @@ class SingleDoFLinearSystem(object):
         Returns
         =======
         df : pandas.DataFrame
-            A data frame index by time with all of the coordinates and
+            A data frame indexed by time with all of the coordinates and
             measurements as columns.
 
         """
