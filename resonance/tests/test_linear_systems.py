@@ -14,6 +14,10 @@ def test_nonvalid_parameters_key():
         p['ben stiller'] = 12.0
     with pytest.raises(ValueError):
         p['time'] = 12.0
+    p['a'] = 1.0
+    if 'a' in p:
+        pass
+    del p['a']
 
 def test_setting_measurements_item():
     m = _MeasurementsDict({})
@@ -33,9 +37,28 @@ def test_setting_coordinates_item():
     with pytest.raises(ValueError):
         m['second_key'] = 12.0
 
+    if 'first_key' in m:
+        pass
+    del m['first_key']
+
 def test_torsional_pendulum_system():
 
     sys = TorsionalPendulumSystem()
+
+    with pytest.raises(ValueError):
+        sys.constants = {}
+
+    with pytest.raises(ValueError):
+        sys.coordinates = {}
+
+    with pytest.raises(ValueError):
+        sys.speeds = {}
+
+    with pytest.raises(ValueError):
+        sys.measurements = {}
+
+    with pytest.raises(KeyError):
+        sys._get_par_vals('not_in_here')
 
     sys.constants['rotational_inertia'] = 2.0
     sys.constants['torsional_damping'] = 1.0
@@ -56,8 +79,29 @@ def test_torsional_pendulum_system():
     def spring_force(torsional_stiffness, torsion_angle):
         return torsional_stiffness * torsion_angle
 
+    with pytest.raises(ValueError):
+        sys.add_measurement('Time', spring_force)
+
+    with pytest.raises(ValueError):
+        sys.add_measurement('torsion_angle', spring_force)
+
+    with pytest.raises(ValueError):
+        sys.add_measurement('torsion_angle_vel', spring_force)
+
+    with pytest.raises(ValueError):
+        sys.add_measurement('rotational_inertia', spring_force)
+
     sys.add_measurement('spring_force', spring_force)
     assert isclose(sys.measurements['spring_force'], 24.0)
+    assert len(sys.measurements) == 1
+    if 'spring_force' in sys.measurements:
+        pass
+
+    def spring_force2(torsional_stiffness, wrong_key):
+        return torsional_stiffness * wrong_key
+    with pytest.raises(KeyError):
+        sys.add_measurement('spring_force2', spring_force2)
+    del sys.measurements['spring_force']
 
     assert isclose(sys._natural_frequency(m, k), np.sqrt(k / m))
 
@@ -74,6 +118,8 @@ def test_torsional_pendulum_system():
     # no damping, stable case
     wn = np.sqrt(8.0 / 2.0)
     expected_pos = v0 / wn * np.sin(wn * t) + x0 * np.cos(wn * t)
+    with pytest.raises(ValueError):
+        traj = sys.free_response(1.0, 1.5)
     traj = sys.free_response(1.0)
     np.testing.assert_allclose(traj.index, t)
     np.testing.assert_allclose(traj.torsion_angle.values, expected_pos)
@@ -97,6 +143,12 @@ def test_torsional_pendulum_system():
     expected_pos = A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
     traj = sys.free_response(1.0)
     np.testing.assert_allclose(traj.torsion_angle, expected_pos)
+
+    with pytest.raises(AttributeError):
+        sys.plot_configuration()
+
+    with pytest.raises(AttributeError):
+        sys.animate_configuration()
 
 
 def test_simple_pendulum_system():

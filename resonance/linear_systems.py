@@ -109,6 +109,7 @@ class _MeasurementsDict(collections.MutableMapping, dict):
         raise ValueError(msg)
 
     def __delitem__(self, key):
+        # TODO : Should also remove from self._funcs
         dict.__delitem__(self, key)
 
     def __iter__(self):
@@ -377,7 +378,8 @@ class SingleDoFLinearSystem(object):
                    'Choose something different.')
             raise ValueError(msg.format(name))
         elif name in (list(self.constants.keys()) +
-                      list(self.coordinates.keys())):
+                      list(self.coordinates.keys()) +
+                      list(self.speeds.keys())):
             msg = ('{} is already used as a constant or coordinate name. '
                    'Choose something different.')
             raise ValueError(msg.format(name))
@@ -429,7 +431,8 @@ class SingleDoFLinearSystem(object):
             elif math.isclose(zeta, 0.0):
                 sol_func = self._critically_damped_solution
             else:
-                sol_func = None
+                msg = 'No valid simulation solution with these parameters.'
+                raise ValueError(msg)
 
         return sol_func
 
@@ -668,14 +671,10 @@ class SingleDoFLinearSystem(object):
         """Returns a matplotlib animation function based on the configuration
         plot and the configuration plot update function."""
 
-        if self.config_plot_func is None:
-            msg = 'No ploting function has been assigned to config_plot_func.'
-            raise ValueError(msg)
-
         if self.config_plot_update_func is None:
             msg = ('No ploting update function has been assigned to '
                    'config_plot_update_func.')
-            raise ValueError(msg)
+            raise AttributeError(msg)
 
         # TODO : Could be:
         # axes, *objs_to_modify = ..
