@@ -80,6 +80,19 @@ def test_torsional_pendulum_system():
     # no damping, unstable case
     sys.constants['torsional_stiffness'] = -8.0
     wn = np.sqrt(8.0 / 2.0)
+    # TODO : Need to check to make sure these are correct coefficients.
     expected_pos = v0 / wn * np.sinh(wn * t) + x0 * np.cosh(wn * t)
+    traj = sys.free_response(1.0)
+    np.testing.assert_allclose(traj.torsion_angle, expected_pos)
+
+    # underdamped
+    sys.constants['torsional_stiffness'] = 8.0
+    sys.constants['torsional_damping'] = 1.0
+    wn = np.sqrt(8.0 / 2.0)
+    z = 1.0 / 2.0 / 2.0 / wn
+    wd = wn * np.sqrt(1 - z**2)
+    A = np.sqrt(((v0 + z * wn * x0)**2 + (x0 * wd)**2) / wd**2)
+    phi = np.arctan2(x0 * wd, v0 + z * wn * x0)
+    expected_pos = A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
     traj = sys.free_response(1.0)
     np.testing.assert_allclose(traj.torsion_angle, expected_pos)
