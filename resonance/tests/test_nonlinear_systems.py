@@ -46,8 +46,8 @@ def sway(angle, length):
 sys.add_measurement('sway', sway)
 
 
-def potential_energy(height, mass, acc_due_to_grav):
-    return mass * acc_due_to_grav * height
+def potential_energy(length, height, mass, acc_due_to_grav):
+    return mass * acc_due_to_grav * (length + height)
 
 sys.add_measurement('potential_energy', potential_energy)
 
@@ -69,10 +69,10 @@ def plot_config(time, mass, length, sway, height, potential_energy):
 
     axes[0].add_patch(circle)
 
-    axes[1].set_ylim((-10, 0))
+    axes[1].set_ylim((0, 0.5))
     axes[1].set_xlim((0, 5))
     pe_lines = axes[1].plot([time], [potential_energy], marker='o',
-                            markersize=20)
+                            markersize=10)
 
     return fig, circle, rod_lines, pe_lines
 
