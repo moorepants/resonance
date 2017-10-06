@@ -2,7 +2,7 @@ from inspect import getargspec
 
 import numpy as np
 import scipy as sp
-import scipy.integrate
+import scipy.integrate  # scipy doesn't import automatically
 
 from .systems import _System
 
@@ -32,8 +32,10 @@ class NonLinearSystem(_System):
 
     def _generate_state_trajectories(self, times):
         int_res = self._integrate_equations_of_motion(times)
-        # TODO : Properly calculate acceleration.
-        return int_res[:, 0], int_res[:, 1], np.zeros_like(int_res[:, 0])
+        f = self.equations_of_motion
+        args = tuple([self._get_par_vals(k) for k in getargspec(f).args[2:]])
+        res = np.array(f(int_res.T, times, *args))
+        return int_res[:, 0], int_res[:, 1], res[1, :]
 
 
 class SimplePendulum(NonLinearSystem):
