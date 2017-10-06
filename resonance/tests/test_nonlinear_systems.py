@@ -41,6 +41,7 @@ sys.add_measurement('height', height)
 
 
 def sway(angle, length):
+    """The X coordinate points to the right."""
     return length * np.sin(angle)
 
 sys.add_measurement('sway', sway)
@@ -50,6 +51,18 @@ def potential_energy(length, height, mass, acc_due_to_grav):
     return mass * acc_due_to_grav * (length + height)
 
 sys.add_measurement('potential_energy', potential_energy)
+
+
+def kinetic_energy(mass, length, angle_vel):
+    return mass * (length * angle_vel)**2 / 2.0
+
+sys.add_measurement('kinetic_energy', kinetic_energy)
+
+
+def total_energy(kinetic_energy, potential_energy):
+    return kinetic_energy + potential_energy
+
+sys.add_measurement('total_energy', total_energy)
 
 trajectories = sys.free_response(5.0)
 

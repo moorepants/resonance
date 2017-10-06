@@ -89,7 +89,10 @@ class _MeasurementsDict(collections.MutableMapping, dict):
                 try:
                     v = self._coordinates[k]
                 except KeyError:
-                    v = self[k]
+                    try:
+                        v = self._speeds[k]
+                    except KeyError:
+                        v = self[k]
             return v
 
         # TODO : getargspec is deprecated, supposedly signature cna do the same
@@ -329,7 +332,7 @@ class _System(object):
         # name clashes in the dictionaries? Garbage in garbage out?
         # TODO : Raise useful error message if par_name not in any of the
         # dicts.
-        msg = '{} is not in constants, coordinates, speeds, or measurements'
+        msg = '{} is not in constants, coordinates, speeds, or measurements.'
         try:
             v = self.constants[par_name]
         except KeyError:
@@ -396,15 +399,16 @@ class _System(object):
     def _state_traj_to_dataframe(self, times, pos, vel, acc):
 
         coord_name = list(self.coordinates.keys())[0]
+        speed_name = coord_name + self._vel_append
 
         # TODO : What if they added a coordinate with the vel or acc names?
         df = pd.DataFrame({coord_name: pos,
-                           coord_name + self._vel_append: vel,
+                           speed_name: vel,
                            coord_name + self._acc_append: acc},
                           index=times)
         df.index.name = self._time_var_name
 
-        # TODO : Allow vel and acc to be used in measurements.
+        # TODO : Allow acc to be used in measurements.
         # TODO : Need a way to compute the measurements as array values based
         # on the coordinate changing at each time but the current method of
         # letting the measurement be computed by the stored coordinate scalar
@@ -412,10 +416,13 @@ class _System(object):
         for k, v in self.measurements.items():
             vals = np.zeros_like(times)
             x0 = list(self.coordinates.values())[0]
-            for i, xi in enumerate(pos):
+            v0 = list(self.speeds.values())[0]
+            for i, (xi, vi) in enumerate(zip(pos, vel)):
                 self.coordinates[coord_name] = xi
+                self.speeds[speed_name] = vi
                 vals[i] = self.measurements[k]
             self.coordinates[coord_name] = x0
+            self.speeds[speed_name] = v0
             df[k] = vals
 
         return df
