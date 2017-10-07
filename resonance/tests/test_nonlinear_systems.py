@@ -13,6 +13,9 @@ sys.constants['acc_due_to_grav'] = 9.81  # m/s**2
 sys.coordinates['angle'] = np.deg2rad(15.0)  # rad
 sys.speeds['angle_vel'] = 0.0  # rad/s
 
+#assert sys.states == {'angle': np.deg2rad(15.0),
+                      #'angle_vel': 0.0}
+
 
 def equations_of_motion(state, time, length, acc_due_to_grav):
 
@@ -67,13 +70,15 @@ sys.add_measurement('total_energy', total_energy)
 trajectories = sys.free_response(5.0)
 
 
-def plot_config(time, mass, length, sway, height, potential_energy):
+def plot_config(mass, length, sway, height, time__hist,
+                potential_energy__hist):
     fig, axes = plt.subplots(1, 2)
 
     circle_radius = mass / 2.0 / 10.0
 
     axes[0].set_xlim((-length - circle_radius, length + circle_radius))
     axes[0].set_ylim((-length - circle_radius, length + circle_radius))
+    axes[0].set_title('Pendulum')
     axes[0].set_aspect('equal')
 
     rod_lines = axes[0].plot([0, sway], [0, height])
@@ -84,18 +89,21 @@ def plot_config(time, mass, length, sway, height, potential_energy):
 
     axes[1].set_ylim((0, 0.5))
     axes[1].set_xlim((0, 5))
-    pe_lines = axes[1].plot([time], [potential_energy], marker='o',
-                            markersize=10)
+    axes[1].set_xlabel('Time [s]')
+    axes[1].set_ylabel('Potential Energy [J]')
+    pe_lines = axes[1].plot(time__hist, potential_energy__hist)
+
+    plt.tight_layout()
 
     return fig, circle, rod_lines, pe_lines
 
 sys.config_plot_func = plot_config
 
 
-def update_plot(sway, height, circle, time, potential_energy, rod_lines,
-                pe_lines):
+def update_plot(sway, height, time__hist, potential_energy__hist, circle,
+                rod_lines, pe_lines):
     circle.center = sway, height
     rod_lines[0].set_data([0, sway], [0, height])
-    pe_lines[0].set_data([time], [potential_energy])
+    pe_lines[0].set_data(time__hist, potential_energy__hist)
 
 sys.config_plot_update_func = update_plot

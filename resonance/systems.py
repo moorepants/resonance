@@ -494,6 +494,10 @@ class _System(object):
             for k in getargspec(self.config_plot_func).args:
                 if k == 'time':
                     args.append(0.0)  # static config defaults to t=0.0
+                elif k == 'time__hist':
+                    args.append(0.0)  # static config defaults to t=0.0
+                elif k.endswith('__hist'):
+                    args.append(self._get_par_vals(k[:-6]))
                 else:
                     args.append(self._get_par_vals(k))
             return self.config_plot_func(*args)
@@ -529,6 +533,10 @@ class _System(object):
             for k in getargspec(self.config_plot_update_func).args:
                 if k == 'time':
                     args.append(time)
+                elif k == 'time__hist':
+                    args.append(self.result[:time].index)
+                elif k.endswith('__hist'):
+                    args.append(self.result[k[:-6]][:time])
                 else:
                     try:
                         args.append(row[k])
