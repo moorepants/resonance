@@ -1,4 +1,4 @@
-import collections
+import collections as _collections
 from inspect import getargspec
 
 import numpy as np
@@ -6,11 +6,8 @@ import matplotlib.animation as animation
 import pandas as pd
 
 
-class _ParametersDict(collections.MutableMapping, dict):
+class _ParametersDict(_collections.OrderedDict):
     """A custom dictionary for storing constants and coordinates."""
-
-    def __getitem__(self, key):
-        return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
         # TODO : It would be nice to check to ensure that these names do not
@@ -25,22 +22,36 @@ class _ParametersDict(collections.MutableMapping, dict):
                    'Choose something different.')
             raise ValueError(msg.format(key))
         else:
-            dict.__setitem__(self, key, value)
+            _collections.OrderedDict.__setitem__(self, key, value)
 
-    def __delitem__(self, key):
-        dict.__delitem__(self, key)
+    # TODO : I don't like how OrderedDicts are printed, so make them print just
+    # like normal dicts, but none of the below things seem to make the IPython
+    # REPL print this correctly...
+    def __repr__(self):
+        return '{' + ', '.join(['{}: {}'.format(repr(k), repr(v)) for k, v in
+                                self.items()]) + '}'
 
-    def __iter__(self):
-        return dict.__iter__(self)
+    def __str__(self):
+        return self.__repr__
 
-    def __len__(self):
-        return dict.__len__(self)
+    # TODO : Almost works, but leaves double quotes around it because it is
+    # fundamentally pretty printing a string.
+    def _repr_pretty_(self, p, cycle):
+        p.pretty('{' + ', '.join(['{}: {}'.format(repr(k), repr(v)) for
+                                  k, v in self.items()]) + '}')
 
-    def __contains__(self, x):
-        return dict.__contains__(self, x)
+
+class _StatesDict(_collections.OrderedDict):
+    def __setitem__(self, key, value, allow=False):
+        msg = ("You can't set the values on the states dictionary, set them on "
+               "the coordinates or speeds dictionaries instead.")
+        if allow:
+            _collections.OrderedDict.__setitem__(self, key, value)
+        else:
+            raise ValueError(msg)
 
 
-class _CoordinatesDict(collections.MutableMapping, dict):
+class _CoordinatesDict(_collections.MutableMapping, dict):
     """A custom dictionary for storing coordinates and speeds."""
 
     def __getitem__(self, key):
@@ -76,7 +87,7 @@ class _CoordinatesDict(collections.MutableMapping, dict):
         return dict.__contains__(self, x)
 
 
-class _MeasurementsDict(collections.MutableMapping, dict):
+class _MeasurementsDict(_collections.MutableMapping, dict):
 
     def _compute_value(self, key):
 
@@ -238,6 +249,19 @@ class _System(object):
         msg = ('It is not allowed to replace the entire speeds '
                'dictionary, add or delete speeds one by one.')
         raise ValueError(msg)
+
+    @property
+    def states(self):
+        """An ordered dictionary containing the system's state variables and
+        values. The coordinates are always ordered before the speeds and the
+        individual order of the values depends on the order they were added to
+        coordinates and speeds."""
+        states = _StatesDict({})
+        for k, v in self.coordinates.items():
+            states.__setitem__(k, v, allow=True)
+        for k, v in self.speeds.items():
+            states.__setitem__(k, v, allow=True)
+        return states
 
     @property
     def measurements(self):

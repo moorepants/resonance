@@ -13,8 +13,8 @@ sys.constants['acc_due_to_grav'] = 9.81  # m/s**2
 sys.coordinates['angle'] = np.deg2rad(15.0)  # rad
 sys.speeds['angle_vel'] = 0.0  # rad/s
 
-#assert sys.states == {'angle': np.deg2rad(15.0),
-                      #'angle_vel': 0.0}
+assert list(sys.states.keys()) == ['angle', 'angle_vel']
+assert list(sys.states.values()) == [np.deg2rad(15.0), 0.0]
 
 
 def equations_of_motion(state, time, length, acc_due_to_grav):
