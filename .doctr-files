@@ -4,6 +4,8 @@
 ./02-book-balancing-intro.ipynb
 ./03-bicycle-wheel-inertia.html
 ./03-bicycle-wheel-inertia.ipynb
+./04_clock_pendulum_with_damping.html
+./04_clock_pendulum_with_damping.ipynb
 ./balancing-book.html
 ./balancing-book.ipynb
 ./bicycle.html
@@ -14,6 +16,7 @@
 ./data/03/bicycle-wheel-radial-inertia-rate-gyro-measurement.csv
 ./fig/03/bicycle-wheel-axial-inertia-measurement-fbd.png
 ./fig/03/bicycle-wheel-radial-inertia-measurement-fbd.png
+./fig/04/clock-pendulum.png
 ./fig/balancing-book.svg
 ./fig/bicycle-model.jpg
 ./fig/bicycle-parameters.jpg
