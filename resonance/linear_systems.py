@@ -49,7 +49,7 @@ class SingleDoFLinearSystem(_System):
                 sol_func = self._underdamped_solution
             elif zeta > 1.0:
                 sol_func = self._overdamped_solution
-            elif math.isclose(zeta, 0.0):
+            elif math.isclose(zeta, 1.0):
                 sol_func = self._critically_damped_solution
             else:
                 msg = 'No valid simulation solution with these parameters.'
@@ -412,6 +412,116 @@ class SimplePendulumSystem(SingleDoFLinearSystem):
             g = acc_due_to_gravity
 
             return m * l**2, 0.0, m * g * l
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+
+class ClockPendulumSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a simple compound pendulum in which a
+    rigid body is attached via a revolute joint to a fixed point. Gravity acts
+    on the pendulum to bring it to an equilibrium state and there is no
+    friction in the joint. It is described by:
+
+    Attributes
+    ==========
+    constants
+        pendulum_mass, m [kg]
+            The mass of the compound pendulum.
+        inertia_about_joint, i [kg m**2]
+            The moment of inertia of the compound pendulum about the revolute
+            joint.
+        joint_to_mass_center, l [m]
+            The distance from the revolute joint to the mass center of the
+            compound pendulum.
+        acc_due_to_gravity, g [m/s**2]
+            The acceleration due to gravity.
+    coordinates
+        angle, theta [rad]
+            The angle of the pendulum relative to the direction of gravity.
+            When theta is zero the pendulum is hanging down in it's equilibrium
+            state.
+    speeds
+        angle_vel, theta_dot [rad / s]
+            The angular velocity of the pendulum about the revolute joint axis.
+
+    """
+
+    def __init__(self):
+
+        super(ClockPendulumSystem, self).__init__()
+
+        self.constants['bob_mass'] = 0.1  # kg
+        self.constants['bob_radius'] = 0.03  # m
+        self.constants['rod_mass'] = 0.1  # kg
+        self.constants['rod_length'] = 0.2799  # m
+        self.constants['viscous_damping'] = 0.0  # N s / m
+        self.constants['acc_due_to_gravity'] = 9.81  # m / s**2
+
+        self.coordinates['angle'] = 0.0
+        self.speeds['angle_vel'] = 0.0
+
+        def bob_height(angle, rod_length):
+            """The Y coordinate of the bob. The Y coordinate points in the
+            opposite of gravity, i.e. up. The X coordinate points to the
+            right."""
+            return -rod_length * np.cos(angle)
+
+        self.add_measurement('bob_height', bob_height)
+
+        def bob_sway(angle, rod_length):
+            """The X coordinate of the bob center. The X coordinate points to
+            the right."""
+            return rod_length * np.sin(angle)
+
+        self.add_measurement('bob_sway', bob_sway)
+
+        def plot_config(bob_radius, rod_length, bob_sway, bob_height, time):
+
+            fig, ax = plt.subplots(1, 1)
+
+            ax.set_xlim((-rod_length - bob_radius,
+                         rod_length + bob_radius))
+            ax.set_ylim((-rod_length - bob_radius, 0.0))
+            ax.set_title('Pendulum')
+            ax.set_aspect('equal')
+            xlabel = ax.set_xlabel('Time: {:.2f}'.format(time))
+
+            # NOTE : zorder ensures the patch is on top of the line.
+            rod_lines = ax.plot([0, bob_sway], [0, bob_height], linewidth=6,
+                                zorder=1)[0]
+
+            circle = Circle((bob_sway, bob_height), radius=bob_radius,
+                            color='red')
+            circle.set_zorder(2)
+            ax.add_patch(circle)
+
+            return fig, circle, rod_lines, xlabel
+
+        self.config_plot_func = plot_config
+
+        def update_plot(bob_sway, bob_height, time, circle, rod_lines, xlabel):
+            xlabel.set_text('Time: {:.2f}'.format(time))
+            circle.center = bob_sway, bob_height
+            rod_lines.set_data([0, bob_sway], [0, bob_height])
+
+        self.config_plot_update_func = update_plot
+
+    def _canonical_coefficients(self):
+
+        def coeffs(bob_mass, bob_radius, rod_mass, rod_length, viscous_damping,
+                   acc_due_to_gravity):
+
+            Irod_O = rod_mass * rod_length**2 / 3
+            Ibob_P = bob_mass * bob_radius**2 / 2
+            Ibob_O = Ibob_P + bob_mass * rod_length**2
+
+            I = Irod_O + Ibob_O
+            C = viscous_damping * rod_length**2
+            K = acc_due_to_gravity * rod_length * (bob_mass + rod_mass / 2.0)
+
+            return I, C, K
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
