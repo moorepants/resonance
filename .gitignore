@@ -47,3 +47,5 @@ docs/_build/
 
 # doctr build and deployment files
 deploy/
+notebooks/*.html
+notebooks/*.nbconvert.ipynb
