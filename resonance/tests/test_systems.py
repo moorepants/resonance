@@ -1,7 +1,7 @@
 import pytest
 
-from ..systems import (_ParametersDict, _MeasurementsDict, _CoordinatesDict,
-                       _StatesDict)
+from ..system import (_ParametersDict, _MeasurementsDict, _CoordinatesDict,
+                      _StatesDict)
 
 
 def test_nonvalid_parameters_key():

@@ -4,7 +4,7 @@ import warnings
 
 import numpy as np
 
-from .systems import _System
+from .system import _System
 
 
 class SingleDoFLinearSystem(_System):
