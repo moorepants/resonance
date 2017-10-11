@@ -6,8 +6,11 @@ import matplotlib.animation as animation
 import pandas as pd
 
 
-class _ParametersDict(_collections.OrderedDict):
+class _ParametersDict(_collections.MutableMapping, dict):
     """A custom dictionary for storing constants and coordinates."""
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
         # TODO : It would be nice to check to ensure that these names do not
@@ -22,23 +25,19 @@ class _ParametersDict(_collections.OrderedDict):
                    'Choose something different.')
             raise ValueError(msg.format(key))
         else:
-            _collections.OrderedDict.__setitem__(self, key, value)
+            dict.__setitem__(self, key, value)
 
-    # TODO : I don't like how OrderedDicts are printed, so make them print just
-    # like normal dicts, but none of the below things seem to make the IPython
-    # REPL print this correctly...
-    def __repr__(self):
-        return '{' + ', '.join(['{}: {}'.format(repr(k), repr(v)) for k, v in
-                                self.items()]) + '}'
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
 
-    def __str__(self):
-        return self.__repr__
+    def __iter__(self):
+        return dict.__iter__(self)
 
-    # TODO : Almost works, but leaves double quotes around it because it is
-    # fundamentally pretty printing a string.
-    def _repr_pretty_(self, p, cycle):
-        p.pretty('{' + ', '.join(['{}: {}'.format(repr(k), repr(v)) for
-                                  k, v in self.items()]) + '}')
+    def __len__(self):
+        return dict.__len__(self)
+
+    def __contains__(self, x):
+        return dict.__contains__(self, x)
 
 
 class _StatesDict(_collections.OrderedDict):
