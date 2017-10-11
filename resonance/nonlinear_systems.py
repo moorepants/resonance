@@ -4,12 +4,12 @@ import numpy as np
 import scipy as sp
 import scipy.integrate  # scipy doesn't import automatically
 
-from .system import _System
+from .system import System as _System
 
 
 class NonLinearSystem(_System):
 
-    def _integrate_equations_of_motion(self, times, integrator='odeint'):
+    def _integrate_equations_of_motion(self, times, integrator='lsoda'):
 
         x0 = list(self.coordinates.values())[0]
         v0 = list(self.speeds.values())[0]
@@ -21,7 +21,7 @@ class NonLinearSystem(_System):
 
         return integrator_method(initial_conditions, times)
 
-    def _integrate_with_odeint(self, initial_conditions, times):
+    def _integrate_with_lsoda(self, initial_conditions, times):
 
         f = self.equations_of_motion
 

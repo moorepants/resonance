@@ -133,7 +133,7 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
         return dict.__contains__(self, x)
 
 
-class _System(object):
+class System(object):
     """This is the base system for any linear single degree of freedom system.
     It can be subclassed to make a custom system or instantiated and the
     attributes and methods added dynamically.
