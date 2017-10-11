@@ -1,6 +1,7 @@
 import pytest
 
-from ..systems import _ParametersDict, _MeasurementsDict, _CoordinatesDict
+from ..systems import (_ParametersDict, _MeasurementsDict, _CoordinatesDict,
+                       _StatesDict)
 
 
 def test_nonvalid_parameters_key():
@@ -37,3 +38,9 @@ def test_setting_coordinates_item():
     if 'first_key' in m:
         pass
     del m['first_key']
+
+
+def test_setting_state_item():
+    s = _StatesDict({})
+    with pytest.raises(ValueError):
+        s['a'] = 0.0
