@@ -2,7 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
-from ..nonlinear_systems import SimplePendulum
+from ..nonlinear_systems import SingleDoFNonLinearSystem
+
+
+class SimplePendulum(SingleDoFNonLinearSystem):
+    pass
 
 sys = SimplePendulum()
 
