@@ -526,3 +526,49 @@ class ClockPendulumSystem(SingleDoFLinearSystem):
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
         return coeffs(*args)
+
+
+class MassSpringDamperSystem(SingleDoFLinearSystem):
+    """This system represents dynamics of a mass connected to a spring and
+    damper (dashpot). The mass moves horizontally without friction and is acted
+    on horizontally by the spring and damper in parallel. The system is
+    described by:
+
+    Attributes
+    ==========
+    constants
+        mass, M [kg]
+            The system mass.
+        damping, C [kg / s]
+            The viscous linear damping coefficient which represents any energy
+            dissipation from things like air resistance, slip, etc.
+        stiffness, K [N / m]
+            The linear elastic stiffness of the spring.
+    coordinates
+        position, x [m]
+    speeds
+        velocity, x_dot [m / s]
+
+    """
+
+    def __init__(self):
+
+        super(MassSpringDamperSystem, self).__init__()
+
+        self.constants['mass'] = 1.0  # m
+        self.constants['damping'] = 0.0  # kg/s
+        self.constants['stiffness'] = 100  # N/m
+
+        # TODO : When a coordinate is added the speed should be automatically
+        # added.
+        self.coordinates['position'] = 0.0
+        self.speeds['velocity'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(mass, damping, stiffness):
+            return mass, damping, stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)

@@ -3,7 +3,8 @@ from math import isclose
 import pytest
 import numpy as np
 
-from ..linear_systems import TorsionalPendulumSystem, SimplePendulumSystem
+from ..linear_systems import (TorsionalPendulumSystem, SimplePendulumSystem,
+                              MassSpringDamperSystem)
 
 
 def test_torsional_pendulum_system():
@@ -125,3 +126,17 @@ def test_simple_pendulum_system():
     sys.constants['acc_due_to_gravity'] = 9.81  # m/s**2
 
     assert isclose(sys.period(), 2.0 * np.pi * np.sqrt(1.0 / 9.81))
+
+
+def test_mass_spring_damper_system():
+    sys = MassSpringDamperSystem()
+
+    sys.constants['mass'] = 1.0
+    sys.constants['stiffness'] = 100
+
+    wn = np.sqrt(100.0/1.0)
+    assert isclose(sys.period(), 2.0 * np.pi / wn)
+
+    sys.constants['damping'] = 0.2
+    zeta = 0.2 / 1.0 / (2*wn)
+    assert isclose(sys.period(), 2 * np.pi / (wn * np.sqrt(1 - zeta**2)))
