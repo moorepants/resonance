@@ -13,8 +13,6 @@ Welcome to resonance's documentation!
    outline.rst
    api.rst
 
-
-
 Indices and tables
 ==================
 

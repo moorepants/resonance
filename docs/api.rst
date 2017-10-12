@@ -1,5 +1,5 @@
-Linear Systems API
-==================
+API
+===
 
 .. automodule:: resonance.system
    :members:
