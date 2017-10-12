@@ -19,7 +19,7 @@ setup(
                       'matplotlib>=2.1',
                       'scipy>=0.19',
                       'pandas>=0.20'],
-    extra_requires={'notebooks': ['notebook', 'ipywidgets']},
+    extras_require={'notebooks': ['notebook', 'ipywidgets']},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
