@@ -1,7 +1,4 @@
-#!/bin/bash
-
-jupyter nbextension enable exercise2/main
-jupyter nbextension enable rubberband/main
+#!/bin/bash -xe
 
 for f in notebooks/*.ipynb; do
   jupyter nbconvert --debug --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$f"
