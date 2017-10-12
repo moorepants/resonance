@@ -469,7 +469,8 @@ class System(object):
         sample_rate : integer, optional
             The sample rate of the simulation in Hertz (samples per second).
             The time values will be reported at the initial time and final
-            time, along with times space equally based on the sample rate.
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
 
         Returns
         =======
