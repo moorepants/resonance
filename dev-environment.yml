@@ -12,7 +12,7 @@ dependencies:
   - sphinx
   - numpy
   - scipy
-  - matplotlib
+  - matplotlib >=2.1
   - pandas
   - sympy
   - notebook<5.1  # notedown can't work with newer

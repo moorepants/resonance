@@ -8,7 +8,7 @@ dependencies:
   - pip
   - numpy
   - scipy
-  - matplotlib
+  - matplotlib >=2.1
   - pandas
   - sympy
   - notebook
