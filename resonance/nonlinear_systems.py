@@ -143,6 +143,32 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
 
         self.add_measurement('bob_sway', bob_sway)
 
+        def kinetic_energy(bob_mass, bob_radius, rod_length, bob_height,
+                           rod_mass, angle_vel):
+
+            KE_rod = rod_length**2 * rod_mass / 6 * angle_vel**2
+            KE_bob = (rod_length**2 * bob_mass / 2 * angle_vel**2 +
+                      bob_mass * bob_radius**2 / 4 * angle_vel**2)
+            return KE_rod + KE_bob
+
+        self.add_measurement('kinetic_energy', kinetic_energy)
+
+        def potential_energy(bob_mass, rod_mass, rod_length, bob_height,
+                             acc_due_to_gravity, angle):
+            PE_bob = bob_mass * acc_due_to_gravity * (rod_length - rod_length *
+                                                      np.cos(angle))
+            PE_rod = rod_mass * acc_due_to_gravity * (rod_length / 2 -
+                                                      rod_length / 2 *
+                                                      np.cos(angle))
+            return PE_bob + PE_rod
+
+        self.add_measurement('potential_energy', potential_energy)
+
+        def total_energy(kinetic_energy, potential_energy):
+            return kinetic_energy + potential_energy
+
+        self.add_measurement('total_energy', total_energy)
+
         def plot_config(bob_radius, rod_length, bob_sway, bob_height, time):
 
             fig, ax = mp.pyplot.subplots(1, 1)
