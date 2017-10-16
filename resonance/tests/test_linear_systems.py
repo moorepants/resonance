@@ -140,3 +140,46 @@ def test_mass_spring_damper_system():
     sys.constants['damping'] = 0.2
     zeta = 0.2 / 1.0 / (2*wn)
     assert isclose(sys.period(), 2 * np.pi / (wn * np.sqrt(1 - zeta**2)))
+
+
+def test_mass_spring_damper_system():
+
+    sys = MassSpringDamperSystem()
+
+    sys.constants['mass'] = 1.0
+    sys.constants['stiffness'] = 100
+
+    # this will have to be baked into SingleDoFLinearSystem, not really
+    # editable by the user (for now) because it dependds on all these hidden
+    # values: omega, zeta, etc
+    def underdamped_particular_solution():
+        # does this do the right thing if zeta=0 (also need crit damped and
+        # overdamped)
+        r = omega / omega_n
+        X = (Fo / k) / np.sqrt(2 * zeta * r)**2 + (1 - r**2)
+        phi = np.atan2(2 * zeta * r, 1 - r**2)
+        return X * np.sin(omega * t - phi)
+
+    # how does the user know where the force/torque is applied to the model?
+    # for SDOF is that obvious?
+    traj = sys.sinusoidal_forced_response(amplitude, frequency,
+                                          final_time, initial_time, sample_rate)
+
+    # should this be analytic output? this is only relevant to underdamped
+    ratio_input_output_amp, frequency = \
+        sys.frequency_response(
+            input_amplitudes,
+            input_frequencies,
+            ratio_to_nat_freq=False)  # could optionally output r instead of freq
+
+    # can we have the students do a data based frequency response, like sys id
+    # or ratio of spectrums? also, what about a simple fft?
+
+    # this would assume solution amplitude * sin(frequency * t + phi)
+    traj = sys.sinusoidal_forcing(amplitude, frequency, final_time)
+
+    # a0 / 2 + a1 * cos(w * t) + b2 * sin(w * t)
+    traj = sys.sinusoidal_forcing([a1], [b2], frequency, a0=1.0, final_time=5.0)
+
+    # a0 / 2 + a1 * cos(w * t) + a2 * n * cos(w * t) + b1 * sin(w * t) + b2 * n * cos(w * t)
+    traj = sys.sinusoidal_forcing([a1, a2], [b1, b2], frequency, a0=1.0, final_time=5.0)
