@@ -6,6 +6,9 @@
 ./03-bicycle-wheel-inertia.ipynb
 ./04_clock_pendulum_with_damping.html
 ./04_clock_pendulum_with_damping.ipynb
+./05_clock_pendulum_with_friction.html
+./05_clock_pendulum_with_friction.ipynb
+./None0000000.png
 ./balancing-book.html
 ./balancing-book.ipynb
 ./bicycle.html
@@ -17,6 +20,7 @@
 ./fig/03/bicycle-wheel-axial-inertia-measurement-fbd.png
 ./fig/03/bicycle-wheel-radial-inertia-measurement-fbd.png
 ./fig/04/clock-pendulum.png
+./fig/05/coulomb-pendulum.png
 ./fig/balancing-book.svg
 ./fig/bicycle-model.jpg
 ./fig/bicycle-parameters.jpg
