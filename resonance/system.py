@@ -6,8 +6,8 @@ import matplotlib.animation as animation
 import pandas as pd
 
 
-class _ParametersDict(_collections.MutableMapping, dict):
-    """A custom dictionary for storing constants and coordinates."""
+class _ConstantsDict(_collections.MutableMapping, dict):
+    """A custom dictionary for storing constants."""
 
     def __getitem__(self, key):
         return dict.__getitem__(self, key)
@@ -134,13 +134,12 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
 
 
 class System(object):
-    """This is the base system for any linear single degree of freedom system.
-    It can be subclassed to make a custom system or instantiated and the
-    attributes and methods added dynamically.
+    """This is the base system for any single or multi degree of freedom
+    systems. It can be subclassed to make a custom system.
 
     Attributes
     ==========
-    constants : _ParametersDict
+    constants : _ConstantsDict
         A custom dictionary that contains parameters that do not vary with
         time.
     coordinates : _CoordinatesDict
@@ -185,7 +184,7 @@ class System(object):
 
         # TODO : Allow constants, coords, and meas to be set on intialization.
 
-        self._constants = _ParametersDict({})
+        self._constants = _ConstantsDict({})
         self._coordinates = _CoordinatesDict({})
         self._speeds = _CoordinatesDict({})
         self._measurements = _MeasurementsDict({})
@@ -204,7 +203,7 @@ class System(object):
 
         Examples
         ========
-        >>> sys = SingleDoFLinearSystem()
+        >>> sys = System()
         >>> sys.constants
         {}
         >>> sys.constants['mass'] = 5.0
@@ -213,10 +212,10 @@ class System(object):
         >>> del sys.constants['mass']
         >>> sys.constants
         {}
+        >>> sys.constants['mass'] = 5.0
         >>> sys.constants['length'] = 10.0
         >>> sys.constants
-        {'length': 10.0}
-
+        {'mass': 5.0, 'length': 10.0}
 
         """
         return self._constants
@@ -229,7 +228,17 @@ class System(object):
 
     @property
     def coordinates(self):
-        """A dictionary containing the system's generalized coordinate."""
+        """A dictionary containing the system's generalized coordinates. These
+        values will be used as initial conditions in simulations.
+
+        Examples
+        ========
+        >>> sys = System()
+        >>> sys.coordinates['angle'] = 0.0
+        >>> sys.coordinates
+        {'angle': 0.0}
+
+        """
         return self._coordinates
 
     @coordinates.setter
@@ -240,7 +249,16 @@ class System(object):
 
     @property
     def speeds(self):
-        """A dictionary containing the system's generalized speed."""
+        """A dictionary containing the system's generalized speed.
+
+        Examples
+        ========
+        >>> sys = System()
+        >>> sys.speeds['angle_vel'] = 0.0
+        >>> sys.speeds
+        {'angle_vel': 0.0}
+
+        """
         return self._speeds
 
     @speeds.setter
@@ -254,7 +272,21 @@ class System(object):
         """An ordered dictionary containing the system's state variables and
         values. The coordinates are always ordered before the speeds and the
         individual order of the values depends on the order they were added to
-        coordinates and speeds."""
+        coordinates and speeds.
+
+        Examples
+        ========
+        >>> sys = System()
+        >>> sys.coordinates['angle'] = 0.2
+        >>> sys.speeds['angle_vel'] = 0.1
+        >>> sys.states
+        {'angle': 0.2, 'angle_vel': 0.1}
+        >>> list(sys.states.keys())
+        ['angle', 'angle_vel']
+        >>> list(sys.states.values())
+        [0.2, 0.1]
+
+        """
         states = _StatesDict({})
         for k, v in self.coordinates.items():
             states.__setitem__(k, v, allow=True)

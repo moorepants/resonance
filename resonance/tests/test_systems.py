@@ -1,11 +1,11 @@
 import pytest
 
-from ..system import (_ParametersDict, _MeasurementsDict, _CoordinatesDict,
+from ..system import (_ConstantsDict, _MeasurementsDict, _CoordinatesDict,
                       _StatesDict)
 
 
 def test_nonvalid_parameters_key():
-    p = _ParametersDict({})
+    p = _ConstantsDict({})
     with pytest.raises(ValueError):
         p['ben stiller'] = 12.0
     with pytest.raises(ValueError):
