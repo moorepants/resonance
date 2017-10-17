@@ -1,7 +1,10 @@
+from math import isclose
+
+import matplotlib.pyplot as plt
 import pytest
 
-from ..system import (_ConstantsDict, _MeasurementsDict, _CoordinatesDict,
-                      _StatesDict)
+from ..system import (System, _ConstantsDict, _MeasurementsDict,
+                      _CoordinatesDict, _StatesDict)
 
 
 def test_nonvalid_parameters_key():
@@ -44,3 +47,22 @@ def test_setting_state_item():
     s = _StatesDict({})
     with pytest.raises(ValueError):
         s['a'] = 0.0
+
+
+def test_system():
+    sys = System()
+    sys.constants['a'] = 1.0
+    assert isclose(sys._time, 0.0)
+    assert isclose(sys._get_par_vals('time'), 0.0)
+
+    def plot(a):
+        fig, ax = plt.subplots(1, 1)
+        return fig
+
+    def update(a):
+        pass
+
+    sys.config_plot_func = plot
+    sys.config_plot_update_func = update
+    with pytest.raises(ValueError):
+        sys.animate_configuration()
