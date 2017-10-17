@@ -35,6 +35,12 @@ class SingleDoFLinearSystem(_System):
     def _damped_natural_frequency(natural_frequency, damping_ratio):
         return natural_frequency * np.sqrt(1.0 - damping_ratio**2)
 
+    def _normalized_form(self, m, c, k):
+        wn = self._natural_frequency(m, k)
+        z = self._damping_ratio(m, c, wn)
+        wd = self._damped_natural_frequency(wn, z)
+        return wn, z, wd
+
     def _solution_func(self):
 
         m, c, k = self._canonical_coefficients()
@@ -49,10 +55,10 @@ class SingleDoFLinearSystem(_System):
             zeta = self._damping_ratio(m, c, omega_n)
             if zeta < 1.0:
                 sol_func = self._underdamped_solution
-            elif zeta > 1.0:
-                sol_func = self._overdamped_solution
             elif math.isclose(zeta, 1.0):
                 sol_func = self._critically_damped_solution
+            elif zeta > 1.0:
+                sol_func = self._overdamped_solution
             else:
                 msg = 'No valid simulation solution with these parameters.'
                 raise ValueError(msg)
@@ -156,11 +162,11 @@ class SingleDoFLinearSystem(_System):
                                 a2*time_const*np.exp(time_const*t)))
 
         acc = ((-z*wn)**2*np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
-                                           a2*np.exp(time_const*t)) +
-               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
-                                      a2*time_const*np.exp(time_const*t)) +
-               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
-                                      a2*time_const*np.exp(time_const*t)) +
+                                           a2*np.exp(time_const*t)) -
+               z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                     a2*time_const*np.exp(time_const*t)) -
+               z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                     a2*time_const*np.exp(time_const*t)) +
                np.exp(-z*wn*t)*(a1*time_const**2*np.exp(-time_const*t) +
                                 a2*time_const**2*np.exp(time_const*t)))
 
@@ -193,7 +199,10 @@ class SingleDoFLinearSystem(_System):
         m, c, k = self._canonical_coefficients()
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
-        return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
+        if z < 1.0:  # underdamped, no damping, or unstable
+            return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
+        else:
+            return np.inf
 
     def _generate_state_trajectories(self, times):
 
@@ -202,13 +211,9 @@ class SingleDoFLinearSystem(_System):
         return sol_func(times)
 
     def _canonical_coefficients(self):
+        # NOTE : This has to be created on the subclass or by the user to
+        # provide different models.
         return 0.0, 0.0, 0.0
-
-    def _normalized_form(self, m, c, k):
-        wn = self._natural_frequency(m, k)
-        z = self._damping_ratio(m, c, wn)
-        wd = self._damped_natural_frequency(wn, z)
-        return wn, z, wd
 
     def periodic_forcing_response(self, a0, cos_coeffs, sin_coeffs, frequency,
                                   final_time, initial_time=0.0,
