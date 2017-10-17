@@ -459,12 +459,15 @@ class System(object):
     def _state_traj_to_dataframe(self, times, pos, vel, acc):
 
         coord_name = list(self.coordinates.keys())[0]
-        speed_name = coord_name + self._vel_append
+        speed_name = list(self.speeds.keys())[0]
+        if not speed_name:
+            speed_name = coord_name + self._vel_append
+        acc_name = coord_name + self._acc_append
 
         # TODO : What if they added a coordinate with the vel or acc names?
         df = pd.DataFrame({coord_name: pos,
                            speed_name: vel,
-                           coord_name + self._acc_append: acc},
+                           acc_name: acc},
                           index=times)
         df.index.name = self._time_var_name
 
@@ -489,6 +492,17 @@ class System(object):
         self._time = t0
 
         return df
+
+    def _calc_times(self, final_time, initial_time, sample_rate):
+        # TODO : Should have the option to pass in unequally spaced monotonic
+        # time arrays.
+
+        if final_time < initial_time:
+            raise ValueError('Final time must be greater than initial time.')
+
+        delta = final_time - initial_time
+        num = int(round(sample_rate * delta)) + 1
+        return np.linspace(initial_time, final_time, num=num)
 
     def free_response(self, final_time, initial_time=0.0, sample_rate=100,
                       **kwargs):
@@ -519,15 +533,8 @@ class System(object):
             measurements as columns.
 
         """
-        # TODO : Should have the option to pass in unequally spaced monotonic
-        # time arrays.
 
-        if final_time < initial_time:
-            raise ValueError('Final time must be greater than initial time.')
-
-        delta = final_time - initial_time
-        num = int(round(sample_rate * delta)) + 1
-        times = np.linspace(initial_time, final_time, num=num)
+        times = self._calc_times(final_time, initial_time, sample_rate)
 
         pos, vel, acc = self._generate_state_trajectories(times, **kwargs)
 
