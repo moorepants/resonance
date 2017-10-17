@@ -31,15 +31,42 @@ class SingleDoFLinearSystem(_System):
             warnings.warn(msg)
         return zeta
 
-    @staticmethod
-    def _damped_natural_frequency(natural_frequency, damping_ratio):
-        return natural_frequency * np.sqrt(1.0 - damping_ratio**2)
+    def _damped_natural_frequency(self, natural_frequency, damping_ratio):
+        typ = self._solution_type()
+        if typ == 'underdamped':
+            return natural_frequency * np.sqrt(1.0 - damping_ratio**2)
+        elif typ == 'no_damping_unstable' or typ == 'no_damping':
+            return natural_frequency
+        else:
+            return 0.0
 
     def _normalized_form(self, m, c, k):
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
         wd = self._damped_natural_frequency(wn, z)
         return wn, z, wd
+
+    def _solution_type(self):
+
+        m, c, k = self._canonical_coefficients()
+        omega_n = self._natural_frequency(m, k)
+
+        if math.isclose(c, 0.0):
+            if isinstance(omega_n, complex):
+                return 'no_damping_unstable'
+            else:
+                return 'no_damping'
+        else:  # damping, so check zeta
+            zeta = self._damping_ratio(m, c, omega_n)
+            if zeta < 1.0:
+                return 'underdamped'
+            elif math.isclose(zeta, 1.0):
+                return 'critically_damped'
+            elif zeta > 1.0:
+                return 'overdamped'
+            else:
+                msg = 'No valid simulation solution with these parameters.'
+                raise ValueError(msg)
 
     def _solution_func(self):
 
