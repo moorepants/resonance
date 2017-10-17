@@ -5,6 +5,7 @@ import numpy as np
 
 from ..linear_systems import (TorsionalPendulumSystem, SimplePendulumSystem,
                               MassSpringDamperSystem)
+from ..functions import estimate_period
 
 
 def test_torsional_pendulum_system():
@@ -125,7 +126,12 @@ def test_simple_pendulum_system():
     sys.constants['pendulum_length'] = 1.0  # m
     sys.constants['acc_due_to_gravity'] = 9.81  # m/s**2
 
+    sys.coordinates['angle'] = 1.0
+    traj = sys.free_response(5.0, sample_rate=3000)
+
     assert isclose(sys.period(), 2.0 * np.pi * np.sqrt(1.0 / 9.81))
+    assert isclose(estimate_period(traj.index, traj.angle), sys.period(),
+                   rel_tol=1e-3)
 
 
 def test_mass_spring_damper_system():
