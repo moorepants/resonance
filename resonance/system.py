@@ -184,6 +184,8 @@ class System(object):
 
         # TODO : Allow constants, coords, and meas to be set on intialization.
 
+        self._time = 0.0
+
         self._constants = _ConstantsDict({})
         self._coordinates = _CoordinatesDict({})
         self._speeds = _CoordinatesDict({})
@@ -388,20 +390,23 @@ class System(object):
         # TODO : Raise useful error message if par_name not in any of the
         # dicts.
         msg = '{} is not in constants, coordinates, speeds, or measurements.'
-        try:
-            v = self.constants[par_name]
-        except KeyError:
+        if par_name == 'time':
+            return self._time
+        else:
             try:
-                v = self.coordinates[par_name]
+                v = self.constants[par_name]
             except KeyError:
                 try:
-                    v = self.speeds[par_name]
+                    v = self.coordinates[par_name]
                 except KeyError:
                     try:
-                        v = self.measurements[par_name]
+                        v = self.speeds[par_name]
                     except KeyError:
-                        raise KeyError(msg.format(par_name))
-        return v
+                        try:
+                            v = self.measurements[par_name]
+                        except KeyError:
+                            raise KeyError(msg.format(par_name))
+            return v
 
     def add_measurement(self, name, func):
         """Creates a new measurement entry in the measurements attribute that
@@ -464,21 +469,24 @@ class System(object):
         df.index.name = self._time_var_name
 
         # TODO : Allow acc to be used in measurements.
-        # TODO : Need a way to compute the measurements as array values based
-        # on the coordinate changing at each time but the current method of
-        # letting the measurement be computed by the stored coordinate scalar
-        # is a bit problematic.
-        for k, v in self.measurements.items():
-            vals = np.zeros_like(times)
-            x0 = list(self.coordinates.values())[0]
-            v0 = list(self.speeds.values())[0]
-            for i, (xi, vi) in enumerate(zip(pos, vel)):
-                self.coordinates[coord_name] = xi
-                self.speeds[speed_name] = vi
-                vals[i] = self.measurements[k]
-            self.coordinates[coord_name] = x0
-            self.speeds[speed_name] = v0
-            df[k] = vals
+        # store current values of coords, speeds, and time
+        x0 = list(self.coordinates.values())[0]
+        v0 = list(self.speeds.values())[0]
+        t0 = self._time
+
+        # set coord, speeds, and time to arrays
+        self.coordinates[coord_name] = pos
+        self.speeds[speed_name] = vel
+        self._time = times
+
+        # compute each measurement
+        for name, value in self.measurements.items():
+            df[name] = value
+
+        # set the coords, speeds, and time back to original values
+        self.coordinates[coord_name] = x0
+        self.speeds[speed_name] = v0
+        self._time = t0
 
         return df
 
