@@ -148,12 +148,13 @@ def test_mass_spring_damper_system():
     assert isclose(sys.period(), 2 * np.pi / (wn * np.sqrt(1 - zeta**2)))
 
 
-def test_mass_spring_damper_system():
+def test_mass_spring_damper_system_forced():
 
     sys = MassSpringDamperSystem()
 
     sys.constants['mass'] = 1.0
-    sys.constants['stiffness'] = 100
+    sys.constants['stiffness'] = 1.0
+    sys.constants['damping'] = 0.01
 
     # this will have to be baked into SingleDoFLinearSystem, not really
     # editable by the user (for now) because it dependds on all these hidden
@@ -168,24 +169,30 @@ def test_mass_spring_damper_system():
 
     # how does the user know where the force/torque is applied to the model?
     # for SDOF is that obvious?
-    traj = sys.sinusoidal_forced_response(amplitude, frequency,
-                                          final_time, initial_time, sample_rate)
+    #traj = sys.sinusoidal_forced_response(amplitude, frequency,
+                                          #final_time, initial_time, sample_rate)
 
     # should this be analytic output? this is only relevant to underdamped
-    ratio_input_output_amp, frequency = \
-        sys.frequency_response(
-            input_amplitudes,
-            input_frequencies,
-            ratio_to_nat_freq=False)  # could optionally output r instead of freq
+    #ratio_input_output_amp, frequency = \
+        #sys.frequency_response(
+            #input_amplitudes,
+            #input_frequencies,
+            #ratio_to_nat_freq=False)  # could optionally output r instead of freq
 
     # can we have the students do a data based frequency response, like sys id
     # or ratio of spectrums? also, what about a simple fft?
 
-    # this would assume solution amplitude * sin(frequency * t + phi)
-    traj = sys.sinusoidal_forcing(amplitude, frequency, final_time)
+    # this would assume solution amplitude * cos(frequency * t + phi)
+    #traj = sys.sinusoidal_forced_response(amplitude, frequency, phi, final_time)
 
+    a0 = 0.0
+    a1 = 0.1
+    b1 = 0.2
+    freq = 4 * np.pi
     # a0 / 2 + a1 * cos(w * t) + b2 * sin(w * t)
-    traj = sys.sinusoidal_forcing([a1], [b2], frequency, a0=1.0, final_time=5.0)
+    traj = sys.periodic_forcing_response(a0, a1, b1, freq, 5.0)
 
     # a0 / 2 + a1 * cos(w * t) + a2 * n * cos(w * t) + b1 * sin(w * t) + b2 * n * cos(w * t)
-    traj = sys.sinusoidal_forcing([a1, a2], [b1, b2], frequency, a0=1.0, final_time=5.0)
+    a2 = 0.02
+    b2 = 0.03
+    traj = sys.periodic_forcing_response(a0, [a1, a2], [b1, b2], freq, 5.0)

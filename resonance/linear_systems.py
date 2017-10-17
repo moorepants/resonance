@@ -201,6 +201,71 @@ class SingleDoFLinearSystem(_System):
 
         return sol_func(times)
 
+    def _canonical_coefficients(self):
+        return 0.0, 0.0, 0.0
+
+    def _normalized_form(self, m, c, k):
+        wn = self._natural_frequency(m, k)
+        z = self._damping_ratio(m, c, wn)
+        wd = self._damped_natural_frequency(wn, z)
+        return wn, z, wd
+
+    def periodic_forcing_response(self, a0, cos_coeffs, sin_coeffs, frequency,
+                                  final_time, initial_time=0.0,
+                                  sample_rate=100):
+
+        an = np.atleast_2d(cos_coeffs).T
+        bn = np.atleast_2d(sin_coeffs).T
+
+        if an.shape != bn.shape:
+            raise ValueError('an and bn must be the same length')
+
+        t = self._calc_times(final_time, initial_time, sample_rate)
+
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        wT = frequency
+
+        N = an.shape[0]
+
+        # column array of n/an values
+        n = np.arange(1, N+1)[:, np.newaxis]
+
+        # phase shift of each term in the series
+        theta_n = np.arctan2(2*z*wn*n*wT, wn**2-(n*wT)**2)
+
+        # an is a col and t is 1D, so each row of xcn is a term
+        # in the series at all times in t
+        xcn = (an / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2) *
+               np.cos(n*wT*t - theta_n))
+        vcn = -(an / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2) *
+                np.sin(n*wT*t - theta_n) * n * wT)
+        acn = -(an / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2) *
+                np.cos(n*wT*t - theta_n) * (n * wT)**2)
+
+        xsn = (bn / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2) *
+               np.sin(n*wT*t - theta_n))
+        vsn = (bn / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2) *
+               np.cos(n*wT*t - theta_n) * n * wT)
+        asn = -(bn / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2) *
+                np.sin(n*wT*t - theta_n) * (n * wT)**2)
+
+        # x is the sum of each xcn term (the rows)
+        xss = a0 / 2 / k + np.sum(xcn, axis=0) + np.sum(xsn, axis=0)
+        vss = np.sum(vcn, axis=0) + np.sum(vsn, axis=0)
+        ass = np.sum(acn, axis=0) + np.sum(asn, axis=0)
+
+        # homogeneous solution
+        pos, vel, acc = self._generate_state_trajectories(t)
+
+        self.result = self._state_traj_to_dataframe(t,
+                                                    pos + xss,
+                                                    vel + vss,
+                                                    acc + ass)
+
+        return self.result
+
 
 class BookOnCupSystem(SingleDoFLinearSystem):
     """This system represents dynamics of a typical engineering textbook set
