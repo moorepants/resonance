@@ -408,27 +408,39 @@ class SingleDoFLinearSystem(_System):
 
         if typ == 'no_damping':
             wn = self._natural_frequency(m, k)
-            # steady state solution (particular solution)
-            X = fo / (wn**2 - w**2)
-            xss = X * np.cos(w * t)
-            vss = -X * w * np.sin(w * t)
-            ass = -X * w**2 * np.cos(w * t)
-            # transient solution (homogenous solution)
-            A1 = v0 / wn  # sin
-            A2 = x0 - fo / (wn**2 - w**2)  # cos
-            A = np.sqrt(A1**2 + A2**2)
-            phi = np.arctan2(A2, A1)
-            x = A * np.sin(wn * t + phi)
-            v = A * wn * np.cos(wn * t + phi)
-            a = -A * wn**2 * np.sin(wn * t + phi)
+            if math.isclose(w, wn):
+                X = fo / 2 / w
+                xss = X * t * np.sin(w*t)
+                vss = X * w * t * np.cos(w*t) + X * np.sin(w*t)
+                ass = (-X * w**2 * t * np.sin(w*t) + X * w * np.cos(w*t) + X *
+                       w * np.cos(w*t))
+                x = v0 / w * np.sin(w*t) + x0 * np.cos(w*t)
+                v = v0 / w * w * np.cos(w*t) - x0 * w * np.sin(w*t)
+                a = -v0 / w * w**2 * np.sin(w*t) - x0 * w**2 * np.cos(w*t)
+            else:
+                # steady state solution (particular solution)
+                X = fo / (wn**2 - w**2)
+                xss = X * np.cos(w * t)
+                vss = -X * w * np.sin(w * t)
+                ass = -X * w**2 * np.cos(w * t)
+                # transient solution (homogenous solution)
+                A1 = v0 / wn  # sin
+                A2 = x0 - fo / (wn**2 - w**2)  # cos
+                A = np.sqrt(A1**2 + A2**2)
+                phi = np.arctan2(A2, A1)
+                x = A * np.sin(wn * t + phi)
+                v = A * wn * np.cos(wn * t + phi)
+                a = -A * wn**2 * np.sin(wn * t + phi)
         elif typ == 'underdamped':
             wn, z, wd = self._normalized_form(m, c, k)
-            r = w / wn
-            X = (fo / k) / np.sqrt(2 * z * r)**2 + (1 - r**2)
-            theta = np.arctan2(2 * z * r, 1 - r**2)
-            xss = X * np.cos(w * t - theta)
-            vss = -X * np.sin(w * t - theta) * w
-            ass = -X * np.cos(w * t - theta) * w**2
+
+            theta = np.arctan2(x0*wd, v0 + z*wn*x0)
+            X = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
+
+            xss = X * np.cos(w*t - theta)
+            vss = -X * np.sin(w*t - theta) * w
+            ass = -X * np.cos(w*t - theta) * w**2
+
             phi = np.arctan2(wd * (x0 - X * np.cos(theta)),
                              v0 + (x0 - X * np.cos(theta)) *
                              z * wn - w * X * np.sin(theta))
@@ -441,6 +453,44 @@ class SingleDoFLinearSystem(_System):
                                                     a + ass)
 
         return self.result
+
+    def frequency_response_plot(self, amplitude, log=False):
+        """Returns an array of two matplotlib axes. The first holds the plot of
+        the coordinate's amplitude as a function of forcing frequency and the
+        second holds a plot of the coordinate's phase shift with respect to the
+        forcing function.
+
+        Parameters
+        ==========
+        amplitude : float
+            The value of the forcing amplitude.
+        log : boolean, optional
+            If True, the amplitude will be plotted on a semi-log Y plot.
+
+        """
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        w = np.linspace(0.0, 5 * wn, num=200)
+
+        fo = amplitude / m
+
+        amp_curve = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
+        phase_curve = np.arctan2(2*z*wn*w, wn**2 - w**2)
+
+        fig, axes = plt.subplots(2, 1, sharex=True)
+        axes[0].axvline(wn, color='black')
+        if log:
+            axes[0].semilogy(w, amp_curve)
+        else:
+            axes[0].plot(w, amp_curve)
+        axes[0].set_ylabel('Coordinate Amplitude')
+        axes[1].axvline(wn, color='black')
+        axes[1].plot(w, np.rad2deg(phase_curve))
+        axes[1].set_ylabel('Phase Shift [deg]')
+        axes[1].set_xlabel('Forcing Frequency, $\omega$, [rad/s]')
+
+        return axes
 
 
 class BookOnCupSystem(SingleDoFLinearSystem):
