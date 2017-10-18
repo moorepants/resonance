@@ -11,6 +11,11 @@ from .system import System as _System
 
 class SingleDoFLinearSystem(_System):
 
+    def _initial_conditions(self):
+        x0 = list(self.coordinates.values())[0]
+        v0 = list(self.speeds.values())[0]
+        return x0, v0
+
     @staticmethod
     def _natural_frequency(mass, stiffness):
         """Returns the real or complex valued natural frequency of the
@@ -31,9 +36,42 @@ class SingleDoFLinearSystem(_System):
             warnings.warn(msg)
         return zeta
 
-    @staticmethod
-    def _damped_natural_frequency(natural_frequency, damping_ratio):
-        return natural_frequency * np.sqrt(1.0 - damping_ratio**2)
+    def _damped_natural_frequency(self, natural_frequency, damping_ratio):
+        typ = self._solution_type()
+        if typ == 'underdamped':
+            return natural_frequency * np.sqrt(1.0 - damping_ratio**2)
+        elif typ == 'no_damping_unstable' or typ == 'no_damping':
+            return natural_frequency
+        else:
+            return 0.0
+
+    def _normalized_form(self, m, c, k):
+        wn = self._natural_frequency(m, k)
+        z = self._damping_ratio(m, c, wn)
+        wd = self._damped_natural_frequency(wn, z)
+        return wn, z, wd
+
+    def _solution_type(self):
+
+        m, c, k = self._canonical_coefficients()
+        omega_n = self._natural_frequency(m, k)
+
+        if math.isclose(c, 0.0):
+            if isinstance(omega_n, complex):
+                return 'no_damping_unstable'
+            else:
+                return 'no_damping'
+        else:  # damping, so check zeta
+            zeta = self._damping_ratio(m, c, omega_n)
+            if zeta < 1.0:
+                return 'underdamped'
+            elif math.isclose(zeta, 1.0):
+                return 'critically_damped'
+            elif zeta > 1.0:
+                return 'overdamped'
+            else:
+                msg = 'No valid simulation solution with these parameters.'
+                raise ValueError(msg)
 
     def _solution_func(self):
 
@@ -49,10 +87,10 @@ class SingleDoFLinearSystem(_System):
             zeta = self._damping_ratio(m, c, omega_n)
             if zeta < 1.0:
                 sol_func = self._underdamped_solution
-            elif zeta > 1.0:
-                sol_func = self._overdamped_solution
             elif math.isclose(zeta, 1.0):
                 sol_func = self._critically_damped_solution
+            elif zeta > 1.0:
+                sol_func = self._overdamped_solution
             else:
                 msg = 'No valid simulation solution with these parameters.'
                 raise ValueError(msg)
@@ -100,31 +138,42 @@ class SingleDoFLinearSystem(_System):
 
         return pos, vel, acc
 
+    def _damped_sinusoid(self, A, phi, t):
+        """pos = A * exp(-z*wn*t) * sin(wd*t + phi)
+
+        A and phi are different and depend on the particular solution.
+
+        """
+
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        pos = A * np.exp(-z*wn*t) * np.sin(wd*t + phi)
+
+        vel = (A * -z * wn * np.exp(-z*wn*t) * np.sin(wd*t + phi) +
+               A * np.exp(-z*wn*t) * wd * np.cos(wd*t + phi))
+
+        acc = (A * (-z * wn)**2 * np.exp(-z*wn*t) * np.sin(wd*t + phi) +
+               A * -z * wn * np.exp(-z*wn*t) * wd * np.cos(wd*t + phi) +
+               A * -z * wn * np.exp(-z*wn*t) * wd * np.cos(wd*t + phi) -
+               A * np.exp(-z*wn*t) * wd**2 * np.sin(wd*t + phi))
+
+        return pos, vel, acc
+
     def _underdamped_solution(self, time):
 
         t = time
 
         m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
 
-        wn = self._natural_frequency(m, k)
-        z = self._damping_ratio(m, c, wn)
-        wd = self._damped_natural_frequency(wn, z)
-
-        x0 = list(self.coordinates.values())[0]
-        v0 = list(self.speeds.values())[0]
+        x0, v0 = self._initial_conditions()
 
         A = np.sqrt(((v0 + z * wn * x0)**2 + (x0 * wd)**2) / wd**2)
+
         phi = np.arctan2(x0 * wd, v0 + z * wn * x0)
 
-        pos = A * np.exp(-z * wn * t) * np.sin(wd * t + phi)
-
-        vel = (A * -z * wn * np.exp(-z * wn * t) * np.sin(wd * t + phi) +
-               A * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi))
-
-        acc = (A * (-z * wn)**2 * np.exp(-z * wn * t) * np.sin(wd * t + phi) +
-               A * -z * wn * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi) +
-               A * -z * wn * np.exp(-z * wn * t) * wd * np.cos(wd * t + phi) -
-               A * np.exp(-z * wn * t) * wd**2 * np.sin(wd * t + phi))
+        pos, vel, acc = self._damped_sinusoid(A, phi, t)
 
         return pos, vel, acc
 
@@ -156,11 +205,11 @@ class SingleDoFLinearSystem(_System):
                                 a2*time_const*np.exp(time_const*t)))
 
         acc = ((-z*wn)**2*np.exp(-z*wn*t)*(a1*np.exp(-time_const*t) +
-                                           a2*np.exp(time_const*t)) +
-               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
-                                      a2*time_const*np.exp(time_const*t)) +
-               -z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
-                                      a2*time_const*np.exp(time_const*t)) +
+                                           a2*np.exp(time_const*t)) -
+               z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                     a2*time_const*np.exp(time_const*t)) -
+               z*wn*np.exp(-z*wn*t)*(-a1*time_const*np.exp(-time_const*t) +
+                                     a2*time_const*np.exp(time_const*t)) +
                np.exp(-z*wn*t)*(a1*time_const**2*np.exp(-time_const*t) +
                                 a2*time_const**2*np.exp(time_const*t)))
 
@@ -193,13 +242,255 @@ class SingleDoFLinearSystem(_System):
         m, c, k = self._canonical_coefficients()
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
-        return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
+        if z < 1.0:  # underdamped, no damping, or unstable
+            return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
+        else:
+            return np.inf
 
     def _generate_state_trajectories(self, times):
 
         sol_func = self._solution_func()
 
         return sol_func(times)
+
+    def _canonical_coefficients(self):
+        # NOTE : This has to be created on the subclass or by the user to
+        # provide different models.
+        return 0.0, 0.0, 0.0
+
+    def _periodic_forcing_steady_state_response(self, a0, cos_coeffs,
+                                                sin_coeffs, frequency,
+                                                final_time, initial_time=0.0,
+                                                sample_rate=100):
+        """Returns the trajectory of the system's coordinates, speeds,
+        accelerations, and measurements if a periodic forcing function defined
+        by a Fourier series is applied as a force or torque in the same
+        direction as the system's coordinate. The forcing function is defined
+        as:
+
+                                N
+        F(t) or T(t) = a0 / 2 + ∑ (an * cos(n * ω * t) + bn * sin(n * ω *t))
+                               n=1
+
+        Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
+        then the Fourier series can describe any periodic function with a
+        period (2*π)/ω.
+
+        Parameters
+        ==========
+        a0 : float
+            Twice the average value over one cycle.
+        cos_coeffs : float or sequence of floats
+            The N cosine Fourier coefficients, an.
+        sin_coeffs : float or sequence of floats
+            The N sine Fourier coefficients, bn.
+        frequency : float
+            The frequency in radians per second corresponding to one full cycle
+            of the function.
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+
+        Returns
+        =======
+        pandas.DataFrame
+            A data frame indexed by time with all of the coordinates and
+            measurements as columns.
+
+        """
+        if self._solution_type() != 'underdamped':
+            msg = 'Currently, only supported for underdamped systems.'
+            raise ValueError(msg)
+
+        an = np.atleast_2d(cos_coeffs).T
+        bn = np.atleast_2d(sin_coeffs).T
+
+        if an.shape != bn.shape:
+            raise ValueError('an and bn must be the same length')
+
+        t = self._calc_times(final_time, initial_time, sample_rate)
+
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        wT = frequency
+
+        N = an.shape[0]
+
+        # column array of n/an values
+        n = np.arange(1, N+1)[:, np.newaxis]
+
+        # phase shift of each term in the series
+        theta_n = np.arctan2(2*z*wn*n*wT, wn**2-(n*wT)**2)
+
+        # an is a col and t is 1D, so each row of xcn is a term
+        # in the series at all times in t
+        cn_c = an / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
+        xcn = cn_c * np.cos(n*wT*t - theta_n)
+        vcn = -cn_c * np.sin(n*wT*t - theta_n) * n * wT
+        acn = -cn_c * np.cos(n*wT*t - theta_n) * (n * wT)**2
+
+        sn_c = bn / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
+        xsn = sn_c * np.sin(n*wT*t - theta_n)
+        vsn = sn_c * np.cos(n*wT*t - theta_n) * n * wT
+        asn = -sn_c * np.sin(n*wT*t - theta_n) * (n * wT)**2
+
+        # steady state solution (particular solution)
+        # x is the sum of each xcn term (the rows)
+        pos = a0 / 2 / k + np.sum(xcn, axis=0) + np.sum(xsn, axis=0)
+        vel = np.sum(vcn, axis=0) + np.sum(vsn, axis=0)
+        acc = np.sum(acn, axis=0) + np.sum(asn, axis=0)
+
+        self.result = self._state_traj_to_dataframe(t, pos, vel, acc)
+
+        return self.result
+
+    def sinusoidal_forcing_response(self, amplitude, frequency, final_time,
+                                    initial_time=0.0, sample_rate=100):
+        """Returns the trajectory of the system's coordinates, speeds,
+        accelerations, and measurements if a sinusoidal forcing (or torquing)
+        function defined by:
+
+        F(t) = Fo * cos(ω * t)
+
+        or
+
+        T(t) = To * cos(ω * t)
+
+        is applied to the moving body in the direction of the system's
+        coordinate.
+
+        Parameters
+        ==========
+        amplitude : float
+            The amplitude of the forcing/torquing function, Fo or To, in
+            Newtons or Newton-Meters.
+        frequency : float
+            The frequency, ω, in radians per second of the sinusoidal forcing.
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+
+        Returns
+        =======
+        pandas.DataFrame
+            A data frame indexed by time with all of the coordinates and
+            measurements as columns.
+
+        """
+        t = self._calc_times(final_time, initial_time, sample_rate)
+
+        typ = self._solution_type()
+
+        x0, v0 = self._initial_conditions()
+
+        m, c, k = self._canonical_coefficients()
+
+        Fo = amplitude
+        w = frequency
+        fo = Fo / m
+
+        if typ == 'no_damping':
+            wn = self._natural_frequency(m, k)
+            if math.isclose(w, wn):
+                X = fo / 2 / w
+                xss = X * t * np.sin(w*t)
+                vss = X * w * t * np.cos(w*t) + X * np.sin(w*t)
+                ass = (-X * w**2 * t * np.sin(w*t) + X * w * np.cos(w*t) + X *
+                       w * np.cos(w*t))
+                x = v0 / w * np.sin(w*t) + x0 * np.cos(w*t)
+                v = v0 / w * w * np.cos(w*t) - x0 * w * np.sin(w*t)
+                a = -v0 / w * w**2 * np.sin(w*t) - x0 * w**2 * np.cos(w*t)
+            else:
+                # steady state solution (particular solution)
+                X = fo / (wn**2 - w**2)
+                xss = X * np.cos(w * t)
+                vss = -X * w * np.sin(w * t)
+                ass = -X * w**2 * np.cos(w * t)
+                # transient solution (homogenous solution)
+                A1 = v0 / wn  # sin
+                A2 = x0 - fo / (wn**2 - w**2)  # cos
+                A = np.sqrt(A1**2 + A2**2)
+                phi = np.arctan2(A2, A1)
+                x = A * np.sin(wn * t + phi)
+                v = A * wn * np.cos(wn * t + phi)
+                a = -A * wn**2 * np.sin(wn * t + phi)
+        elif typ == 'underdamped':
+            wn, z, wd = self._normalized_form(m, c, k)
+
+            theta = np.arctan2(x0*wd, v0 + z*wn*x0)
+            X = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
+
+            xss = X * np.cos(w*t - theta)
+            vss = -X * np.sin(w*t - theta) * w
+            ass = -X * np.cos(w*t - theta) * w**2
+
+            phi = np.arctan2(wd * (x0 - X * np.cos(theta)),
+                             v0 + (x0 - X * np.cos(theta)) *
+                             z * wn - w * X * np.sin(theta))
+            A = (x0 - X * np.cos(theta)) / np.sin(phi)
+            x, v, a = self._damped_sinusoid(A, phi, t)
+        else:
+            raise ValueError('{} not yet supported.'.format(typ))
+
+        self.result = self._state_traj_to_dataframe(t, x + xss, v + vss,
+                                                    a + ass)
+
+        return self.result
+
+    def frequency_response_plot(self, amplitude, log=False):
+        """Returns an array of two matplotlib axes. The first holds the plot of
+        the coordinate's amplitude as a function of forcing frequency and the
+        second holds a plot of the coordinate's phase shift with respect to the
+        forcing function.
+
+        Parameters
+        ==========
+        amplitude : float
+            The value of the forcing amplitude.
+        log : boolean, optional
+            If True, the amplitude will be plotted on a semi-log Y plot.
+
+        """
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        w = np.linspace(0.0, 5 * wn, num=200)
+
+        fo = amplitude / m
+
+        amp_curve = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
+        phase_curve = np.arctan2(2*z*wn*w, wn**2 - w**2)
+
+        fig, axes = plt.subplots(2, 1, sharex=True)
+        axes[0].axvline(wn, color='black')
+        if log:
+            axes[0].semilogy(w, amp_curve)
+        else:
+            axes[0].plot(w, amp_curve)
+        axes[0].set_ylabel('Coordinate Amplitude')
+        axes[1].axvline(wn, color='black')
+        axes[1].plot(w, np.rad2deg(phase_curve))
+        axes[1].set_ylabel('Phase Shift [deg]')
+        axes[1].set_xlabel('Forcing Frequency, $\omega$, [rad/s]')
+
+        return axes
 
 
 class BookOnCupSystem(SingleDoFLinearSystem):
@@ -561,8 +852,6 @@ class MassSpringDamperSystem(SingleDoFLinearSystem):
         self.constants['damping'] = 0.0  # kg/s
         self.constants['stiffness'] = 100  # N/m
 
-        # TODO : When a coordinate is added the speed should be automatically
-        # added.
         self.coordinates['position'] = 0.0
         self.speeds['velocity'] = 0.0
 

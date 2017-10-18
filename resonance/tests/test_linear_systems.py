@@ -2,6 +2,7 @@ from math import isclose
 
 import pytest
 import numpy as np
+from pandas.util.testing import assert_frame_equal
 
 from ..linear_systems import (TorsionalPendulumSystem, SimplePendulumSystem,
                               MassSpringDamperSystem)
@@ -146,3 +147,53 @@ def test_mass_spring_damper_system():
     sys.constants['damping'] = 0.2
     zeta = 0.2 / 1.0 / (2*wn)
     assert isclose(sys.period(), 2 * np.pi / (wn * np.sqrt(1 - zeta**2)))
+
+
+def test_mass_spring_damper_system_forced():
+
+    # Example 2.1.1 in the Inman book.
+    sys = MassSpringDamperSystem()
+
+    sys.coordinates['position'] = 0.0  # m
+    sys.speeds['velocity'] = 0.2  # m/s
+
+    sys.constants['mass'] = 10  # kg
+    sys.constants['stiffness'] = 1000  # N/m
+    sys.constants['damping'] = 0.0  # Ns/m
+
+    traj = sys.sinusoidal_forcing_response(23.0, 2 * np.sqrt(1000.0 / 10), 3.0)
+
+    sys.constants['damping'] = 0.01  # Ns/m
+    duration = 20.0
+
+    a0 = 0.0
+    a1 = 0.1
+    b1 = 0.2
+    freq = 4 * np.pi
+    # a0 / 2 + a1 * cos(w * t) + b2 * sin(w * t)
+    traj = sys._periodic_forcing_steady_state_response(
+        a0, a1, b1, freq, duration)
+
+    traj1 = sys._periodic_forcing_steady_state_response(
+        0.0, 1.0, 0.0, freq, duration)
+    # this would assume solution: amplitude * cos(frequency * t)
+    traj2 = sys.sinusoidal_forcing_response(1.0, freq, duration)
+
+    #np.testing.assert_allclose(traj1.values, traj2.values)
+    #assert_frame_equal(traj1, traj2)
+
+    # a0 / 2 + a1 * cos(w * t) + a2 * n * cos(w * t) + b1 * sin(w * t) + b2 * n * cos(w * t)
+    a2 = 0.02
+    b2 = 0.03
+    traj = sys._periodic_forcing_steady_state_response(
+        a0, [a1, a2], [b1, b2], freq, duration)
+
+    # should this be analytic output? this is only relevant to underdamped
+    #ratio_input_output_amp, frequency = \
+        #sys.frequency_response(
+            #input_amplitudes,
+            #input_frequencies,
+            #ratio_to_nat_freq=False)  # could optionally output r instead of freq
+
+    # can we have the students do a data based frequency response, like sys id
+    # or ratio of spectrums? also, what about a simple fft?
