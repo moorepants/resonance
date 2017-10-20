@@ -454,7 +454,7 @@ class SingleDoFLinearSystem(_System):
 
         return self.result
 
-    def frequency_response_plot(self, amplitude, log=False):
+    def frequency_response_plot(self, amplitude, log=False, axes=None):
         """Returns an array of two matplotlib axes. The first holds the plot of
         the coordinate's amplitude as a function of forcing frequency and the
         second holds a plot of the coordinate's phase shift with respect to the
@@ -478,7 +478,8 @@ class SingleDoFLinearSystem(_System):
         amp_curve = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
         phase_curve = np.arctan2(2*z*wn*w, wn**2 - w**2)
 
-        fig, axes = plt.subplots(2, 1, sharex=True)
+        if axes is None:
+            fig, axes = plt.subplots(2, 1, sharex=True)
         axes[0].axvline(wn, color='black')
         if log:
             axes[0].semilogy(w, amp_curve)
