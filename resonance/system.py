@@ -171,8 +171,6 @@ class System(object):
     animate_configutation
         Generates the animation defined by ``config_plot_func`` and
         ``config_plot_update_func``.
-    period
-        Returns the damped natural period of the system.
 
     """
 

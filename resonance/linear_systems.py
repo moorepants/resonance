@@ -265,11 +265,11 @@ class SingleDoFLinearSystem(_System):
         accelerations, and measurements if a periodic forcing function defined
         by a Fourier series is applied as a force or torque in the same
         direction as the system's coordinate. The forcing function is defined
-        as:
+        as::
 
-                                N
-        F(t) or T(t) = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
-                               n=1
+                                    N
+            F(t) or T(t) = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
+                                   n=1
 
         Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
         then the Fourier series can describe any periodic function with a
@@ -1008,11 +1008,11 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         accelerations, and measurements if a periodic function defined by a
         Fourier series is applied as displacement of the base in the same
         direction as the system's coordinate. The displacing function is
-        defined as:
+        defined as::
 
-                         N
-        y(t)  = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
-                        n=1
+                             N
+            y(t)  = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
+                            n=1
 
         Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
         then the Fourier series can describe any periodic function with a
