@@ -386,6 +386,9 @@ class SingleDoFLinearSystem(_System):
 
         self.result = self._state_traj_to_dataframe(t, xh + xss, vh + vss,
                                                     ah + ass)
+        self.result['forcing_function'] = twice_avg / 2 + \
+            np.sum(an * n * np.cos(frequency * n * t) +
+                   bn * n * np.sin(frequency * n * t), axis=0)
 
         return self.result
 
@@ -487,6 +490,7 @@ class SingleDoFLinearSystem(_System):
 
         self.result = self._state_traj_to_dataframe(t, x + xss, v + vss,
                                                     a + ass)
+        self.result['forcing_function'] = amplitude * np.cos(frequency * t)
 
         return self.result
 
@@ -900,3 +904,173 @@ class MassSpringDamperSystem(SingleDoFLinearSystem):
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
         return coeffs(*args)
+
+
+class BaseExcitationSystem(SingleDoFLinearSystem):
+    """This system represents a mass connected to a moving massless base via a
+    spring and damper in parallel. The motion of the mass is subject to viscous
+    damping. The system is described by:
+
+    Attributes
+    ==========
+    constants
+        mass, m [kg]
+            The suspended mass.
+        damping, c [kg / s]
+            The viscous linear damping coefficient which represents any energy
+            dissipation from things like air resistance, friction, etc.
+        stiffness, k [N / m]
+            The linear elastic stiffness of the spring.
+    coordinates
+        position, x [m]
+            The absolute position of the mass.
+    speeds
+        velocity, x_dot [m / s]
+            The absolute velocity of the mass.
+
+    """
+
+    def __init__(self):
+
+        super(BaseExcitationSystem, self).__init__()
+
+        self.constants['mass'] = 1.0  # m
+        self.constants['damping'] = 0.0  # kg/s
+        self.constants['stiffness'] = 100  # N/m
+
+        self.coordinates['position'] = 0.0
+        self.speeds['velocity'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(mass, damping, stiffness):
+            return mass, damping, stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+    def sinusoidal_base_displacing_response(self, amplitude, frequency,
+                                            final_time, initial_time=0.0,
+                                            sample_rate=100):
+        """Returns the trajectory of the system's coordinates, speeds,
+        accelerations, and measurements if a sinusoidal displacement function
+        described by:
+
+        y(t) = Y * sin(ω*t)
+
+        is specified for the movement of the base in the direction of the
+        system's coordinate.
+
+        Parameters
+        ==========
+        amplitude : float
+            The amplitude of the displacement function, Y, in meters.
+        frequency : float
+            The frequency, ω, in radians per second of the sinusoidal
+            displacement.
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+
+        Returns
+        =======
+        pandas.DataFrame
+            A data frame indexed by time with all of the coordinates and
+            measurements as columns.
+
+        """
+        m, c, k = self._canonical_coefficients()
+
+        a0 = 0.0
+        a1 = c * amplitude * frequency
+        b1 = k * amplitude
+
+        self.periodic_forcing_response(a0, a1, b1, frequency, final_time,
+                                       initial_time, sample_rate)
+        self.result['displacing_function'] = \
+            amplitude * np.sin(frequency * self.result.index)
+
+        return self.result
+
+    def periodic_base_displacing_response(self, twice_avg, cos_coeffs,
+                                          sin_coeffs, frequency, final_time,
+                                          initial_time=0.0, sample_rate=100):
+        """Returns the trajectory of the system's coordinates, speeds,
+        accelerations, and measurements if a periodic function defined by a
+        Fourier series is applied as displacement of the base in the same
+        direction as the system's coordinate. The displacing function is
+        defined as:
+
+                         N
+        y(t)  = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
+                        n=1
+
+        Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
+        then the Fourier series can describe any periodic function with a
+        period (2*π)/ω.
+
+        Parameters
+        ==========
+        twice_avg : float
+            Twice the average value over one cycle, a0.
+        cos_coeffs : float or sequence of floats
+            The N cosine Fourier coefficients: a1, ..., aN.
+        sin_coeffs : float or sequence of floats
+            The N sine Fourier coefficients: b1, ..., bN.
+        frequency : float
+            The frequency, ω, in radians per second corresponding to one full
+            cycle of the function.
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+
+        Returns
+        =======
+        pandas.DataFrame
+            A data frame indexed by time with all of the coordinates, speeds,
+            measurements, and forcing/displacing functions as columns.
+
+        """
+        t = self._calc_times(final_time, initial_time, sample_rate)
+
+        m, c, k = self._canonical_coefficients()
+
+        # shape(N,)
+        cos_coeffs = np.atleast_1d(cos_coeffs)
+        sin_coeffs = np.atleast_1d(sin_coeffs)
+
+        N = len(cos_coeffs)
+        # shape(N,)
+        n = np.arange(1, N+1)
+
+        a0 = k * twice_avg
+        an = k * cos_coeffs + c * sin_coeffs * n * frequency
+        bn = k * sin_coeffs - c * cos_coeffs * n * frequency
+
+        self.periodic_forcing_response(a0, an, bn, frequency, final_time,
+                                       initial_time, sample_rate)
+        # shape(N, 1)
+        n = np.arange(1, N+1)[:, np.newaxis]
+        ycn = cos_coeffs * np.cos(n * frequency * t)
+        ysn = sin_coeffs * np.sin(n * frequency * t)
+        y = twice_avg / 2 + np.sum(ycn + ysn, axis=0)
+        self.result['displacing_function'] = y
+
+        return self.result
