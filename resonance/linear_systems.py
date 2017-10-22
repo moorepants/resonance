@@ -258,10 +258,9 @@ class SingleDoFLinearSystem(_System):
         # provide different models.
         return 0.0, 0.0, 0.0
 
-    def _periodic_forcing_steady_state_response(self, a0, cos_coeffs,
-                                                sin_coeffs, frequency,
-                                                final_time, initial_time=0.0,
-                                                sample_rate=100):
+    def periodic_forcing_response(self, twice_avg, cos_coeffs, sin_coeffs,
+                                  frequency, final_time, initial_time=0.0,
+                                  sample_rate=100):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a periodic forcing function defined
         by a Fourier series is applied as a force or torque in the same
@@ -269,7 +268,7 @@ class SingleDoFLinearSystem(_System):
         as:
 
                                 N
-        F(t) or T(t) = a0 / 2 + ∑ (an * cos(n * ω * t) + bn * sin(n * ω *t))
+        F(t) or T(t) = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
                                n=1
 
         Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
@@ -278,15 +277,15 @@ class SingleDoFLinearSystem(_System):
 
         Parameters
         ==========
-        a0 : float
-            Twice the average value over one cycle.
+        twice_avg : float
+            Twice the average value over one cycle, a0.
         cos_coeffs : float or sequence of floats
-            The N cosine Fourier coefficients, an.
+            The N cosine Fourier coefficients: a1, ..., aN.
         sin_coeffs : float or sequence of floats
-            The N sine Fourier coefficients, bn.
+            The N sine Fourier coefficients: b1, ..., bN.
         frequency : float
-            The frequency in radians per second corresponding to one full cycle
-            of the function.
+            The frequency, ω, in radians per second corresponding to one full
+            cycle of the function.
         final_time : float
             A value of time in seconds corresponding to the end of the
             simulation.
@@ -310,46 +309,83 @@ class SingleDoFLinearSystem(_System):
             msg = 'Currently, only supported for underdamped systems.'
             raise ValueError(msg)
 
+        # shape(N, 1)
         an = np.atleast_2d(cos_coeffs).T
         bn = np.atleast_2d(sin_coeffs).T
+
+        if an.shape[1] != 1 or bn.shape[1] != 1:
+            msg = 'an and bn must be 1D sequences or a single float.'
+            raise ValueError(msg)
 
         if an.shape != bn.shape:
             raise ValueError('an and bn must be the same length')
 
+        # shape (M,), M: number of time samples
         t = self._calc_times(final_time, initial_time, sample_rate)
+        M = t.shape[0]
 
+        # scalars
         m, c, k = self._canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
-
         wT = frequency
 
         N = an.shape[0]
 
-        # column array of n/an values
+        # column array of n values, shape(N, 1)
         n = np.arange(1, N+1)[:, np.newaxis]
+        assert n.shape == (N, 1)
 
-        # phase shift of each term in the series
+        # phase shift of each term in the series, shape(N, 1)
         theta_n = np.arctan2(2*z*wn*n*wT, wn**2-(n*wT)**2)
+        assert theta_n.shape == (N, 1)
 
         # an is a col and t is 1D, so each row of xcn is a term
         # in the series at all times in t
-        cn_c = an / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
-        xcn = cn_c * np.cos(n*wT*t - theta_n)
-        vcn = -cn_c * np.sin(n*wT*t - theta_n) * n * wT
-        acn = -cn_c * np.cos(n*wT*t - theta_n) * (n * wT)**2
 
-        sn_c = bn / m / np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
-        xsn = sn_c * np.sin(n*wT*t - theta_n)
-        vsn = sn_c * np.cos(n*wT*t - theta_n) * n * wT
-        asn = -sn_c * np.sin(n*wT*t - theta_n) * (n * wT)**2
+        # shape(N, 1)
+        denom = m * np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
+        assert denom.shape == (N, 1)
+
+        # shape(N, M)
+        cwT = np.cos(n*wT*t - theta_n)
+        swT = np.sin(n*wT*t - theta_n)
+        assert cwT.shape == (N, M)
+        assert swT.shape == (N, M)
+
+        # shape(N, M)
+        xcn = an / denom * cwT
+        vcn = -an * n * wT / denom * swT
+        acn = -an * (n * wT)**2 / denom * cwT
+        assert xcn.shape == (N, M)
+
+        # shape(N, M)
+        xsn = bn / denom * swT
+        vsn = bn * n * wT / denom * cwT
+        asn = -bn * (n * wT)**2 / denom * swT
+        assert xsn.shape == (N, M)
 
         # steady state solution (particular solution)
         # x is the sum of each xcn term (the rows)
-        pos = a0 / 2 / k + np.sum(xcn, axis=0) + np.sum(xsn, axis=0)
-        vel = np.sum(vcn, axis=0) + np.sum(vsn, axis=0)
-        acc = np.sum(acn, axis=0) + np.sum(asn, axis=0)
+        xss = twice_avg / 2 / k + np.sum(xcn + xsn, axis=0)
+        vss = np.sum(vcn + vsn, axis=0)
+        ass = np.sum(acn + asn, axis=0)
+        assert xss.shape == (M, )
 
-        self.result = self._state_traj_to_dataframe(t, pos, vel, acc)
+        # the transient solution (homogeneous)
+        x0, v0 = self._initial_conditions()
+
+        c1 = np.sum((-np.sin(theta_n)*bn + np.cos(theta_n)*an) / denom)
+        c2 = wT * np.sum((np.sin(theta_n)*an + np.cos(theta_n)*bn) * n / denom)
+
+        phi = np.arctan2(wd*(2*c1*k+twice_avg-2*k*x0),
+                         2*c1*k*wn*z + 2*c2*k + twice_avg*wn*z - 2*k*wn*x0*z -
+                         2*k*v0)
+        A = (-twice_avg / 2 + k * (-c1 + x0)) / k / np.sin(phi)
+
+        xh, vh, ah = self._damped_sinusoid(A, phi, t)
+
+        self.result = self._state_traj_to_dataframe(t, xh + xss, vh + vss,
+                                                    ah + ass)
 
         return self.result
 
@@ -434,12 +470,12 @@ class SingleDoFLinearSystem(_System):
         elif typ == 'underdamped':
             wn, z, wd = self._normalized_form(m, c, k)
 
-            theta = np.arctan2(x0*wd, v0 + z*wn*x0)
+            theta = np.arctan2(2*z*wn*w, wn**2 - w**2)
             X = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
 
             xss = X * np.cos(w*t - theta)
-            vss = -X * np.sin(w*t - theta) * w
-            ass = -X * np.cos(w*t - theta) * w**2
+            vss = -X * w * np.sin(w*t - theta)
+            ass = -X * w**2 * np.cos(w*t - theta)
 
             phi = np.arctan2(wd * (x0 - X * np.cos(theta)),
                              v0 + (x0 - X * np.cos(theta)) *

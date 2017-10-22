@@ -163,37 +163,31 @@ def test_mass_spring_damper_system_forced():
 
     traj = sys.sinusoidal_forcing_response(23.0, 2 * np.sqrt(1000.0 / 10), 3.0)
 
-    sys.constants['damping'] = 0.01  # Ns/m
-    duration = 20.0
+    # Now add damping and make sure that sinusoidal_forcing_response gives the
+    # same results as periodic_forcing_response.
+    sys.constants['damping'] = 10.0  # Ns/m
 
-    a0 = 0.0
+    duration = 5.0
+
+    # this would assume solution: amplitude * cos(frequency * t)
+    traj1 = sys.sinusoidal_forcing_response(23.0, 2 * np.sqrt(1000.0 / 10),
+                                            duration)
+    # see if the periodic forcing gives same answer as sinusoidal:
+    # 0.0 / 2 + 23.0 cos() + 0.0 sin()
+    traj2 = sys.periodic_forcing_response(0.0, 23.0, 0.0,
+                                          2 * np.sqrt(1000.0 / 10), duration)
+
+    assert_frame_equal(traj1, traj2)
+
+    # Ensure that the function works with different numbers of coeffs.
+    a0 = 0.1
     a1 = 0.1
     b1 = 0.2
     freq = 4 * np.pi
     # a0 / 2 + a1 * cos(w * t) + b2 * sin(w * t)
-    traj = sys._periodic_forcing_steady_state_response(
-        a0, a1, b1, freq, duration)
-
-    traj1 = sys._periodic_forcing_steady_state_response(
-        0.0, 1.0, 0.0, freq, duration)
-    # this would assume solution: amplitude * cos(frequency * t)
-    traj2 = sys.sinusoidal_forcing_response(1.0, freq, duration)
-
-    #np.testing.assert_allclose(traj1.values, traj2.values)
-    #assert_frame_equal(traj1, traj2)
-
+    traj = sys.periodic_forcing_response(a0, a1, b1, freq, duration)
     # a0 / 2 + a1 * cos(w * t) + a2 * n * cos(w * t) + b1 * sin(w * t) + b2 * n * cos(w * t)
     a2 = 0.02
     b2 = 0.03
-    traj = sys._periodic_forcing_steady_state_response(
-        a0, [a1, a2], [b1, b2], freq, duration)
-
-    # should this be analytic output? this is only relevant to underdamped
-    #ratio_input_output_amp, frequency = \
-        #sys.frequency_response(
-            #input_amplitudes,
-            #input_frequencies,
-            #ratio_to_nat_freq=False)  # could optionally output r instead of freq
-
-    # can we have the students do a data based frequency response, like sys id
-    # or ratio of spectrums? also, what about a simple fft?
+    traj = sys.periodic_forcing_response(a0, [a1, a2], [b1, b2], freq,
+                                         duration)
