@@ -5,7 +5,7 @@ import numpy as np
 from pandas.util.testing import assert_frame_equal
 
 from ..linear_systems import (TorsionalPendulumSystem, SimplePendulumSystem,
-                              MassSpringDamperSystem)
+                              MassSpringDamperSystem, BaseExcitationSystem)
 from ..functions import estimate_period
 
 
@@ -161,7 +161,7 @@ def test_mass_spring_damper_system_forced():
     sys.constants['stiffness'] = 1000  # N/m
     sys.constants['damping'] = 0.0  # Ns/m
 
-    traj = sys.sinusoidal_forcing_response(23.0, 2 * np.sqrt(1000.0 / 10), 3.0)
+    sys.sinusoidal_forcing_response(23.0, 2 * np.sqrt(1000.0 / 10), 3.0)
 
     # Now add damping and make sure that sinusoidal_forcing_response gives the
     # same results as periodic_forcing_response.
@@ -185,9 +185,27 @@ def test_mass_spring_damper_system_forced():
     b1 = 0.2
     freq = 4 * np.pi
     # a0 / 2 + a1 * cos(w * t) + b2 * sin(w * t)
-    traj = sys.periodic_forcing_response(a0, a1, b1, freq, duration)
-    # a0 / 2 + a1 * cos(w * t) + a2 * n * cos(w * t) + b1 * sin(w * t) + b2 * n * cos(w * t)
+    sys.periodic_forcing_response(a0, a1, b1, freq, duration)
+    # a0 / 2 + a1 * cos(w * t) + a2 * n * cos(w * t) +
+    #          b1 * sin(w * t) + b2 * n * cos(w * t)
     a2 = 0.02
     b2 = 0.03
-    traj = sys.periodic_forcing_response(a0, [a1, a2], [b1, b2], freq,
-                                         duration)
+    sys.periodic_forcing_response(a0, [a1, a2], [b1, b2], freq, duration)
+
+
+def test_base_excitation_system():
+
+    sys = BaseExcitationSystem()
+    sys.constants['mass'] = 100  # kg
+    sys.constants['stifness'] = 2000  # N/m
+    sys.constants['damping'] = 30  # kg/s
+
+    amplitude = 0.03  # m
+    frequency = 6  # rad/s
+
+    traj1 = sys.sinusoidal_base_displacing_response(amplitude, frequency, 5.0)
+
+    traj2 = sys.periodic_base_displacing_response(0.0, 0.0, amplitude,
+                                                  frequency, 5.0)
+
+    assert_frame_equal(traj1, traj2)

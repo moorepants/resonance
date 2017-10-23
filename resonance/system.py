@@ -171,8 +171,6 @@ class System(object):
     animate_configutation
         Generates the animation defined by ``config_plot_func`` and
         ``config_plot_update_func``.
-    period
-        Returns the damped natural period of the system.
 
     """
 
@@ -567,7 +565,11 @@ class System(object):
                     args.append(0.0)  # static config defaults to t=0.0
                 elif k == 'time__hist':
                     args.append(0.0)  # static config defaults to t=0.0
+                elif k == 'time__futr':
+                    args.append(0.0)  # static config defaults to t=0.0
                 elif k.endswith('__hist'):
+                    args.append(self._get_par_vals(k[:-6]))
+                elif k.endswith('__futr'):
                     args.append(self._get_par_vals(k[:-6]))
                 else:
                     args.append(self._get_par_vals(k))
@@ -606,15 +608,27 @@ class System(object):
                     args.append(time)
                 elif k == 'time__hist':
                     args.append(self.result[:time].index)
+                elif k == 'time__futr':
+                    args.append(self.result[time:].index)
                 elif k.endswith('__hist'):
                     args.append(self.result[k[:-6]][:time])
+                elif k.endswith('__futr'):
+                    args.append(self.result[k[:-6]][time:])
                 else:
                     try:
                         args.append(row[k])
                     except KeyError:
-                        # requires these to be in the same order
-                        args.append(pop_list.pop(0))
+                        try:
+                            # get constants
+                            args.append(self._get_par_vals(k))
+                        except KeyError:
+                            # requires these to be in the same order
+                            args.append(pop_list.pop(0))
             self.config_plot_update_func(*args)
+
+        # NOTE : This is useful to uncomment in debugging because the errors
+        # push to the top if in the FuncAnimation.
+        #gen_frame((1.0, self.result.iloc[0]), list(objs_to_modify))
 
         return animation.FuncAnimation(fig, gen_frame, fargs=(objs_to_modify, ),
                                        frames=self.result.iterrows(), **kwargs)

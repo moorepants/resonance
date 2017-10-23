@@ -2,7 +2,7 @@ import math
 from inspect import getargspec
 import warnings
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, Rectangle
 
 import numpy as np
 
@@ -260,16 +260,17 @@ class SingleDoFLinearSystem(_System):
 
     def periodic_forcing_response(self, twice_avg, cos_coeffs, sin_coeffs,
                                   frequency, final_time, initial_time=0.0,
-                                  sample_rate=100):
+                                  sample_rate=100,
+                                  col_name='forcing_function'):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a periodic forcing function defined
         by a Fourier series is applied as a force or torque in the same
         direction as the system's coordinate. The forcing function is defined
-        as:
+        as::
 
-                                N
-        F(t) or T(t) = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
-                               n=1
+                                    N
+            F(t) or T(t) = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
+                                   n=1
 
         Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
         then the Fourier series can describe any periodic function with a
@@ -297,6 +298,9 @@ class SingleDoFLinearSystem(_System):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
 
         Returns
         =======
@@ -387,10 +391,19 @@ class SingleDoFLinearSystem(_System):
         self.result = self._state_traj_to_dataframe(t, xh + xss, vh + vss,
                                                     ah + ass)
 
+        if col_name.isidentifier():
+            self.result[col_name] = twice_avg / 2 + \
+                np.sum(an * n * np.cos(frequency * n * t) +
+                       bn * n * np.sin(frequency * n * t), axis=0)
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
+
         return self.result
 
     def sinusoidal_forcing_response(self, amplitude, frequency, final_time,
-                                    initial_time=0.0, sample_rate=100):
+                                    initial_time=0.0, sample_rate=100,
+                                    col_name='forcing_function'):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a sinusoidal forcing (or torquing)
         function defined by:
@@ -422,6 +435,9 @@ class SingleDoFLinearSystem(_System):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
 
         Returns
         =======
@@ -487,6 +503,11 @@ class SingleDoFLinearSystem(_System):
 
         self.result = self._state_traj_to_dataframe(t, x + xss, v + vss,
                                                     a + ass)
+        if col_name.isidentifier():
+            self.result[col_name] = amplitude * np.cos(frequency * t)
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
 
         return self.result
 
@@ -896,6 +917,349 @@ class MassSpringDamperSystem(SingleDoFLinearSystem):
 
         def coeffs(mass, damping, stiffness):
             return mass, damping, stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+
+class BaseExcitationSystem(SingleDoFLinearSystem):
+    """This system represents a mass connected to a moving massless base via a
+    spring and damper in parallel. The motion of the mass is subject to viscous
+    damping. The system is described by:
+
+    Attributes
+    ==========
+    constants
+        mass, m [kg]
+            The suspended mass.
+        damping, c [kg / s]
+            The viscous linear damping coefficient which represents any energy
+            dissipation from things like air resistance, friction, etc.
+        stiffness, k [N / m]
+            The linear elastic stiffness of the spring.
+    coordinates
+        position, x [m]
+            The absolute position of the mass.
+    speeds
+        velocity, x_dot [m / s]
+            The absolute velocity of the mass.
+
+    """
+
+    def __init__(self):
+
+        super(BaseExcitationSystem, self).__init__()
+
+        self.constants['mass'] = 1.0  # m
+        self.constants['damping'] = 0.0  # kg/s
+        self.constants['stiffness'] = 100  # N/m
+
+        self.coordinates['position'] = 0.0
+        self.speeds['velocity'] = 0.0
+
+    def _canonical_coefficients(self):
+
+        def coeffs(mass, damping, stiffness):
+            return mass, damping, stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
+
+    def sinusoidal_base_displacing_response(self, amplitude, frequency,
+                                            final_time, initial_time=0.0,
+                                            sample_rate=100,
+                                            force_col_name='forcing_function',
+                                            displace_col_name='displacing_function'):
+        """Returns the trajectory of the system's coordinates, speeds,
+        accelerations, and measurements if a sinusoidal displacement function
+        described by:
+
+        y(t) = Y * sin(ω*t)
+
+        is specified for the movement of the base in the direction of the
+        system's coordinate.
+
+        Parameters
+        ==========
+        amplitude : float
+            The amplitude of the displacement function, Y, in meters.
+        frequency : float
+            The frequency, ω, in radians per second of the sinusoidal
+            displacement.
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+        force_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
+        displace_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
+
+        Returns
+        =======
+        pandas.DataFrame
+            A data frame indexed by time with all of the coordinates and
+            measurements as columns.
+
+        """
+        m, c, k = self._canonical_coefficients()
+
+        a0 = 0.0
+        a1 = c * amplitude * frequency
+        b1 = k * amplitude
+
+        self.periodic_forcing_response(a0, a1, b1, frequency, final_time,
+                                       initial_time=initial_time,
+                                       sample_rate=sample_rate,
+                                       col_name=force_col_name)
+
+        try:
+            col_name = self._displace_col_name
+        except AttributeError:
+            col_name = displace_col_name
+        else:
+            # if not the default warn
+            if displace_col_name != 'displacing_function':
+                msg = 'displace_col_name set to {}'
+                warnings.warn(msg.format(displace_col_name))
+
+        if col_name.isidentifier():
+            self.result[col_name] = amplitude * np.sin(frequency *
+                                                       self.result.index)
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
+
+        return self.result
+
+    def periodic_base_displacing_response(self, twice_avg, cos_coeffs,
+                                          sin_coeffs, frequency, final_time,
+                                          initial_time=0.0, sample_rate=100,
+                                          force_col_name='forcing_function',
+                                          displace_col_name='displacing_function'):
+        """Returns the trajectory of the system's coordinates, speeds,
+        accelerations, and measurements if a periodic function defined by a
+        Fourier series is applied as displacement of the base in the same
+        direction as the system's coordinate. The displacing function is
+        defined as::
+
+                             N
+            y(t)  = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
+                            n=1
+
+        Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
+        then the Fourier series can describe any periodic function with a
+        period (2*π)/ω.
+
+        Parameters
+        ==========
+        twice_avg : float
+            Twice the average value over one cycle, a0.
+        cos_coeffs : float or sequence of floats
+            The N cosine Fourier coefficients: a1, ..., aN.
+        sin_coeffs : float or sequence of floats
+            The N sine Fourier coefficients: b1, ..., bN.
+        frequency : float
+            The frequency, ω, in radians per second corresponding to one full
+            cycle of the function.
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+        force_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
+        displace_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
+
+        Returns
+        =======
+        pandas.DataFrame
+            A data frame indexed by time with all of the coordinates, speeds,
+            measurements, and forcing/displacing functions as columns.
+
+        """
+        t = self._calc_times(final_time, initial_time, sample_rate)
+
+        m, c, k = self._canonical_coefficients()
+
+        # shape(N,)
+        cos_coeffs = np.atleast_1d(cos_coeffs)
+        sin_coeffs = np.atleast_1d(sin_coeffs)
+
+        N = len(cos_coeffs)
+        # shape(N,)
+        n = np.arange(1, N+1)
+
+        a0 = k * twice_avg
+        # shape(N,)
+        an = k * cos_coeffs + c * sin_coeffs * n * frequency
+        bn = k * sin_coeffs - c * cos_coeffs * n * frequency
+
+        self.periodic_forcing_response(a0, an, bn, frequency, final_time,
+                                       initial_time=initial_time,
+                                       sample_rate=sample_rate,
+                                       col_name=force_col_name)
+        # shape(N, 1)
+        n = np.arange(1, N+1)[:, np.newaxis]
+        cos_coeffs = np.atleast_2d(cos_coeffs).T
+        sin_coeffs = np.atleast_2d(sin_coeffs).T
+        ycn = cos_coeffs * np.cos(n * frequency * t)
+        ysn = sin_coeffs * np.sin(n * frequency * t)
+        y = twice_avg / 2 + np.sum(ycn + ysn, axis=0)
+
+        try:
+            col_name = self._displace_col_name
+        except AttributeError:
+            col_name = displace_col_name
+        else:
+            # if not the default warn
+            if displace_col_name != 'displacing_function':
+                msg = 'displace_col_name set to {}'
+                warnings.warn(msg.format(displace_col_name))
+
+        if col_name.isidentifier():
+            self.result[col_name] = y
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
+
+        return self.result
+
+
+class SimpleQuarterCarSystem(BaseExcitationSystem):
+    """This system represents a mass connected to a moving massless base via a
+    spring and damper in parallel. The motion of the mass is subject to viscous
+    damping. The system is described by:
+
+    Attributes
+    ==========
+    constants
+        mass, m [kg]
+            The suspended mass.
+        damping, c [kg / s]
+            The viscous linear damping coefficient which represents any energy
+            dissipation from things like air resistance, friction, etc.
+        stiffness, k [N / m]
+            The linear elastic stiffness of the spring.
+    coordinates
+        position, x [m]
+            The absolute position of the mass.
+    speeds
+        velocity, x_dot [m / s]
+            The absolute velocity of the mass.
+
+    """
+    _displace_col_name = 'road_height'
+
+    def __init__(self):
+
+        # NOTE : Don't call init on this super class, but the super super
+        # class.
+        super(BaseExcitationSystem, self).__init__()
+
+        self.constants['sprung_mass'] = 1007  # kg
+        self.constants['suspension_damping'] = 20E2  # kg/s
+        self.constants['suspension_stiffness'] = 4E4  # N/m
+        self.constants['travel_speed'] = 7.5  # m/s
+
+        self.coordinates['car_vertical_position'] = -0.05  # m
+        self.speeds['car_vertical_velocity'] = 0.0  # m/s
+
+        xeq = 0.1  # m
+        view_width = 4  # m
+        # a rectangle will represent the car
+        rect_width = 1.0  # m
+        rect_height = rect_width / 6  # m
+
+        def plot_config(car_vertical_position):
+
+            fig, ax = plt.subplots(1, 1)
+
+            ax.set_ylim((-0.1, 0.6))
+            ax.set_ylabel('Height [m]')
+
+            lat_pos = 0  # m
+
+            lat = np.linspace(lat_pos - view_width / 2,
+                              lat_pos + view_width / 2,
+                              num=100)
+
+            ax.set_xlim((lat[0], lat[-1]))
+
+            rect = Rectangle(
+                            (-rect_width / 2, xeq + car_vertical_position),  # (x,y)
+                            rect_width,  # width
+                            rect_height,  # height
+                            )
+
+            ax.add_patch(rect)
+
+            # NOTE: Just plot a flat road for now because there may be no
+            # results available
+            road = ax.plot(lat, np.zeros_like(lat), color='black')[0]
+
+            suspension = ax.plot([lat_pos, lat_pos],
+                                 [0.0, xeq + car_vertical_position],
+                                 linewidth='4', marker='o', color='yellow')[0]
+            #force_vec = ax.plot([lat_pos, lat_pos],
+                                #[xeq + car_vertical_position + rect_height / 2,
+                                 #xeq + car_vertical_position + rect_height / 2 + 0.2],
+                                #'r', linewidth=4)[0]
+
+            return fig, ax, rect, road, suspension
+
+        self.config_plot_func = plot_config
+
+        def plot_update(travel_speed, car_vertical_position,
+                        time, time__hist, time__futr,
+                        road_height, road_height__hist, road_height__futr,
+                        ax, rect, road, suspension):
+
+            # v is a function of forcing freq
+            lat_pos = travel_speed * time
+
+            ax.set_xlim((lat_pos - view_width / 2, lat_pos + view_width / 2))
+
+            rect.set_xy([lat_pos - rect_width / 2, xeq + car_vertical_position])
+
+            lat = travel_speed * np.hstack((time__hist, time__futr))
+
+            road.set_xdata(lat)
+            road.set_ydata(np.hstack((road_height__hist, road_height__futr)))
+
+            suspension.set_xdata([lat_pos, lat_pos])
+            suspension.set_ydata([road_height, xeq + car_vertical_position])
+
+            #force_vec.set_xdata([lat_pos, lat_pos])
+            #force_vec.set_ydata([xeq + x[i] + rect_height / 2,
+                                #xeq + x[i] + rect_height / 2 + f[i] / k])
+
+        self.config_plot_update_func = plot_update
+
+    def _canonical_coefficients(self):
+
+        def coeffs(sprung_mass, suspension_damping, suspension_stiffness):
+            return sprung_mass, suspension_damping, suspension_stiffness
 
         args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
 
