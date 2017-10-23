@@ -511,6 +511,38 @@ class SingleDoFLinearSystem(_System):
 
         return self.result
 
+    def frequency_response(self, frequencies, amplitude):
+        """Returns the amplitude and phase shift for simple sinusoidal forcing
+        of the system. The first holds the plot of the coordinate's amplitude
+        as a function of forcing frequency and the second holds a plot of the
+        coordinate's phase shift with respect to the forcing function.
+
+        Parameters
+        ==========
+        freqencies : array_like, shape(n,)
+        amplitude : float
+            The value of the forcing amplitude.
+
+        Returns
+        =======
+        amp_curve : ndarray, shape(n,)
+            The amplitude values of the coordinate at different frequencies.
+        phase_curve : ndarray, shape(n,)
+            The phase shift values in radians of the coordinate relative to the
+            forcing.
+
+        """
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        fo = amplitude / m
+        w = np.asarray(frequencies)
+
+        amp_curve = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
+        phase_curve = np.arctan2(2*z*wn*w, wn**2 - w**2)
+
+        return amp_curve, phase_curve
+
     def frequency_response_plot(self, amplitude, log=False, axes=None):
         """Returns an array of two matplotlib axes. The first holds the plot of
         the coordinate's amplitude as a function of forcing frequency and the
@@ -530,10 +562,7 @@ class SingleDoFLinearSystem(_System):
 
         w = np.linspace(0.0, 5 * wn, num=200)
 
-        fo = amplitude / m
-
-        amp_curve = fo / np.sqrt((wn**2 - w**2)**2 + (2*z*wn*w)**2)
-        phase_curve = np.arctan2(2*z*wn*w, wn**2 - w**2)
+        amp_curve, phase_curve = self.frequency_response(w, amplitude)
 
         if axes is None:
             fig, axes = plt.subplots(2, 1, sharex=True)
