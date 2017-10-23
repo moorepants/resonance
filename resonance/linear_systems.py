@@ -260,7 +260,8 @@ class SingleDoFLinearSystem(_System):
 
     def periodic_forcing_response(self, twice_avg, cos_coeffs, sin_coeffs,
                                   frequency, final_time, initial_time=0.0,
-                                  sample_rate=100):
+                                  sample_rate=100,
+                                  col_name='forcing_function'):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a periodic forcing function defined
         by a Fourier series is applied as a force or torque in the same
@@ -297,6 +298,9 @@ class SingleDoFLinearSystem(_System):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
 
         Returns
         =======
@@ -386,14 +390,20 @@ class SingleDoFLinearSystem(_System):
 
         self.result = self._state_traj_to_dataframe(t, xh + xss, vh + vss,
                                                     ah + ass)
-        self.result['forcing_function'] = twice_avg / 2 + \
-            np.sum(an * n * np.cos(frequency * n * t) +
-                   bn * n * np.sin(frequency * n * t), axis=0)
+
+        if col_name.isidentifier():
+            self.result[col_name] = twice_avg / 2 + \
+                np.sum(an * n * np.cos(frequency * n * t) +
+                       bn * n * np.sin(frequency * n * t), axis=0)
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
 
         return self.result
 
     def sinusoidal_forcing_response(self, amplitude, frequency, final_time,
-                                    initial_time=0.0, sample_rate=100):
+                                    initial_time=0.0, sample_rate=100,
+                                    col_name='forcing_function'):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a sinusoidal forcing (or torquing)
         function defined by:
@@ -425,6 +435,9 @@ class SingleDoFLinearSystem(_System):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
 
         Returns
         =======
@@ -490,7 +503,11 @@ class SingleDoFLinearSystem(_System):
 
         self.result = self._state_traj_to_dataframe(t, x + xss, v + vss,
                                                     a + ass)
-        self.result['forcing_function'] = amplitude * np.cos(frequency * t)
+        if col_name.isidentifier():
+            self.result[col_name] = amplitude * np.cos(frequency * t)
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
 
         return self.result
 
@@ -1032,7 +1049,9 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
 
     def sinusoidal_base_displacing_response(self, amplitude, frequency,
                                             final_time, initial_time=0.0,
-                                            sample_rate=100):
+                                            sample_rate=100,
+                                            force_col_name='forcing_function',
+                                            displace_col_name='displacing_function'):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a sinusoidal displacement function
         described by:
@@ -1060,6 +1079,12 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        force_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
+        displace_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
 
         Returns
         =======
@@ -1075,15 +1100,24 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         b1 = k * amplitude
 
         self.periodic_forcing_response(a0, a1, b1, frequency, final_time,
-                                       initial_time, sample_rate)
-        self.result['displacing_function'] = \
-            amplitude * np.sin(frequency * self.result.index)
+                                       initial_time=initial_time,
+                                       sample_rate=sample_rate,
+                                       col_name=force_col_name)
+
+        if displace_col_name.isidentifier():
+            self.result[displace_col_name] = \
+                amplitude * np.sin(frequency * self.result.index)
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(displace_col_name))
 
         return self.result
 
     def periodic_base_displacing_response(self, twice_avg, cos_coeffs,
                                           sin_coeffs, frequency, final_time,
-                                          initial_time=0.0, sample_rate=100):
+                                          initial_time=0.0, sample_rate=100,
+                                          force_col_name='forcing_function',
+                                          displace_col_name='displacing_function'):
         """Returns the trajectory of the system's coordinates, speeds,
         accelerations, and measurements if a periodic function defined by a
         Fourier series is applied as displacement of the base in the same
@@ -1120,6 +1154,12 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        force_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
+        displace_col_name : string, optional
+            A valid Python identifier that will be used as the column name for
+            the forcing function trajectory in the returned data frame.
 
         Returns
         =======
@@ -1146,7 +1186,9 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         bn = k * sin_coeffs - c * cos_coeffs * n * frequency
 
         self.periodic_forcing_response(a0, an, bn, frequency, final_time,
-                                       initial_time, sample_rate)
+                                       initial_time=initial_time,
+                                       sample_rate=sample_rate,
+                                       col_name=force_col_name)
         # shape(N, 1)
         n = np.arange(1, N+1)[:, np.newaxis]
         cos_coeffs = np.atleast_2d(cos_coeffs).T
@@ -1154,6 +1196,11 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         ycn = cos_coeffs * np.cos(n * frequency * t)
         ysn = sin_coeffs * np.sin(n * frequency * t)
         y = twice_avg / 2 + np.sum(ycn + ysn, axis=0)
-        self.result['displacing_function'] = y
+
+        if displace_col_name.isidentifier():
+            self.result[displace_col_name] = y
+        else:
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(displace_col_name))
 
         return self.result
