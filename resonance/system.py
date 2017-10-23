@@ -93,16 +93,19 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
         func = self._funcs[key]
 
         def get_par(k):
-            try:
-                v = self._constants[k]
-            except KeyError:
+            if k == 'time':
+                v = self._time
+            else:
                 try:
-                    v = self._coordinates[k]
+                    v = self._constants[k]
                 except KeyError:
                     try:
-                        v = self._speeds[k]
+                        v = self._coordinates[k]
                     except KeyError:
-                        v = self[k]
+                        try:
+                            v = self._speeds[k]
+                        except KeyError:
+                            v = self[k]
             return v
 
         # TODO : getargspec is deprecated, supposedly signature cna do the same
@@ -192,6 +195,7 @@ class System(object):
         self._measurements._constants = self._constants
         self._measurements._coordinates = self._coordinates
         self._measurements._speeds = self._speeds
+        self._measurements._time = self._time
         self._measurements._funcs = {}
 
         self._config_plot_func = None
