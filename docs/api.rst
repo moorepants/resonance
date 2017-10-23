@@ -15,7 +15,7 @@ resonance/linear_systems.py
 .. automodule:: resonance.linear_systems
    :members:
    :undoc-members:
-   :inherited-members:
+   :show-inheritance:
 
 resonance/nonlinear_systems.py
 ==============================
@@ -23,7 +23,7 @@ resonance/nonlinear_systems.py
 .. automodule:: resonance.nonlinear_systems
    :members:
    :undoc-members:
-   :inherited-members:
+   :show-inheritance:
 
 resonance/functions.py
 ======================
