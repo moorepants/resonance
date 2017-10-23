@@ -604,8 +604,12 @@ class System(object):
                     args.append(time)
                 elif k == 'time__hist':
                     args.append(self.result[:time].index)
+                elif k == 'time__futr':
+                    args.append(self.result[time:].index)
                 elif k.endswith('__hist'):
                     args.append(self.result[k[:-6]][:time])
+                elif k.endswith('__futr'):
+                    args.append(self.result[k[:-6]][time:])
                 else:
                     try:
                         args.append(row[k])

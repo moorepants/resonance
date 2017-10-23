@@ -2,7 +2,7 @@ import math
 from inspect import getargspec
 import warnings
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, Rectangle
 
 import numpy as np
 
@@ -941,6 +941,86 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         self.coordinates['position'] = 0.0
         self.speeds['velocity'] = 0.0
 
+        def kph2mps(speed):
+            # km   1 hr     1 min    1000 m
+            # -- * ------ * ------ * ------
+            # hr   60 min   60 sec   1 km
+            return speed * 1000 / 3600
+
+        def plot_config(position):
+
+            fig, ax = plt.subplots(1, 1)
+
+            ax.set_ylim((-0.1, 0.6))
+            ax.set_ylabel('Height [m]')
+
+            xeq = 0.1  # m
+            view_width = 4  # m
+            rect_width = 1.0  # m
+            rect_height = rect_width / 4  # m
+            lat_pos = 0
+
+            #lat = np.linspace(lat_pos - view_width / 2,
+                            #lat_pos + view_width / 2, num=100)
+
+            lat = np.linspace(lat_pos - view_width / 2,
+                              lat_pos + view_width / 2,
+                              num=100)
+
+            ax.set_xlim((lat[0], lat[-1]))
+
+            rect = Rectangle(
+                            (-rect_width / 2, xeq + position),  # (x,y)
+                            rect_width,  # width
+                            rect_height,  # height
+                            )
+
+            ax.add_patch(rect)
+
+            road = ax.plot(lat, np.zeros_like(lat), color='black')[0]
+
+            suspension = ax.plot([lat_pos, lat_pos],
+                                 [0.0, xeq + position],
+                                 linewidth='4', marker='o', color='yellow')[0]
+            #force_vec = ax.plot([lat_pos, lat_pos],
+                                #[xeq + position + rect_height / 2,
+                                 #xeq + position + rect_height / 2 + 0.2],
+                                #'r', linewidth=4)[0]
+
+            return fig, ax, rect, road, suspension#, force_vec
+
+        self.config_plot_func = plot_config
+
+        def plot_update(time, time__hist, time__futr, position,
+                        displacing_function, displacing_function__hist,
+                        displacing_function__futr, ax, rect, road, suspension):
+            xeq = 0.1  # m
+            view_width = 4  # m
+            rect_width = 1.0  # m
+
+            # v is a function of forcing freq
+            lat_pos = kph2mps(40.0) * time
+
+            ax.set_xlim((lat_pos - view_width / 2, lat_pos + view_width / 2))
+
+            rect.set_xy([lat_pos - rect_width / 2, xeq + position])
+
+            lat = kph2mps(40.0) * np.hstack((time__hist, time__futr))
+            #lat = np.linspace(lat_pos - , lat_pos,
+                              #num=len(displacing_function__hist))
+            road.set_xdata(lat)
+            road.set_ydata(np.hstack((displacing_function__hist,
+                                     displacing_function__futr)))
+
+            suspension.set_xdata([lat_pos, lat_pos])
+            suspension.set_ydata([displacing_function, xeq + position])
+#
+            #force_vec.set_xdata([lat_pos, lat_pos])
+            #force_vec.set_ydata([xeq + x[i] + rect_height / 2,
+                                #xeq + x[i] + rect_height / 2 + f[i] / k])
+
+        self.config_plot_update_func = plot_update
+
     def _canonical_coefficients(self):
 
         def coeffs(mass, damping, stiffness):
@@ -1061,6 +1141,7 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         n = np.arange(1, N+1)
 
         a0 = k * twice_avg
+        # shape(N,)
         an = k * cos_coeffs + c * sin_coeffs * n * frequency
         bn = k * sin_coeffs - c * cos_coeffs * n * frequency
 
@@ -1068,6 +1149,8 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
                                        initial_time, sample_rate)
         # shape(N, 1)
         n = np.arange(1, N+1)[:, np.newaxis]
+        cos_coeffs = np.atleast_2d(cos_coeffs).T
+        sin_coeffs = np.atleast_2d(sin_coeffs).T
         ycn = cos_coeffs * np.cos(n * frequency * t)
         ysn = sin_coeffs * np.sin(n * frequency * t)
         y = twice_avg / 2 + np.sum(ycn + ysn, axis=0)
