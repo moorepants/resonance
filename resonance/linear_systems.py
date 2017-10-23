@@ -1025,19 +1025,21 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
                                        col_name=force_col_name)
 
         try:
-            displace_col_name = self._displace_col_name
+            col_name = self._displace_col_name
         except AttributeError:
-            pass
+            col_name = displace_col_name
         else:
-            msg = 'displace_col_name set to {}'
-            warnings.warn(msg.format(displace_col_name))
+            # if not the default warn
+            if displace_col_name != 'displacing_function':
+                msg = 'displace_col_name set to {}'
+                warnings.warn(msg.format(displace_col_name))
 
-        if displace_col_name.isidentifier():
-            self.result[displace_col_name] = \
-                amplitude * np.sin(frequency * self.result.index)
+        if col_name.isidentifier():
+            self.result[col_name] = amplitude * np.sin(frequency *
+                                                       self.result.index)
         else:
             msg = "'{}' is not a valid Python identifier."
-            raise ValueError(msg.format(displace_col_name))
+            raise ValueError(msg.format(col_name))
 
         return self.result
 
@@ -1126,18 +1128,20 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         y = twice_avg / 2 + np.sum(ycn + ysn, axis=0)
 
         try:
-            displace_col_name = self._displace_col_name
+            col_name = self._displace_col_name
         except AttributeError:
-            pass
+            col_name = displace_col_name
         else:
-            msg = 'displace_col_name set to {}'
-            warnings.warn(msg.format(displace_col_name))
+            # if not the default warn
+            if displace_col_name != 'displacing_function':
+                msg = 'displace_col_name set to {}'
+                warnings.warn(msg.format(displace_col_name))
 
-        if displace_col_name.isidentifier():
-            self.result[displace_col_name] = y
+        if col_name.isidentifier():
+            self.result[col_name] = y
         else:
             msg = "'{}' is not a valid Python identifier."
-            raise ValueError(msg.format(displace_col_name))
+            raise ValueError(msg.format(col_name))
 
         return self.result
 
@@ -1222,7 +1226,7 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
                                  #xeq + car_vertical_position + rect_height / 2 + 0.2],
                                 #'r', linewidth=4)[0]
 
-            return fig, ax, rect, road, suspension#, force_vec
+            return fig, ax, rect, road, suspension
 
         self.config_plot_func = plot_config
 
