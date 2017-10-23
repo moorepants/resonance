@@ -958,86 +958,6 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         self.coordinates['position'] = 0.0
         self.speeds['velocity'] = 0.0
 
-        def kph2mps(speed):
-            # km   1 hr     1 min    1000 m
-            # -- * ------ * ------ * ------
-            # hr   60 min   60 sec   1 km
-            return speed * 1000 / 3600
-
-        def plot_config(position):
-
-            fig, ax = plt.subplots(1, 1)
-
-            ax.set_ylim((-0.1, 0.6))
-            ax.set_ylabel('Height [m]')
-
-            xeq = 0.1  # m
-            view_width = 4  # m
-            rect_width = 1.0  # m
-            rect_height = rect_width / 4  # m
-            lat_pos = 0
-
-            #lat = np.linspace(lat_pos - view_width / 2,
-                            #lat_pos + view_width / 2, num=100)
-
-            lat = np.linspace(lat_pos - view_width / 2,
-                              lat_pos + view_width / 2,
-                              num=100)
-
-            ax.set_xlim((lat[0], lat[-1]))
-
-            rect = Rectangle(
-                            (-rect_width / 2, xeq + position),  # (x,y)
-                            rect_width,  # width
-                            rect_height,  # height
-                            )
-
-            ax.add_patch(rect)
-
-            road = ax.plot(lat, np.zeros_like(lat), color='black')[0]
-
-            suspension = ax.plot([lat_pos, lat_pos],
-                                 [0.0, xeq + position],
-                                 linewidth='4', marker='o', color='yellow')[0]
-            #force_vec = ax.plot([lat_pos, lat_pos],
-                                #[xeq + position + rect_height / 2,
-                                 #xeq + position + rect_height / 2 + 0.2],
-                                #'r', linewidth=4)[0]
-
-            return fig, ax, rect, road, suspension#, force_vec
-
-        self.config_plot_func = plot_config
-
-        def plot_update(time, time__hist, time__futr, position,
-                        displacing_function, displacing_function__hist,
-                        displacing_function__futr, ax, rect, road, suspension):
-            xeq = 0.1  # m
-            view_width = 4  # m
-            rect_width = 1.0  # m
-
-            # v is a function of forcing freq
-            lat_pos = kph2mps(40.0) * time
-
-            ax.set_xlim((lat_pos - view_width / 2, lat_pos + view_width / 2))
-
-            rect.set_xy([lat_pos - rect_width / 2, xeq + position])
-
-            lat = kph2mps(40.0) * np.hstack((time__hist, time__futr))
-            #lat = np.linspace(lat_pos - , lat_pos,
-                              #num=len(displacing_function__hist))
-            road.set_xdata(lat)
-            road.set_ydata(np.hstack((displacing_function__hist,
-                                     displacing_function__futr)))
-
-            suspension.set_xdata([lat_pos, lat_pos])
-            suspension.set_ydata([displacing_function, xeq + position])
-#
-            #force_vec.set_xdata([lat_pos, lat_pos])
-            #force_vec.set_ydata([xeq + x[i] + rect_height / 2,
-                                #xeq + x[i] + rect_height / 2 + f[i] / k])
-
-        self.config_plot_update_func = plot_update
-
     def _canonical_coefficients(self):
 
         def coeffs(mass, damping, stiffness):
@@ -1103,6 +1023,14 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
                                        initial_time=initial_time,
                                        sample_rate=sample_rate,
                                        col_name=force_col_name)
+
+        try:
+            displace_col_name = self._displace_col_name
+        except AttributeError:
+            pass
+        else:
+            msg = 'displace_col_name set to {}'
+            warnings.warn(msg.format(displace_col_name))
 
         if displace_col_name.isidentifier():
             self.result[displace_col_name] = \
@@ -1197,6 +1125,14 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         ysn = sin_coeffs * np.sin(n * frequency * t)
         y = twice_avg / 2 + np.sum(ycn + ysn, axis=0)
 
+        try:
+            displace_col_name = self._displace_col_name
+        except AttributeError:
+            pass
+        else:
+            msg = 'displace_col_name set to {}'
+            warnings.warn(msg.format(displace_col_name))
+
         if displace_col_name.isidentifier():
             self.result[displace_col_name] = y
         else:
@@ -1204,3 +1140,123 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
             raise ValueError(msg.format(displace_col_name))
 
         return self.result
+
+
+class SimpleQuarterCarSystem(BaseExcitationSystem):
+    """This system represents a mass connected to a moving massless base via a
+    spring and damper in parallel. The motion of the mass is subject to viscous
+    damping. The system is described by:
+
+    Attributes
+    ==========
+    constants
+        mass, m [kg]
+            The suspended mass.
+        damping, c [kg / s]
+            The viscous linear damping coefficient which represents any energy
+            dissipation from things like air resistance, friction, etc.
+        stiffness, k [N / m]
+            The linear elastic stiffness of the spring.
+    coordinates
+        position, x [m]
+            The absolute position of the mass.
+    speeds
+        velocity, x_dot [m / s]
+            The absolute velocity of the mass.
+
+    """
+    _displace_col_name = 'road_height'
+
+    def __init__(self):
+
+        # NOTE : Don't call init on this super class, but the super super
+        # class.
+        super(BaseExcitationSystem, self).__init__()
+
+        self.constants['sprung_mass'] = 1007  # kg
+        self.constants['suspension_damping'] = 20E2  # kg/s
+        self.constants['suspension_stiffness'] = 4E4  # N/m
+        self.constants['travel_speed'] = 7.5  # m/s
+
+        self.coordinates['car_vertical_position'] = -0.05  # m
+        self.speeds['car_vertical_velocity'] = 0.0  # m/s
+
+        xeq = 0.1  # m
+        view_width = 4  # m
+        # a rectangle will represent the car
+        rect_width = 1.0  # m
+        rect_height = rect_width / 6  # m
+
+        def plot_config(car_vertical_position):
+
+            fig, ax = plt.subplots(1, 1)
+
+            ax.set_ylim((-0.1, 0.6))
+            ax.set_ylabel('Height [m]')
+
+            lat_pos = 0  # m
+
+            lat = np.linspace(lat_pos - view_width / 2,
+                              lat_pos + view_width / 2,
+                              num=100)
+
+            ax.set_xlim((lat[0], lat[-1]))
+
+            rect = Rectangle(
+                            (-rect_width / 2, xeq + car_vertical_position),  # (x,y)
+                            rect_width,  # width
+                            rect_height,  # height
+                            )
+
+            ax.add_patch(rect)
+
+            # NOTE: Just plot a flat road for now because there may be no
+            # results available
+            road = ax.plot(lat, np.zeros_like(lat), color='black')[0]
+
+            suspension = ax.plot([lat_pos, lat_pos],
+                                 [0.0, xeq + car_vertical_position],
+                                 linewidth='4', marker='o', color='yellow')[0]
+            #force_vec = ax.plot([lat_pos, lat_pos],
+                                #[xeq + car_vertical_position + rect_height / 2,
+                                 #xeq + car_vertical_position + rect_height / 2 + 0.2],
+                                #'r', linewidth=4)[0]
+
+            return fig, ax, rect, road, suspension#, force_vec
+
+        self.config_plot_func = plot_config
+
+        def plot_update(travel_speed, car_vertical_position,
+                        time, time__hist, time__futr,
+                        road_height, road_height__hist, road_height__futr,
+                        ax, rect, road, suspension):
+
+            # v is a function of forcing freq
+            lat_pos = travel_speed * time
+
+            ax.set_xlim((lat_pos - view_width / 2, lat_pos + view_width / 2))
+
+            rect.set_xy([lat_pos - rect_width / 2, xeq + car_vertical_position])
+
+            lat = travel_speed * np.hstack((time__hist, time__futr))
+
+            road.set_xdata(lat)
+            road.set_ydata(np.hstack((road_height__hist, road_height__futr)))
+
+            suspension.set_xdata([lat_pos, lat_pos])
+            suspension.set_ydata([road_height, xeq + car_vertical_position])
+
+            #force_vec.set_xdata([lat_pos, lat_pos])
+            #force_vec.set_ydata([xeq + x[i] + rect_height / 2,
+                                #xeq + x[i] + rect_height / 2 + f[i] / k])
+
+        self.config_plot_update_func = plot_update
+
+    def _canonical_coefficients(self):
+
+        def coeffs(sprung_mass, suspension_damping, suspension_stiffness):
+            return sprung_mass, suspension_damping, suspension_stiffness
+
+        args = [self._get_par_vals(k) for k in getargspec(coeffs).args]
+
+        return coeffs(*args)
