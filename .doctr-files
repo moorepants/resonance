@@ -10,6 +10,8 @@
 ./05_clock_pendulum_with_friction.ipynb
 ./06_sinusoidal_forcing.html
 ./06_sinusoidal_forcing.ipynb
+./07_vertical_vibration_of_a_quarter_car.html
+./07_vertical_vibration_of_a_quarter_car.ipynb
 ./None0000000.png
 ./balancing-book.html
 ./balancing-book.ipynb
@@ -23,6 +25,7 @@
 ./fig/03/bicycle-wheel-radial-inertia-measurement-fbd.png
 ./fig/04/clock-pendulum.png
 ./fig/05/coulomb-pendulum.png
+./fig/07/quarter-car.jpg
 ./fig/balancing-book.svg
 ./fig/bicycle-model.jpg
 ./fig/bicycle-parameters.jpg
@@ -39,7 +42,5 @@
 ./index.ipynb
 ./nonlinear-vibrations.html
 ./nonlinear-vibrations.ipynb
-./periodic-forcing.html
-./periodic-forcing.ipynb
 ./viscous-damping.html
 ./viscous-damping.ipynb
