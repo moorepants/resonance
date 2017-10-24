@@ -574,9 +574,22 @@ class System(object):
 
         return trajectories, interval
 
-    def animate_configuration(self, **kwargs):
+    def animate_configuration(self, fps=30, **kwargs):
         """Returns a matplotlib animation function based on the configuration
-        plot and the configuration plot update function."""
+        plot and the configuration plot update function.
+
+        Parameters
+        ==========
+        fps : integer
+            The frames per second that should be displayed in the animation.
+            The latest trajectory will be resampled via linear interpolation to
+            create the correct number of frames.
+        **kwargs
+            Any extra keyword arguments will be passed to
+            ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
+            argument will be ignored.
+
+        """
 
         if self.config_plot_update_func is None:
             msg = ('No ploting update function has been assigned to '
@@ -591,8 +604,9 @@ class System(object):
                    "can't run. Run one of the response functions.")
             raise AttributeError(msg)
 
-        if sample_rate != 60:  # resample at 60 fps
-            trajectories, interval = self._resample_trajectories(sample_rate=60)
+        fps = int(fps)
+        if sample_rate != fps:
+            trajectories, interval = self._resample_trajectories(fps)
         else:
             trajectories, interval = self.result, 1000 / sample_rate
 
@@ -644,6 +658,6 @@ class System(object):
 
         return animation.FuncAnimation(fig, gen_frame,
                                        fargs=(objs_to_modify, ),
-                                       frames=trajectories.iterrows(),
+                                       frames=list(trajectories.iterrows()),
                                        interval=interval,
                                        **kwargs)
