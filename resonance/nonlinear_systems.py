@@ -149,9 +149,15 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
         def kinetic_energy(bob_mass, bob_radius, rod_length, bob_height,
                            rod_mass, angle_vel):
 
-            KE_rod = rod_length**2 * rod_mass / 6 * angle_vel**2
-            KE_bob = (rod_length**2 * bob_mass / 2 * angle_vel**2 +
-                      bob_mass * bob_radius**2 / 4 * angle_vel**2)
+            v_bob = rod_length * angle_vel
+            v_rod = rod_length / 2 * angle_vel
+
+            I_bob = bob_mass * bob_radius**2 / 2
+            I_rod = rod_mass * rod_length**2 / 12
+
+            KE_bob = bob_mass * v_bob**2 / 2 + I_bob * angle_vel**2 / 2
+            KE_rod = rod_mass * v_rod**2 / 2 + I_rod * angle_vel**2 / 2
+
             return KE_rod + KE_bob
 
         self.add_measurement('kinetic_energy', kinetic_energy)
