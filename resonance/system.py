@@ -548,6 +548,32 @@ class System(object):
                     args.append(self._get_par_vals(k))
             return self.config_plot_func(*args)
 
+    def _resample_trajectories(self, sample_rate=60):
+
+        trajectories = self.result.copy()
+
+        new_times = self._calc_times(self.result.index[-1],
+                                     self.result.index[0], sample_rate)
+        # first and last will be same, so drop
+        new_times_trunc = new_times[1:-1]
+
+        num_cols = len(trajectories.columns)
+
+        missing_vals = np.nan * np.ones((len(new_times_trunc), num_cols))
+
+        nan_df = pd.DataFrame(missing_vals, columns=trajectories.columns,
+                              index=new_times_trunc)
+
+        df_with_missing = pd.concat((trajectories, nan_df)).sort_index()
+
+        interpolated_df = df_with_missing.interpolate(method='index')
+
+        trajectories = interpolated_df.loc[new_times]
+
+        interval = 1000 / 60  # milliseconds
+
+        return trajectories, interval
+
     def animate_configuration(self, **kwargs):
         """Returns a matplotlib animation function based on the configuration
         plot and the configuration plot update function."""
@@ -556,6 +582,14 @@ class System(object):
             msg = ('No ploting update function has been assigned to '
                    'config_plot_update_func.')
             raise AttributeError(msg)
+
+        kwargs.pop('interval', None)  # ignore the user's supplied interval
+        sample_rate = int(1.0 / np.diff(self.result.index).mean())
+
+        if sample_rate != 60:  # resample at 60 fps
+            trajectories, interval = self._resample_trajectories(sample_rate=60)
+        else:
+            trajectories, interval = self.result, 1000 / sample_rate
 
         # TODO : Could be:
         # axes, *objs_to_modify = ..
@@ -580,13 +614,13 @@ class System(object):
                 if k == 'time':
                     args.append(time)
                 elif k == 'time__hist':
-                    args.append(self.result[:time].index)
+                    args.append(trajectories[:time].index)
                 elif k == 'time__futr':
-                    args.append(self.result[time:].index)
+                    args.append(trajectories[time:].index)
                 elif k.endswith('__hist'):
-                    args.append(self.result[k[:-6]][:time])
+                    args.append(trajectories[k[:-6]][:time])
                 elif k.endswith('__futr'):
-                    args.append(self.result[k[:-6]][time:])
+                    args.append(trajectories[k[:-6]][time:])
                 else:
                     try:
                         args.append(row[k])
@@ -603,5 +637,8 @@ class System(object):
         # push to the top if in the FuncAnimation.
         #gen_frame((1.0, self.result.iloc[0]), list(objs_to_modify))
 
-        return animation.FuncAnimation(fig, gen_frame, fargs=(objs_to_modify, ),
-                                       frames=self.result.iterrows(), **kwargs)
+        return animation.FuncAnimation(fig, gen_frame,
+                                       fargs=(objs_to_modify, ),
+                                       frames=trajectories.iterrows(),
+                                       interval=interval,
+                                       **kwargs)
