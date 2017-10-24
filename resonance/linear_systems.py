@@ -10,6 +10,9 @@ from .system import System as _System
 
 
 class SingleDoFLinearSystem(_System):
+    """This is the abstract base class for any single degree of freedom linear
+    system. It can be sub-classed to make a custom system or the necessary
+    methods can be added dynamically."""
 
     def _initial_conditions(self):
         x0 = list(self.coordinates.values())[0]
@@ -519,7 +522,7 @@ class SingleDoFLinearSystem(_System):
 
         Parameters
         ==========
-        freqencies : array_like, shape(n,)
+        frequencies : array_like, shape(n,)
         amplitude : float
             The value of the forcing amplitude.
 
@@ -591,7 +594,7 @@ class BookOnCupSystem(SingleDoFLinearSystem):
         thickness, t [meters]
             the thickness of the book
         length, l [meters]
-            the length of the edge of the book which is tagent to the cup's
+            the length of the edge of the book which is tangent to the cup's
             surface
         mass, m [kilograms]
             the mass of the book
@@ -602,7 +605,7 @@ class BookOnCupSystem(SingleDoFLinearSystem):
             the angle of the book with respect to the gravity vector
     speeds
         book_angle_vel, theta [radians]
-            the angular rate of the book with repsect to the gravity vector
+            the angular rate of the book with respect to the gravity vector
 
     """
 
@@ -651,7 +654,7 @@ class TorsionalPendulumSystem(SingleDoFLinearSystem):
             The moment of inertia of the object attached to the pendulum.
         torsional_damping, C [N s / m]
             The viscous linear damping coefficient which represents any energy
-            disipation from things like air resistance, slip, etc.
+            dissipation from things like air resistance, slip, etc.
         torsional_stiffness, K [N / m]
             The linear elastic stiffness coefficient of the torsion member,
             typically a round slender rod.

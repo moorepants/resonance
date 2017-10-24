@@ -9,6 +9,9 @@ from .system import System as _System
 
 
 class SingleDoFNonLinearSystem(_System):
+    """This is the abstract base class for any single degree of freedom
+    nonlinear system.  It can be sub-classed to make a custom system or the
+    necessary methods can be added dynamically."""
 
     def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
 
