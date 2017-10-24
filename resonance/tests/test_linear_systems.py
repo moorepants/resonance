@@ -112,10 +112,10 @@ def test_torsional_pendulum_system():
     traj = sys.free_response(1.0)
     np.testing.assert_allclose(traj.torsion_angle, expected_pos)
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         sys.plot_configuration()
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         sys.animate_configuration()
 
 

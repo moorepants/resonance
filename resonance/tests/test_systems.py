@@ -62,7 +62,18 @@ def test_system():
     def update(a):
         pass
 
+    sys.config_plot_func = None
+    sys.config_plot_update_func = None
+    with pytest.raises(ValueError):
+        sys.animate_configuration()
+
+    sys.config_plot_func = plot
+    sys.config_plot_update_func = None
+    with pytest.raises(ValueError):
+        sys.animate_configuration()
+
+    # no trajectory computed
     sys.config_plot_func = plot
     sys.config_plot_update_func = update
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         sys.animate_configuration()

@@ -530,16 +530,16 @@ class System(object):
         # think the parent figure can always be gotten from an axis.
         if self.config_plot_func is None:
             msg = 'No plotting function has been assigned to config_plot_func.'
-            raise AttributeError(msg)
+            raise ValueError(msg)
         else:
             args = []
             for k in getargspec(self.config_plot_func).args:
                 if k == 'time':
-                    args.append(0.0)  # static config defaults to t=0.0
+                    args.append(self._time)
                 elif k == 'time__hist':
-                    args.append(0.0)  # static config defaults to t=0.0
+                    args.append(self._time)
                 elif k == 'time__futr':
-                    args.append(0.0)  # static config defaults to t=0.0
+                    args.append(self._time)
                 elif k.endswith('__hist'):
                     args.append(self._get_par_vals(k[:-6]))
                 elif k.endswith('__futr'):
@@ -581,10 +581,15 @@ class System(object):
         if self.config_plot_update_func is None:
             msg = ('No ploting update function has been assigned to '
                    'config_plot_update_func.')
-            raise AttributeError(msg)
+            raise ValueError(msg)
 
         kwargs.pop('interval', None)  # ignore the user's supplied interval
-        sample_rate = int(1.0 / np.diff(self.result.index).mean())
+        try:
+            sample_rate = int(1.0 / np.diff(self.result.index).mean())
+        except AttributeError:
+            msg = ("No trajectory has been computed yet, so the animation "
+                   "can't run. Run one of the response functions.")
+            raise AttributeError(msg)
 
         if sample_rate != 60:  # resample at 60 fps
             trajectories, interval = self._resample_trajectories(sample_rate=60)
