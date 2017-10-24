@@ -108,7 +108,7 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
                             v = self[k]
             return v
 
-        # TODO : getargspec is deprecated, supposedly signature cna do the same
+        # TODO : getargspec is deprecated, supposedly signature can do the same
         # thing but the args are in a dictionary and it isn't clear to me they
         # are ordered.
         args = [get_par(k) for k in getargspec(func).args]
@@ -137,45 +137,9 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
 
 
 class System(object):
-    """This is the base system for any single or multi degree of freedom
-    systems. It can be subclassed to make a custom system.
-
-    Attributes
-    ==========
-    constants : _ConstantsDict
-        A custom dictionary that contains parameters that do not vary with
-        time.
-    coordinates : _CoordinatesDict
-        A custom dictionary that contains the generalized coordinate which
-        varies with time.
-    speeds : _CoordinatesDict
-        A custom dictionary that contains the generalized speed which varies
-        with time.
-    measurements : _MeasurementsDict
-        A custom dictionary that contains parameters that are functions of the
-        constants, coordinates, and other measurements.
-    config_plot_func : function
-        A function that generates a matplotlib plot that uses the instantaneous
-        values of the constants, coordinates, and measurements.
-    config_plot_update_func : function
-        A function that updates the configuration plot that uses the time
-        series values of the constants, coordinates, and measurements. Defines
-        a matplotlib animation frame.
-
-    Methods
-    =======
-    add_measurement
-        Used to dynamically add functions to compute measurement values.
-    free_response
-        Simulates the system and returns a time series of the coordinates and
-        measurments.
-    plot_configuration
-        Generates the plot defined by ``config_plot_func``.
-    animate_configutation
-        Generates the animation defined by ``config_plot_func`` and
-        ``config_plot_update_func``.
-
-    """
+    """This is the abstract base class for any single or multi degree of
+    freedom system. It can be sub-classed to make a custom system or the
+    necessary methods can be added dynamically."""
 
     _time_var_name = 'time'
     _vel_append = '_vel'
@@ -183,7 +147,7 @@ class System(object):
 
     def __init__(self):
 
-        # TODO : Allow constants, coords, and meas to be set on intialization.
+        # TODO : Allow constants, coords, and meas to be set on initialization.
 
         self._time = 0.0
 
@@ -203,7 +167,8 @@ class System(object):
 
     @property
     def constants(self):
-        """A dictionary containing the all of the system's constants.
+        """A dictionary containing the all of the system's constants, i.e.
+        parameters that do not vary with time.
 
         Examples
         ========
@@ -232,8 +197,9 @@ class System(object):
 
     @property
     def coordinates(self):
-        """A dictionary containing the system's generalized coordinates. These
-        values will be used as initial conditions in simulations.
+        """A dictionary containing the system's generalized coordinates, i.e.
+        coordinate parameters that vary with time. These values will be used as
+        initial conditions in simulations.
 
         Examples
         ========
@@ -253,7 +219,9 @@ class System(object):
 
     @property
     def speeds(self):
-        """A dictionary containing the system's generalized speed.
+        """A dictionary containing the system's generalized speeds, i.e. speed
+        parameters that vary with time. These values will be used as initial
+        conditions in simulations.
 
         Examples
         ========
@@ -300,7 +268,9 @@ class System(object):
 
     @property
     def measurements(self):
-        """A dictionary containing the all of the system's measurements."""
+        """A dictionary containing the all of the system's measurements, i.e.
+        parameters that are functions of the constants, coordinates, speeds,
+        and other measurements."""
         return self._measurements
 
     @measurements.setter
@@ -423,7 +393,7 @@ class System(object):
             This function must only have existing parameter, coordinate, or
             measurement names in the function signature. These can be a subset
             of the available choices and any order is permitted. The function
-            must be able to operate on arrys, i.e. use NumPy vectorized
+            must be able to operate on arrays, i.e. use NumPy vectorized
             functions inside. It should return a single variable, scalar or
             array, that gives the values of the measurement.
 
@@ -508,11 +478,10 @@ class System(object):
 
     def free_response(self, final_time, initial_time=0.0, sample_rate=100,
                       **kwargs):
-        """Returns a Pandas data frame with monotonic time values as the index
-        and columns for each coordinate and measurement at the time value for
-        that row. Note that this data frame is stored on the system as the
-        vairable ``result`` until this method is called again, which will
-        overwrite it.
+        """Returns a data frame with monotonic time values as the index and
+        columns for each coordinate and measurement at the time value for that
+        row. Note that this data frame is stored on the system as the variable
+        ``result`` until this method is called again, which will overwrite it.
 
         Parameters
         ==========
@@ -560,7 +529,7 @@ class System(object):
         # TODO : Most plots in pandas, etc return the axes not the figure. I
         # think the parent figure can always be gotten from an axis.
         if self.config_plot_func is None:
-            msg = 'No ploting function has been assigned to config_plot_func.'
+            msg = 'No plotting function has been assigned to config_plot_func.'
             raise AttributeError(msg)
         else:
             args = []
