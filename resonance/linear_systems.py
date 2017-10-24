@@ -1223,7 +1223,7 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
         rect_width = 1.0  # m
         rect_height = rect_width / 6  # m
 
-        def plot_config(car_vertical_position):
+        def plot_config(car_vertical_position, time):
 
             fig, ax = plt.subplots(1, 1)
 
@@ -1246,6 +1246,8 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
 
             ax.add_patch(rect)
 
+            time_txt = ax.text(lat_pos, 0.5, 'Time: {:1.1f} s'.format(time))
+
             # NOTE: Just plot a flat road for now because there may be no
             # results available
             road = ax.plot(lat, np.zeros_like(lat), color='black')[0]
@@ -1258,17 +1260,20 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
                                  #xeq + car_vertical_position + rect_height / 2 + 0.2],
                                 #'r', linewidth=4)[0]
 
-            return fig, ax, rect, road, suspension
+            return fig, ax, rect, road, suspension, time_txt
 
         self.config_plot_func = plot_config
 
         def plot_update(travel_speed, car_vertical_position,
                         time, time__hist, time__futr,
                         road_height, road_height__hist, road_height__futr,
-                        ax, rect, road, suspension):
+                        ax, rect, road, suspension, time_txt):
 
             # v is a function of forcing freq
             lat_pos = travel_speed * time
+
+            time_txt.set_text('Time: {:1.1f} s'.format(time))
+            time_txt.set_position((lat_pos, 0.5))
 
             ax.set_xlim((lat_pos - view_width / 2, lat_pos + view_width / 2))
 
