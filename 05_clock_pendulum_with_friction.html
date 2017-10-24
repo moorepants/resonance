@@ -11787,10 +11787,13 @@ div#notebook {
 <p>A common source of damping and energy dissipation is friction, which is a specific type of damping. With viscous damping, we had a torque that was linearly proportional to the angular velocity:</p>
 <p>$$T_f = c \dot{\theta} l^2 $$</p>
 <p>This simple source of energy dissipation is a reasonable mathematical model for many phenomena, but it isn't often a good model for dry friction. One very useful model of friction is <a href="https://en.wikipedia.org/wiki/Coulomb_damping">Coulomb friction</a>. Coulomb friction behaves more like:</p>
-<p>$$T_f = \begin{cases} -\mu F_N &amp; \dot{\theta} &gt; 0 \\ 0 &amp; \dot{\theta} = 0 \\ \mu F_N &amp; \dot{\theta} &lt; 0 \end{cases}$$</p>
-<p>where $\mu$ is a coefficient of sliding torsional friction and $F_N$ is the normal force in the torsional joint. Here the damping torque is constant, always working against the motion of the system.</p>
+<p>$$T_f = \begin{cases} -\frac{2}{3}\mu R F_N &amp; \dot{\theta} &gt; 0 \\ 0 &amp; \dot{\theta} = 0 \\ \frac{2}{3}\mu R F_N &amp; \dot{\theta} &lt; 0 \end{cases}$$</p>
+<p>where $\mu$ is a coefficient of sliding friction, $R$ is the outer radius of the joint contact (assuming disc/disc contat, see <a href="http://www.iitg.ernet.in/kd/Lecture%20Notes/ME101-Lecture15-KD_DivI.pdf">http://www.iitg.ernet.in/kd/Lecture%20Notes/ME101-Lecture15-KD_DivI.pdf</a> for an explanation), and $F_N$ is the normal force in the torsional joint. Here the damping torque is constant, always working against the motion of the system.</p>
 <p>This can also be more simply written using the <a href="https://en.wikipedia.org/wiki/Sign_function">signum function</a>:</p>
-<p>$$ T_f = -\mu F_n \text{sgn}\left( \dot{\theta} \right)$$</p>
+<p>$$ T_f = -\frac{2}{3}\mu R F_n \text{sgn}\left( \dot{\theta} \right)$$</p>
+<p>or simply</p>
+<p>$$ T_f = -\mu T_n \text{sgn}\left( \dot{\theta} \right)$$</p>
+<p>where $T_n$ is the "normal torque", a torsionally equivalence to normal force.</p>
 <p>To start import some of the common packages we will need:</p>
 
 </div>
@@ -12008,7 +12011,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.legend.Legend at 0x7fe05b891cc0&gt;</pre>
+<pre>&lt;matplotlib.legend.Legend at 0x7fd9fe995d68&gt;</pre>
 </div>
 
 </div>
@@ -16770,7 +16773,7 @@ WaIxxhgTV/8fWykcxzzEXOsAAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
-<p>Add a measurement to the system that computes the friction torque based on the defintion at the beginning of the notebook. Assume that $F_N=1$ Newton, $\mu=0.003$, and $\theta_0=2.0$ deg. Simulate the system and plot the angle, angular velocity, and friction torque in 3 subplots that share the same X axis (time).</p>
+<p>Add a measurement to the system that computes the friction torque based on the defintion at the beginning of the notebook. Assume that $T_N=1$ Newton-meter, $\mu=0.003$, and $\theta_0=2.0$ deg. Simulate the system and plot the angle, angular velocity, and friction torque in 3 subplots that share the same X axis (time).</p>
 
 </div>
 </div>
@@ -17672,29 +17675,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_imgaf16d1e875334a7aa9964a35313291cf">
+    <img id="_anim_imgf8f335eebc5a4779a77a8396f6f58b30">
     <br>
-    <input id="_anim_slideraf16d1e875334a7aa9964a35313291cf" type="range" style="width:350px"
+    <input id="_anim_sliderf8f335eebc5a4779a77a8396f6f58b30" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="animaf16d1e875334a7aa9964a35313291cf.set_frame(parseInt(this.value));"></input>
+           onchange="animf8f335eebc5a4779a77a8396f6f58b30.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.previous_frame()">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.reverse_animation()">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.pause_animation()"><i class="fa fa-pause">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="animaf16d1e875334a7aa9964a35313291cf.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_selectaf16d1e875334a7aa9964a35313291cf" class="anim_control">
+    <button onclick="animf8f335eebc5a4779a77a8396f6f58b30.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_selectf8f335eebc5a4779a77a8396f6f58b30" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -17709,9 +17712,9 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imgaf16d1e875334a7aa9964a35313291cf";
-    var slider_id = "_anim_slideraf16d1e875334a7aa9964a35313291cf";
-    var loop_select_id = "_anim_loop_selectaf16d1e875334a7aa9964a35313291cf";
+    var img_id = "_anim_imgf8f335eebc5a4779a77a8396f6f58b30";
+    var slider_id = "_anim_sliderf8f335eebc5a4779a77a8396f6f58b30";
+    var loop_select_id = "_anim_loop_selectf8f335eebc5a4779a77a8396f6f58b30";
     var frames = new Array(0);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -34003,7 +34006,7 @@ lggwAIAtEWAAAFsiwAAAtvT/Af7LYWtoASERAAAAAElFTkSuQmCC\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        animaf16d1e875334a7aa9964a35313291cf = new Animation(frames, img_id, slider_id, 10.0,
+        animf8f335eebc5a4779a77a8396f6f58b30 = new Animation(frames, img_id, slider_id, 10.0,
                                  loop_select_id);
     }, 0);
   })()
