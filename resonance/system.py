@@ -656,6 +656,10 @@ class System(object):
         # push to the top if in the FuncAnimation.
         #gen_frame((1.0, self.result.iloc[0]), list(objs_to_modify))
 
+        # NOTE : If the iterrows() generator is not converted to a list then
+        # matplotlib will throw a StopIteration error when the animation
+        # reaches the last frame instead of repeating. This causes headaches in
+        # the notebook and elsewhere. See issue #39 in the resonance repo.
         return animation.FuncAnimation(fig, gen_frame,
                                        fargs=(objs_to_modify, ),
                                        frames=list(trajectories.iterrows()),
