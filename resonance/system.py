@@ -583,7 +583,10 @@ class System(object):
         fps : integer
             The frames per second that should be displayed in the animation.
             The latest trajectory will be resampled via linear interpolation to
-            create the correct number of frames.
+            create the correct number of frames. Note that the frame rate will
+            depend on the CPU speed of the computer. You'll likely have to
+            adjust this by trial and error to get something that matches well
+            for your computer if you want the animation to run in real time.
         **kwargs
             Any extra keyword arguments will be passed to
             ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
