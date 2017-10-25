@@ -530,16 +530,16 @@ class System(object):
         # think the parent figure can always be gotten from an axis.
         if self.config_plot_func is None:
             msg = 'No plotting function has been assigned to config_plot_func.'
-            raise AttributeError(msg)
+            raise ValueError(msg)
         else:
             args = []
             for k in getargspec(self.config_plot_func).args:
                 if k == 'time':
-                    args.append(0.0)  # static config defaults to t=0.0
+                    args.append(self._time)
                 elif k == 'time__hist':
-                    args.append(0.0)  # static config defaults to t=0.0
+                    args.append(self._time)
                 elif k == 'time__futr':
-                    args.append(0.0)  # static config defaults to t=0.0
+                    args.append(self._time)
                 elif k.endswith('__hist'):
                     args.append(self._get_par_vals(k[:-6]))
                 elif k.endswith('__futr'):
@@ -548,14 +548,70 @@ class System(object):
                     args.append(self._get_par_vals(k))
             return self.config_plot_func(*args)
 
-    def animate_configuration(self, **kwargs):
+    def _resample_trajectories(self, sample_rate=60):
+
+        trajectories = self.result.copy()
+
+        new_times = self._calc_times(self.result.index[-1],
+                                     self.result.index[0], sample_rate)
+        # first and last will be same, so drop
+        new_times_trunc = new_times[1:-1]
+
+        num_cols = len(trajectories.columns)
+
+        missing_vals = np.nan * np.ones((len(new_times_trunc), num_cols))
+
+        nan_df = pd.DataFrame(missing_vals, columns=trajectories.columns,
+                              index=new_times_trunc)
+
+        df_with_missing = pd.concat((trajectories, nan_df)).sort_index()
+
+        interpolated_df = df_with_missing.interpolate(method='index')
+
+        trajectories = interpolated_df.loc[new_times]
+
+        interval = 1000 / 60  # milliseconds
+
+        return trajectories, interval
+
+    def animate_configuration(self, fps=30, **kwargs):
         """Returns a matplotlib animation function based on the configuration
-        plot and the configuration plot update function."""
+        plot and the configuration plot update function.
+
+        Parameters
+        ==========
+        fps : integer
+            The frames per second that should be displayed in the animation.
+            The latest trajectory will be resampled via linear interpolation to
+            create the correct number of frames. Note that the frame rate will
+            depend on the CPU speed of the computer. You'll likely have to
+            adjust this by trial and error to get something that matches well
+            for your computer if you want the animation to run in real time.
+        **kwargs
+            Any extra keyword arguments will be passed to
+            ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
+            argument will be ignored.
+
+        """
 
         if self.config_plot_update_func is None:
             msg = ('No ploting update function has been assigned to '
                    'config_plot_update_func.')
+            raise ValueError(msg)
+
+        kwargs.pop('interval', None)  # ignore the user's supplied interval
+        try:
+            sample_rate = int(1.0 / np.diff(self.result.index).mean())
+        except AttributeError:
+            msg = ("No trajectory has been computed yet, so the animation "
+                   "can't run. Run one of the response functions.")
             raise AttributeError(msg)
+
+        fps = int(fps)
+        if sample_rate != fps:
+            trajectories, interval = self._resample_trajectories(fps)
+        else:
+            trajectories, interval = self.result, 1000 / sample_rate
 
         # TODO : Could be:
         # axes, *objs_to_modify = ..
@@ -580,13 +636,13 @@ class System(object):
                 if k == 'time':
                     args.append(time)
                 elif k == 'time__hist':
-                    args.append(self.result[:time].index)
+                    args.append(trajectories[:time].index)
                 elif k == 'time__futr':
-                    args.append(self.result[time:].index)
+                    args.append(trajectories[time:].index)
                 elif k.endswith('__hist'):
-                    args.append(self.result[k[:-6]][:time])
+                    args.append(trajectories[k[:-6]][:time])
                 elif k.endswith('__futr'):
-                    args.append(self.result[k[:-6]][time:])
+                    args.append(trajectories[k[:-6]][time:])
                 else:
                     try:
                         args.append(row[k])
@@ -607,6 +663,8 @@ class System(object):
         # matplotlib will throw a StopIteration error when the animation
         # reaches the last frame instead of repeating. This causes headaches in
         # the notebook and elsewhere. See issue #39 in the resonance repo.
-        return animation.FuncAnimation(fig, gen_frame, fargs=(objs_to_modify, ),
-                                       frames=list(self.result.iterrows()),
+        return animation.FuncAnimation(fig, gen_frame,
+                                       fargs=(objs_to_modify, ),
+                                       frames=list(trajectories.iterrows()),
+                                       interval=interval,
                                        **kwargs)
