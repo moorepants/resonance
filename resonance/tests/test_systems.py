@@ -13,6 +13,8 @@ def test_nonvalid_parameters_key():
         p['ben stiller'] = 12.0
     with pytest.raises(ValueError):
         p['time'] = 12.0
+    with pytest.raises(ValueError):
+        p['time__hist'] = 12.0
     p['a'] = 1.0
     if 'a' in p:
         pass
@@ -34,6 +36,9 @@ def test_setting_coordinates_item():
     with pytest.raises(ValueError):
         m['time'] = 12.0
 
+    with pytest.raises(ValueError):
+        m['time__hist'] = 12.0
+
     m['first_key'] = 12.0
     with pytest.raises(ValueError):
         m['second_key'] = 12.0
@@ -52,7 +57,7 @@ def test_setting_state_item():
 def test_system():
     sys = System()
     sys.constants['a'] = 1.0
-    assert isclose(sys._time, 0.0)
+    assert isclose(sys._time['t'], 0.0)
     assert isclose(sys._get_par_vals('time'), 0.0)
 
     def plot(a):
