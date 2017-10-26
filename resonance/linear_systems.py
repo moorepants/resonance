@@ -394,13 +394,15 @@ class SingleDoFLinearSystem(_System):
         self.result = self._state_traj_to_dataframe(t, xh + xss, vh + vss,
                                                     ah + ass)
 
-        if col_name.isidentifier():
+        if not col_name.isidentifier():
+            msg = "'{}' is not a valid Python identifier."
+            raise ValueError(msg.format(col_name))
+        elif col_name in self.result.columns:
+            raise ValueError('{} already taken.'.format(col_name))
+        else:
             self.result[col_name] = twice_avg / 2 + \
                 np.sum(an * n * np.cos(frequency * n * t) +
                        bn * n * np.sin(frequency * n * t), axis=0)
-        else:
-            msg = "'{}' is not a valid Python identifier."
-            raise ValueError(msg.format(col_name))
 
         return self.result
 
@@ -506,11 +508,13 @@ class SingleDoFLinearSystem(_System):
 
         self.result = self._state_traj_to_dataframe(t, x + xss, v + vss,
                                                     a + ass)
-        if col_name.isidentifier():
-            self.result[col_name] = amplitude * np.cos(frequency * t)
-        else:
+        if not col_name.isidentifier():
             msg = "'{}' is not a valid Python identifier."
             raise ValueError(msg.format(col_name))
+        elif col_name in self.result.columns:
+            raise ValueError('{} already taken.'.format(col_name))
+        else:
+            self.result[col_name] = amplitude * np.cos(frequency * t)
 
         return self.result
 

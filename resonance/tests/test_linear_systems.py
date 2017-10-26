@@ -44,6 +44,14 @@ def test_torsional_pendulum_system():
     assert isclose(c, 1.0)
     assert isclose(k, 8.0)
 
+    # You can add keys to constants, coordinates, and speeds that are
+    # duplicates. We an check this by checking for duplicates on any public
+    # method call or when computing measurements.
+    sys.constants['torsion_angle'] = 5.0
+    with pytest.raises(KeyError):
+        sys.free_response(1.0)  # should throw error if there are no measurements also
+    del sys.constants['torsion_angle']
+
     def spring_force(torsional_stiffness, torsion_angle):
         return torsional_stiffness * torsion_angle
 
@@ -70,6 +78,24 @@ def test_torsional_pendulum_system():
     with pytest.raises(KeyError):
         sys.add_measurement('spring_force2', spring_force2)
     del sys.measurements['spring_force']
+
+    # testing time as an arg
+    def funky_funk(torsional_stiffness, time):
+        return torsional_stiffness * time
+    sys.add_measurement('eeeeeee', funky_funk)
+    assert isclose(sys.measurements['eeeeeee'], 0.0)  # time is zero
+    del sys.measurements['eeeeeee']
+
+    with pytest.raises(ValueError):
+        sys.add_measurement('eeeeeee__futr', funky_funk)
+
+    # You can add keys to constants, coordinates, and speeds that are
+    # duplicates. We an check this by checking for duplicates on any public
+    # method call or when computing measurements.
+    sys.constants['torsion_angle'] = 5.0
+    with pytest.raises(KeyError):
+        sys.measurements['spring_force']
+    del sys.constants['torsion_angle']
 
     assert isclose(sys._natural_frequency(m, k), np.sqrt(k / m))
 

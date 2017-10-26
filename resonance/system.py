@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.animation as animation
 import pandas as pd
 
+_FORBIDDEN_SUFFIXES = ['_acc', '__hist', '__futr']
+
 
 class _ConstantsDict(_collections.MutableMapping, dict):
     """A custom dictionary for storing constants."""
@@ -24,6 +26,10 @@ class _ConstantsDict(_collections.MutableMapping, dict):
             msg = ('{} is a reserved parameter name. '
                    'Choose something different.')
             raise ValueError(msg.format(key))
+        elif any([key.endswith(s) for s in _FORBIDDEN_SUFFIXES]):
+            msg = ('{} are reserved suffixes. '
+                   'Choose something different.')
+            raise ValueError(msg.format(_FORBIDDEN_SUFFIXES))
         else:
             dict.__setitem__(self, key, value)
 
@@ -57,6 +63,7 @@ class _CoordinatesDict(_collections.MutableMapping, dict):
         return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
+        # TODO : Shouldn't allow coordinates to be named with suffix _vel.
         if len(self.keys()) == 1 and key != list(self.keys())[0]:
             msg = ("There is already a coordinate set for this system, only "
                    "one coordinate is permitted. Use del to remove the "
@@ -70,6 +77,10 @@ class _CoordinatesDict(_collections.MutableMapping, dict):
             msg = ('{} is a reserved parameter name. '
                    'Choose something different.')
             raise ValueError(msg.format(key))
+        elif any([key.endswith(s) for s in _FORBIDDEN_SUFFIXES]):
+            msg = ('{} are reserved suffixes. '
+                   'Choose something different.')
+            raise ValueError(msg.format(_FORBIDDEN_SUFFIXES))
         else:
             dict.__setitem__(self, key, value)
 
@@ -88,24 +99,41 @@ class _CoordinatesDict(_collections.MutableMapping, dict):
 
 class _MeasurementsDict(_collections.MutableMapping, dict):
 
+    def _check_for_duplicate_keys(self):
+        c_keys = list(self._constants.keys())
+        g_keys = list(self._coordinates.keys())
+        s_keys = list(self._speeds.keys())
+        m_keys = list(self.keys())
+        all_keys = c_keys + g_keys + s_keys + m_keys
+        if len(set(all_keys)) < len(all_keys):
+            dups = []
+            sorted_keys = sorted(all_keys)
+            for i, k in enumerate(sorted_keys[1:]):
+                if k == sorted_keys[i - 1]:
+                    dups.append(k)
+            msg = ("{} are duplicate keys in your system's parameters. "
+                   "Duplicates are not allowed.")
+            raise KeyError(msg.format(dups))
+
     def _compute_value(self, key):
 
         func = self._funcs[key]
 
         def get_par(k):
             if k == 'time':
-                v = self._time
+                v = self._time['t']
+            elif k in self._constants:
+                v = self._constants[k]
+            elif k in self._coordinates:
+                v = self._coordinates[k]
+            elif k in self._speeds:
+                v = self._speeds[k]
+            elif k in self:
+                v = self[k]
             else:
-                try:
-                    v = self._constants[k]
-                except KeyError:
-                    try:
-                        v = self._coordinates[k]
-                    except KeyError:
-                        try:
-                            v = self._speeds[k]
-                        except KeyError:
-                            v = self[k]
+                msg = ("{} not in constants, coordinates, speeds, or "
+                       "measurements.")
+                raise KeyError(msg.format(k))
             return v
 
         # TODO : getargspec is deprecated, supposedly signature can do the same
@@ -115,6 +143,7 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
         return func(*args)
 
     def __getitem__(self, key):
+        self._check_for_duplicate_keys()
         return self._compute_value(key)
 
     def __setitem__(self, key, value):
@@ -123,7 +152,7 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
         raise ValueError(msg)
 
     def __delitem__(self, key):
-        # TODO : Should also remove from self._funcs
+        dict.__delitem__(self._funcs, key)
         dict.__delitem__(self, key)
 
     def __iter__(self):
@@ -149,7 +178,7 @@ class System(object):
 
         # TODO : Allow constants, coords, and meas to be set on initialization.
 
-        self._time = 0.0
+        self._time = {'t': 0.0}  # this needs to be a mutable object
 
         self._constants = _ConstantsDict({})
         self._coordinates = _CoordinatesDict({})
@@ -357,28 +386,22 @@ class System(object):
     def _get_par_vals(self, par_name):
         """Returns the value of any variable stored in the parameters,
         coordinates, or measurements dictionaries."""
-        # TODO : Maybe just merging the three dicts is better? What to do about
-        # name clashes in the dictionaries? Garbage in garbage out?
-        # TODO : Raise useful error message if par_name not in any of the
-        # dicts.
+        self._measurements._check_for_duplicate_keys()
+        # TODO : This is duplicate of similar code in
+        # _MeasurementsDict._compute_value(). Shouldn't have this redundancy.
         msg = '{} is not in constants, coordinates, speeds, or measurements.'
-        if par_name == 'time':
-            return self._time
+        if par_name.lower() == 'time':
+            return self._time['t']
+        elif par_name in self.constants:
+            return self.constants[par_name]
+        elif par_name in self.coordinates:
+            return self.coordinates[par_name]
+        elif par_name in self.speeds:
+            return self.speeds[par_name]
+        elif par_name in self._measurements:
+            return self.measurements[par_name]
         else:
-            try:
-                v = self.constants[par_name]
-            except KeyError:
-                try:
-                    v = self.coordinates[par_name]
-                except KeyError:
-                    try:
-                        v = self.speeds[par_name]
-                    except KeyError:
-                        try:
-                            v = self.measurements[par_name]
-                        except KeyError:
-                            raise KeyError(msg.format(par_name))
-            return v
+            raise KeyError(msg.format(par_name))
 
     def add_measurement(self, name, func):
         """Creates a new measurement entry in the measurements attribute that
@@ -417,6 +440,10 @@ class System(object):
             msg = ('{} is a reserved parameter name. '
                    'Choose something different.')
             raise ValueError(msg.format(name))
+        elif any([name.endswith(s) for s in _FORBIDDEN_SUFFIXES]):
+            msg = ('{} are reserved suffixes. '
+                   'Choose something different.')
+            raise ValueError(msg.format(_FORBIDDEN_SUFFIXES))
         elif name in (list(self.constants.keys()) +
                       list(self.coordinates.keys()) +
                       list(self.speeds.keys())):
@@ -436,7 +463,7 @@ class System(object):
             speed_name = coord_name + self._vel_append
         acc_name = coord_name + self._acc_append
 
-        # TODO : What if they added a coordinate with the vel or acc names?
+        # TODO : What if they added a coordinate with the acc names?
         df = pd.DataFrame({coord_name: pos,
                            speed_name: vel,
                            acc_name: acc},
@@ -447,12 +474,12 @@ class System(object):
         # store current values of coords, speeds, and time
         x0 = list(self.coordinates.values())[0]
         v0 = list(self.speeds.values())[0]
-        t0 = self._time
+        t0 = self._time['t']
 
         # set coord, speeds, and time to arrays
         self.coordinates[coord_name] = pos
         self.speeds[speed_name] = vel
-        self._time = times
+        self._time['t'] = times
 
         # compute each measurement
         for name, value in self.measurements.items():
@@ -461,7 +488,7 @@ class System(object):
         # set the coords, speeds, and time back to original values
         self.coordinates[coord_name] = x0
         self.speeds[speed_name] = v0
-        self._time = t0
+        self._time['t'] = t0
 
         return df
 
@@ -535,11 +562,11 @@ class System(object):
             args = []
             for k in getargspec(self.config_plot_func).args:
                 if k == 'time':
-                    args.append(self._time)
+                    args.append(self._time['t'])
                 elif k == 'time__hist':
-                    args.append(self._time)
+                    args.append(self._time['t'])
                 elif k == 'time__futr':
-                    args.append(self._time)
+                    args.append(self._time['t'])
                 elif k.endswith('__hist'):
                     args.append(self._get_par_vals(k[:-6]))
                 elif k.endswith('__futr'):
@@ -643,16 +670,17 @@ class System(object):
                     args.append(trajectories[k[:-6]][:time])
                 elif k.endswith('__futr'):
                     args.append(trajectories[k[:-6]][time:])
-                else:
-                    try:
-                        args.append(row[k])
-                    except KeyError:
-                        try:
-                            # get constants
-                            args.append(self._get_par_vals(k))
-                        except KeyError:
-                            # requires these to be in the same order
-                            args.append(pop_list.pop(0))
+                elif k in trajectories:  # constants, coordinates, measurements
+                    args.append(row[k])
+                elif k in self.constants:
+                    args.append(self.constants[k])
+                else:  # must be matplotlib object
+                    # TODO : This last part is quite fragile. It requires these
+                    # remaining args to be in the same order as the returned
+                    # tuple from the plot function and there is no way to know
+                    # if these are the correct objects to append if the order
+                    # isn't correct.
+                    args.append(pop_list.pop(0))
             self.config_plot_update_func(*args)
 
         # NOTE : This is useful to uncomment in debugging because the errors
