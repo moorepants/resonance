@@ -349,3 +349,11 @@ def test_base_excitation_system_on_book_prob():
     np.testing.assert_allclose(traj.position, res[:, 0], atol=0.003)
     np.testing.assert_allclose(x_exp, res[:, 0], atol=0.003)
     np.testing.assert_allclose(xh_exp2 + xss, res[:, 0], atol=0.003)
+
+    # now see if the conversion from sinusoidal displacement works
+    disp_traj = sys.sinusoidal_base_displacing_response(Y, wb, 4.0)
+    np.testing.assert_allclose(disp_traj.position, x_exp)
+
+    # make sure the periodic funciton gives the same result as above
+    per_traj = sys.periodic_base_displacing_response(0.0, 0.0, Y, wb, 4.0)
+    np.testing.assert_allclose(per_traj.position, x_exp)
