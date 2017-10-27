@@ -357,3 +357,65 @@ def test_base_excitation_system_on_book_prob():
     # make sure the periodic funciton gives the same result as above
     per_traj = sys.periodic_base_displacing_response(0.0, 0.0, Y, wb, 4.0)
     np.testing.assert_allclose(per_traj.position, x_exp)
+
+
+def test_transmissibility():
+
+    def force(stiffness, damping, position, velocity, Y, wb, time):
+        y = Y * np.sin(wb * time)
+        yd = Y * wb * np.cos(wb * time)
+        return damping * (velocity - yd) + stiffness * (position - y)
+
+    def disp_transmissibility(r, z):
+        return np.sqrt((1 + (2*z*r)**2)/((1-r**2)**2 + (2*z*r)**2))
+
+    def force_transmissibility(r, z):
+        return r**2 * disp_transmissibility(r, z)
+
+    def cosfunc(t, a, w, phi):
+        return a * np.cos(w*t + phi)
+
+    wn = 2*np.pi  # 1 Hz natural frequency
+
+    sys = BaseExcitationSystem()
+    sys.constants['mass'] = 1.0
+    sys.constants['stiffness'] = wn**2 * sys.constants['mass']
+    sys.constants['Y'] = 0.1
+
+    # constants that will be changed in iterations
+    sys.constants['damping'] = 10
+    sys.constants['wb'] = 1
+
+    sys.add_measurement('force', force)
+
+    zvals = np.linspace(0.1, 0.9, num=5)
+    rvals = np.linspace(0.01, 3.0, num=10)
+
+    dt = np.zeros((zvals.size, rvals.size))
+    ft = np.zeros((zvals.size, rvals.size))
+
+    dt_expected = disp_transmissibility(rvals, zvals[:, np.newaxis])
+    ft_expected = force_transmissibility(rvals, zvals[:, np.newaxis])
+
+    for iz, z in enumerate(zvals):
+        for ir, r in enumerate(rvals):
+            wb = wn * r
+            c = 2 * sys.constants['mass'] * wn * z
+
+            sys.constants['damping'] = c
+            sys.constants['wb'] = wb
+
+            per = 2 * np.pi / min(wb, wn)
+
+            traj = sys.sinusoidal_base_displacing_response(
+                sys.constants['Y'], wb, 20*per)
+
+            pos_amp = np.max(np.abs(traj[15*per:].position))
+            dt[iz, ir] = pos_amp / sys.constants['Y']
+
+            force_amp = np.max(np.abs(traj[15*per:].force))
+            ft[iz, ir] = force_amp / sys.constants['stiffness'] / \
+                sys.constants['Y']
+
+    np.testing.assert_array_almost_equal(dt_expected, dt, decimal=2)
+    np.testing.assert_array_almost_equal(ft_expected, ft, decimal=2)
