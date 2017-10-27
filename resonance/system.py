@@ -492,7 +492,8 @@ class System(object):
 
         return df
 
-    def _calc_times(self, final_time, initial_time, sample_rate):
+    @staticmethod
+    def _calc_times(final_time, initial_time, sample_rate):
         # TODO : Should have the option to pass in unequally spaced monotonic
         # time arrays.
 

@@ -2,6 +2,8 @@ from math import isclose
 
 import pytest
 import numpy as np
+from scipy.optimize import fsolve
+from scipy.integrate import odeint
 from pandas.util.testing import assert_frame_equal
 
 from ..linear_systems import (TorsionalPendulumSystem, SimplePendulumSystem,
@@ -235,3 +237,123 @@ def test_base_excitation_system():
                                                   frequency, 5.0)
 
     assert_frame_equal(traj1, traj2)
+
+
+def test_base_excitation_system_on_book_prob():
+
+    # parameters from example 3.3.2 in the Inman book
+    m = 1  # kg
+    c = 10  # kg/s
+    k = 1000  # N/m
+
+    x0 = 0.01  # m
+    v0 = 3.0  # m/s
+
+    Y = 0.05  # m
+    wb = 3  # rad/s
+
+    # fourier coefficients
+    a0 = 0
+    a1 = c * Y * wb
+    b1 = k * Y
+
+    z = c / 2 / np.sqrt(k * m)
+    wn = np.sqrt(k/m)
+    wd = wn * np.sqrt(1 - z**2)
+
+    # compute the steady state solution from the book
+    # amplitude of the steady state
+    X = wn * Y * np.sqrt((wn**2 + (2*z*wb)**2) /
+                         ((wn**2 - wb**2)**2 + (2*z*wn*wb)**2))
+
+    theta1 = np.arctan2(2*z*wn*wb, wn**2 - wb**2)
+    theta2 = np.arctan2(wn, 2*z*wb)
+
+    t = BaseExcitationSystem._calc_times(4.0, 0.0, 100)
+
+    xss_expected = X * np.cos(wb*t - theta1 - theta2)
+
+    # steady state solution from resonance
+    sys = BaseExcitationSystem()
+
+    sys.constants['mass'] = m  # kg
+    sys.constants['damping'] = c  # kg/s
+    sys.constants['stiffness'] = k  # N/m
+
+    sys.coordinates['position'] = x0  # m
+    sys.speeds['velocity'] = v0  # m/s
+
+    xss, vss, ass, n, thetan, denom = \
+        sys._periodic_forcing_steady_state(a0, np.array([[a1]]),
+                                           np.array([[b1]]), wb, t)
+    np.testing.assert_allclose(xss, xss_expected)
+
+    # now compute the transient solution from the book
+    def solve(params):
+        A_, phi_ = params
+        eq1 = x0 - A_*np.sin(phi_) - X*np.cos(-theta1 - theta2)
+        eq2 = (v0 - wd*A_*np.cos(phi_) + z*wn*A_*np.sin(phi_) +
+               wb*X*np.sin(-theta1 - theta2))
+        return np.array([eq1, eq2])
+
+    def jac(params):
+        A_, phi_ = params
+        return np.array([[-np.sin(phi_), -A_*np.cos(phi_)],
+                         [-wd*np.cos(phi_) + z*wn*np.sin(phi_),
+                          wd*A_*np.sin(phi_) + z*wn*A_*np.cos(phi_)]])
+
+    # use the book answer as a guess (note that these values are from the
+    # errata, they are incorrect in the fourth edition)
+    A_exp, phi_exp = fsolve(solve, (0.0934, 0.1074), fprime=jac)
+
+    assert isclose(A_exp, 0.0934, abs_tol=1e-4)
+    assert isclose(phi_exp, 0.1074, abs_tol=1e-4)
+
+    # transient solution from book
+    xh_exp = A_exp * np.exp(-z*wn*t)*np.sin(wd*t + phi_exp)
+    xh_exp2 = 0.0934 * np.exp(-z*wn*t)*np.sin(wd*t + 0.1074)
+
+    # now get A and phi from resonance
+    A, phi = sys._periodic_forcing_transient_A_phi(wb, n, a0, np.array([[a1]]),
+                                                   np.array([[b1]]), thetan,
+                                                   denom, t)
+    # ensure we get the same as found from book equations, i think the fails
+    # here are just finding different but equivalent phase shifts
+    # fails: sign mismatch
+    # assert isclose(A, A_exp, abs_tol=1e-7)
+    # fails: this is pi off
+    # assert isclose(phi, phi_exp, rel_tol=1e-7)
+
+    xh, vh, ah = sys._damped_sinusoid(A, phi, t)
+
+    # does transient match?
+    np.testing.assert_allclose(xh, xh_exp)
+    np.testing.assert_allclose(xh, xh_exp2, atol=1e-4)
+
+    # compare the full solution from book and from resonance
+    x_exp = xh_exp + xss_expected
+    traj = sys.periodic_forcing_response(a0, a1, b1, wb, 4.0)
+    np.testing.assert_allclose(traj.position, x_exp)
+
+    # test out a comparison to a numerical integration solution
+    def rhs(state, t):
+        x, v = state
+        xdot = v
+        vdot = (-c*v - k*x + c*Y*wb*np.sin(wb*t) + k*Y*np.sin(wb*t)) / m
+        return [xdot, vdot]
+
+    res = odeint(rhs, (x0, v0), t)
+
+    # do both the resonance solution and book solution match the numerical
+    # integration?
+    np.testing.assert_allclose(traj.position, res[:, 0], atol=0.003)
+    np.testing.assert_allclose(x_exp, res[:, 0], atol=0.003)
+    np.testing.assert_allclose(xh_exp2 + xss, res[:, 0], atol=0.003)
+
+    # now see if the conversion from sinusoidal displacement works
+    disp_traj = sys.sinusoidal_base_displacing_response(Y, wb, 4.0)
+    np.testing.assert_allclose(disp_traj.position, x_exp)
+
+    # make sure the periodic funciton gives the same result as above
+    per_traj = sys.periodic_base_displacing_response(0.0, 0.0, Y, wb, 4.0)
+    np.testing.assert_allclose(per_traj.position, x_exp)

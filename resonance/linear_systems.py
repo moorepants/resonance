@@ -261,6 +261,77 @@ class SingleDoFLinearSystem(_System):
         # provide different models.
         return 0.0, 0.0, 0.0
 
+    def _periodic_forcing_steady_state(self, a0, an, bn, wT, t):
+
+        M = t.shape[0]
+
+        # scalars
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        N = an.shape[0]
+
+        # column array of n values, shape(N, 1)
+        n = np.arange(1, N+1)[:, np.newaxis]
+        assert n.shape == (N, 1)
+
+        # phase shift of each term in the series, shape(N, 1)
+        theta_n = np.arctan2(2*z*wn*n*wT, wn**2-(n*wT)**2)
+        assert theta_n.shape == (N, 1)
+
+        # an is a col and t is 1D, so each row of xcn is a term
+        # in the series at all times in t
+
+        # shape(N, 1)
+        denom = m * np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
+        assert denom.shape == (N, 1)
+
+        # shape(N, M)
+        cwT = np.cos(n*wT*t - theta_n)
+        swT = np.sin(n*wT*t - theta_n)
+        assert cwT.shape == (N, M)
+        assert swT.shape == (N, M)
+
+        # shape(N, M)
+        xcn = an / denom * cwT
+        vcn = -an * n * wT / denom * swT
+        acn = -an * (n * wT)**2 / denom * cwT
+        assert xcn.shape == (N, M)
+
+        # shape(N, M)
+        xsn = bn / denom * swT
+        vsn = bn * n * wT / denom * cwT
+        asn = -bn * (n * wT)**2 / denom * swT
+        assert xsn.shape == (N, M)
+
+        # steady state solution (particular solution)
+        # x is the sum of each xcn term (the rows)
+        xss = a0 / 2 / k + np.sum(xcn + xsn, axis=0)
+        vss = np.sum(vcn + vsn, axis=0)
+        ass = np.sum(acn + asn, axis=0)
+        assert xss.shape == (M, )
+
+        return xss, vss, ass, n, theta_n, denom
+
+    def _periodic_forcing_transient_A_phi(self, wT, n, a0, an, bn, theta_n,
+                                          denom, t):
+        # scalars
+        m, c, k = self._canonical_coefficients()
+        wn, z, wd = self._normalized_form(m, c, k)
+
+        # the transient solution (homogeneous)
+        x0, v0 = self._initial_conditions()
+
+        c1 = np.sum((-np.sin(theta_n)*bn + np.cos(theta_n)*an) / denom)
+        c2 = wT * np.sum((np.sin(theta_n)*an + np.cos(theta_n)*bn) * n / denom)
+
+        phi = np.arctan2(wd*(2*c1*k+a0-2*k*x0),
+                         2*c1*k*wn*z + 2*c2*k + a0*wn*z - 2*k*wn*x0*z -
+                         2*k*v0)
+        A = (-a0 / 2 + k * (-c1 + x0)) / k / np.sin(phi)
+
+        return A, phi
+
     def periodic_forcing_response(self, twice_avg, cos_coeffs, sin_coeffs,
                                   frequency, final_time, initial_time=0.0,
                                   sample_rate=100,
@@ -329,66 +400,19 @@ class SingleDoFLinearSystem(_System):
 
         # shape (M,), M: number of time samples
         t = self._calc_times(final_time, initial_time, sample_rate)
-        M = t.shape[0]
 
         # scalars
         m, c, k = self._canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
         wT = frequency
 
-        N = an.shape[0]
-
-        # column array of n values, shape(N, 1)
-        n = np.arange(1, N+1)[:, np.newaxis]
-        assert n.shape == (N, 1)
-
-        # phase shift of each term in the series, shape(N, 1)
-        theta_n = np.arctan2(2*z*wn*n*wT, wn**2-(n*wT)**2)
-        assert theta_n.shape == (N, 1)
-
-        # an is a col and t is 1D, so each row of xcn is a term
-        # in the series at all times in t
-
-        # shape(N, 1)
-        denom = m * np.sqrt((wn**2 - (n*wT)**2)**2 + (2*z*wn*n*wT)**2)
-        assert denom.shape == (N, 1)
-
-        # shape(N, M)
-        cwT = np.cos(n*wT*t - theta_n)
-        swT = np.sin(n*wT*t - theta_n)
-        assert cwT.shape == (N, M)
-        assert swT.shape == (N, M)
-
-        # shape(N, M)
-        xcn = an / denom * cwT
-        vcn = -an * n * wT / denom * swT
-        acn = -an * (n * wT)**2 / denom * cwT
-        assert xcn.shape == (N, M)
-
-        # shape(N, M)
-        xsn = bn / denom * swT
-        vsn = bn * n * wT / denom * cwT
-        asn = -bn * (n * wT)**2 / denom * swT
-        assert xsn.shape == (N, M)
-
-        # steady state solution (particular solution)
-        # x is the sum of each xcn term (the rows)
-        xss = twice_avg / 2 / k + np.sum(xcn + xsn, axis=0)
-        vss = np.sum(vcn + vsn, axis=0)
-        ass = np.sum(acn + asn, axis=0)
-        assert xss.shape == (M, )
+        xss, vss, ass, n, theta_n, denom = \
+            self._periodic_forcing_steady_state(twice_avg, an, bn, wT, t)
 
         # the transient solution (homogeneous)
-        x0, v0 = self._initial_conditions()
 
-        c1 = np.sum((-np.sin(theta_n)*bn + np.cos(theta_n)*an) / denom)
-        c2 = wT * np.sum((np.sin(theta_n)*an + np.cos(theta_n)*bn) * n / denom)
-
-        phi = np.arctan2(wd*(2*c1*k+twice_avg-2*k*x0),
-                         2*c1*k*wn*z + 2*c2*k + twice_avg*wn*z - 2*k*wn*x0*z -
-                         2*k*v0)
-        A = (-twice_avg / 2 + k * (-c1 + x0)) / k / np.sin(phi)
-
+        A, phi = self._periodic_forcing_transient_A_phi(wT, n, twice_avg, an,
+                                                        bn, theta_n, denom, t)
         xh, vh, ah = self._damped_sinusoid(A, phi, t)
 
         self.result = self._state_traj_to_dataframe(t, xh + xss, vh + vss,
