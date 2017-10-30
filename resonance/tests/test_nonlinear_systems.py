@@ -21,22 +21,19 @@ assert list(sys.states.keys()) == ['angle', 'angle_vel']
 assert list(sys.states.values()) == [np.deg2rad(15.0), 0.0]
 
 
-def equations_of_motion(state, time, length, acc_due_to_grav):
+def equations_of_motion(angle, angle_vel, length, acc_due_to_grav):
 
     l = length
     g = acc_due_to_grav
 
-    theta = state[0]
-    omega = state[1]
+    thetad = angle_vel
+    omegad = -g / l * np.sin(angle)
 
-    thetad = omega
-    omegad = -g / l * np.sin(theta)
-
-    return [thetad, omegad]
+    return thetad, omegad
 
 # function that computes the right hand side of the equations of motion in
 # first order form
-sys.equations_of_motion = equations_of_motion
+sys.ode_func = equations_of_motion
 
 
 def height(angle, length):
