@@ -15,9 +15,7 @@ dependencies:
   - matplotlib >=2.1
   - pandas
   - sympy
-  - notebook<5.1  # notedown can't work with newer
+  - notebook
   - ipywidgets
   - nbconvert
   - jupyter_contrib_nbextensions
-  - pip:
-    - https://github.com/moorepants/rst-to-ipynb/archive/pycon-funcs.zip
