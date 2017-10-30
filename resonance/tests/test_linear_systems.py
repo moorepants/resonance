@@ -6,8 +6,9 @@ from scipy.optimize import fsolve
 from scipy.integrate import odeint
 from pandas.util.testing import assert_frame_equal
 
-from ..linear_systems import (TorsionalPendulumSystem, SimplePendulumSystem,
-                              MassSpringDamperSystem, BaseExcitationSystem)
+from ..linear_systems import (SingleDoFLinearSystem, TorsionalPendulumSystem,
+                              SimplePendulumSystem, MassSpringDamperSystem,
+                              BaseExcitationSystem)
 from ..functions import estimate_period
 
 
@@ -419,3 +420,36 @@ def test_transmissibility():
 
     np.testing.assert_array_almost_equal(dt_expected, dt, decimal=2)
     np.testing.assert_array_almost_equal(ft_expected, ft, decimal=2)
+
+
+def test_defining_system_from_scratch():
+
+    sys = SingleDoFLinearSystem()
+
+    sys.constants['m'] = 1.0
+    sys.constants['c'] = 2.0
+    sys.constants['k'] = 3.0
+
+    sys.coordinates['x'] = 1.0
+    sys.speeds['v'] = 1.0
+
+    def second_order_eom_coefficients(m, c, k):
+        return m, c, k
+
+    # canonical coefficients for the lhs of the second ordre form of the
+    # ordinary differential equations, defined as:
+    # m * x'' + c * x' + k x = F(m, c, k, t)
+
+    sys.canonical_coeffs_func = second_order_eom_coefficients
+
+    m, c, k = sys._canonical_coefficients()
+
+    assert isclose(m, 1.0)
+    assert isclose(c, 2.0)
+    assert isclose(k, 3.0)
+
+    def second_order_eom_coefficients(booger, c, k):
+        return booger, c, k
+
+    with pytest.raises(ValueError):
+        sys.canonical_coeffs_func = second_order_eom_coefficients

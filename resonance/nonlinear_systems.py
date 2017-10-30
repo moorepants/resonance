@@ -13,6 +13,81 @@ class SingleDoFNonLinearSystem(_System):
     nonlinear system.  It can be sub-classed to make a custom system or the
     necessary methods can be added dynamically."""
 
+    def __init__(self):
+
+        super(SingleDoFNonLinearSystem, self).__init__()
+
+        self._ode_func = None
+
+    @property
+    def ode_func(self):
+        """A function that returns the time derivatives of the coordinate and
+        speed, i.e. computes the right hand side of the two order ordinary
+        differential equations.  This equation looks like the following for
+        linear motion:
+
+            dy
+            -- = f(t, y, *p)
+            dt
+
+        where:
+
+            - t: a time value
+            - y: a vector containing the coordinate value and the speed value
+            - *p: any number of constants or measurements
+
+        Notes
+        =====
+        Your function should be able to operate on 1d arrays as inputs, i.e.
+        use numpy math functions in your function, e.g. ``numpy.sin`` instead
+        of ``math.sin``.
+
+        Example
+        =======
+        >>> sys = SingleDoFNonLinearSystem()
+        >>> sys.constants['gravity'] = 9.8  # m/s**2
+        >>> sys.constants['length'] = 1.0  # m
+        >>> sys.constnats['mass'] = 0.5  # kg
+        >>> sys.coordinates['theta'] = 0.3  # rad
+        >>> sys.speeds['omega'] = 0.0  # rad/s
+        >>> def rhs(theta, omega, gravity, length, mass):
+        >>>     # Represents a linear model of a simple pendulum:
+        ...     #  m * l**2 ω' + m * g * l * sin(θ) = 0
+        ...     thetad = omega
+        ...     omegad = (-m*g*l*np.sin(theta)) / m / l**2
+        ...     return thetad, omegad  # in order of sys.states
+        >>> sys.ode_func = rhs
+
+        """
+        return self._ode_func
+
+    @ode_func.setter
+    def ode_func(self, func):
+        self._measurements._check_for_duplicate_keys()
+        # NOTE : This will throw an error if the function's args are not in the
+        # system.
+        [self._get_par_vals(k) for k in getargspec(func).args]
+        self._ode_func = func
+
+    @property
+    def _array_rhs_eval_func(self):
+
+        ode_func_arg_names = getargspec(self.ode_func).args
+        ode_func_args = [self._get_par_vals(k) for k in ode_func_arg_names]
+
+        coord_name = list(self.coordinates.keys())[0]
+        speed_name = list(self.speeds.keys())[0]
+
+        coord_idx = ode_func_arg_names.index(coord_name)
+        speed_idx = ode_func_arg_names.index(speed_name)
+
+        def eval_rhs(x, t):
+            ode_func_args[coord_idx] = x[0]
+            ode_func_args[speed_idx] = x[1]
+            return np.asarray(self.ode_func(*ode_func_args))
+
+        return eval_rhs
+
     def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
 
         x0 = list(self.coordinates.values())[0]
@@ -27,14 +102,18 @@ class SingleDoFNonLinearSystem(_System):
 
     def _integrate_with_lsoda(self, initial_conditions, times):
         """This method should return the integration results in the form of
-        odeint."""
+        odeint.
 
-        rhs = self.equations_of_motion
+        Parameters
+        ==========
+        initial_conditions : ndarray, shape(n,)
+            The initial condition of each state.
+        times : ndarray, shape(m,)
+            The monotonically increasing time values.
 
-        # NOTE: the first two args will always be the state and then time
-        args = tuple([self._get_par_vals(k) for k in getargspec(rhs).args[2:]])
-
-        return sp.integrate.odeint(rhs, initial_conditions, times, args=args)
+        """
+        return sp.integrate.odeint(self._array_rhs_eval_func,
+                                   initial_conditions, times)
 
     def _integrate_with_rungakutta4(self, initial_conditions, times):
         """4th-order Runge-Kutta integration.
@@ -57,28 +136,28 @@ class SingleDoFNonLinearSystem(_System):
         def _rk4(t, dt, x, f, args=None):
             """4th-order Runge-Kutta integration step."""
             x = np.asarray(x)
+            if args is None:
+                args = []
             k1 = np.asarray(f(x, t, *args))
             k2 = np.asarray(f(x + 0.5*dt*k1, t + 0.5*dt, *args))
             k3 = np.asarray(f(x + 0.5*dt*k2, t + 0.5*dt, *args))
             k4 = np.asarray(f(x + dt*k3, t + dt, *args))
             return x + dt*(k1 + 2*k2 + 2*k3 + k4)/6.0
 
-        func = self.equations_of_motion
-        args = tuple([self._get_par_vals(k) for k in getargspec(func).args[2:]])
         x = np.zeros((len(times), len(initial_conditions)))
         x[0, :] = initial_conditions
         for i in range(1, len(times)):
             dt = times[i] - times[i-1]
-            x[i] = _rk4(times[i], dt, x[i-1], func, args)
+            x[i] = _rk4(times[i], dt, x[i-1], self._array_rhs_eval_func)
         return x
 
     def _generate_state_trajectories(self, times):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
         int_res = self._integrate_equations_of_motion(times)
-        f = self.equations_of_motion
-        args = tuple([self._get_par_vals(k) for k in getargspec(f).args[2:]])
-        res = np.asarray(f(int_res.T, times, *args))
+
+        res = self._array_rhs_eval_func(int_res.T, times)
+
         return int_res[:, 0], int_res[:, 1], res[1, :]
 
 
@@ -209,11 +288,8 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
 
         self.config_plot_update_func = update_plot
 
-        def rhs(state, times, bob_mass, bob_radius, rod_mass, rod_length,
+        def rhs(angle, angle_vel, bob_mass, bob_radius, rod_mass, rod_length,
                 coeff_of_friction, acc_due_to_gravity):
-
-            angle = state[0]
-            angle_vel = state[1]
 
             Irod_O = rod_mass * rod_length**2 / 3
             Ibob_P = bob_mass * bob_radius**2 / 2
@@ -225,6 +301,13 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
                               acc_due_to_gravity * rod_length * (bob_mass +
                               rod_mass / 2.0) * np.sin(angle)) / I
 
-            return [angle_dot, angle_vel_dot]
+            # NOTE : These have to be in the correct order that matches
+            # System.states, otherwise there is not way to detect which order
+            # the user selected.
+            return angle_dot, angle_vel_dot
 
-        self.equations_of_motion = rhs
+            # TODO : Maybe we can let them use a dictionary as output to
+            # specifically label things?
+            #return {'angle': angle_dot, 'angle_vel': angle_vel_dot}
+
+        self.ode_func = rhs
