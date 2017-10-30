@@ -18,12 +18,71 @@ class SingleDoFLinearSystem(_System):
 
         super(SingleDoFLinearSystem, self).__init__()
 
-        self.canonical_coefficients_func = None
+        self._canonical_coefficients_func = None
 
     def _initial_conditions(self):
         x0 = list(self.coordinates.values())[0]
         v0 = list(self.speeds.values())[0]
         return x0, v0
+
+    @property
+    def canonical_coefficients_func(self):
+        """A function that returns the three linear coefficients of the left
+        hand side of a canonical second order ordinary differential equation.
+        This equation looks like the following for linear motion:
+
+            mv' + cv + kx = F(t)
+
+        and like the following for angular motion:
+
+            Iω' + cω + kθ = T(t)
+
+        where:
+
+            - m: mass of the moving particle
+            - I: moment of inertia of a rigid body
+            - c: viscous damping coefficient (linear or angular)
+            - k: spring stiffness (linear or angular)
+            - x: the positional coordinate of the mass
+            - v: the positional speed of the mass
+            - θ: the angular coordinate of the body
+            - ω: the angular speed of the body
+
+        The coefficients (m, c, k, I) must be defined in terms of the system's
+        constants.
+
+        Example
+        =======
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['gravity'] = 9.8  # m/s**2
+        >>> sys.constants['length'] = 1.0  # m
+        >>> sys.constnats['mass'] = 0.5  # kg
+        >>> sys.coordinates['theta'] = 0.3  # rad
+        >>> sys.speeds['omega'] = 0.0  # rad/s
+        >>> def coeffs(gravity, length, mass):
+        >>>     # Represents a linear model of a simple pendulum:
+        ...     #  m * l**2 ω' + m * g * l * θ = 0
+        ...     I = mass * length**2
+        ...     c = 0.0
+        ...     k = mass * gravity * length
+        ...     return I, c, k
+        >>> sys.canonical_coefficients_func = coeffs
+
+        """
+        return self._canonical_coefficients_func
+
+    @canonical_coefficients_func.setter
+    def canonical_coefficients_func(self, func):
+        self._measurements._check_for_duplicate_keys()
+        for k in getargspec(func).args:
+            # NOTE : Measurements do not have to be time varying.
+            if k not in (list(self.constants.keys()) +
+                         list(self.measurements.keys())):
+                msg = ('The function argument {} is not in constants or '
+                       'measurements. Redefine your function in terms of '
+                       'non-time varying parameters.')
+                raise ValueError(msg.format(k))
+        self._canonical_coefficients_func = func
 
     @staticmethod
     def _natural_frequency(mass, stiffness):
@@ -768,7 +827,7 @@ class CompoundPendulumSystem(SingleDoFLinearSystem):
 
             return i, 0.0, m * g * l
 
-        self.canonical_coefficient_func = coeffs
+        self.canonical_coefficients_func = coeffs
 
 
 class SimplePendulumSystem(SingleDoFLinearSystem):

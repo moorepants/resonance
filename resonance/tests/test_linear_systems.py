@@ -447,3 +447,9 @@ def test_defining_system_from_scratch():
     assert isclose(m, 1.0)
     assert isclose(c, 2.0)
     assert isclose(k, 3.0)
+
+    def second_order_eom_coefficients(booger, c, k):
+        return booger, c, k
+
+    with pytest.raises(ValueError):
+        sys.canonical_coefficients_func = second_order_eom_coefficients
