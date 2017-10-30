@@ -18,7 +18,7 @@ class SingleDoFLinearSystem(_System):
 
         super(SingleDoFLinearSystem, self).__init__()
 
-        self._canonical_coefficients_func = None
+        self._canonical_coeffs_func = None
 
     def _initial_conditions(self):
         x0 = list(self.coordinates.values())[0]
@@ -26,7 +26,7 @@ class SingleDoFLinearSystem(_System):
         return x0, v0
 
     @property
-    def canonical_coefficients_func(self):
+    def canonical_coeffs_func(self):
         """A function that returns the three linear coefficients of the left
         hand side of a canonical second order ordinary differential equation.
         This equation looks like the following for linear motion:
@@ -66,13 +66,13 @@ class SingleDoFLinearSystem(_System):
         ...     c = 0.0
         ...     k = mass * gravity * length
         ...     return I, c, k
-        >>> sys.canonical_coefficients_func = coeffs
+        >>> sys.canonical_coeffs_func = coeffs
 
         """
-        return self._canonical_coefficients_func
+        return self._canonical_coeffs_func
 
-    @canonical_coefficients_func.setter
-    def canonical_coefficients_func(self, func):
+    @canonical_coeffs_func.setter
+    def canonical_coeffs_func(self, func):
         self._measurements._check_for_duplicate_keys()
         for k in getargspec(func).args:
             # NOTE : Measurements do not have to be time varying.
@@ -82,7 +82,7 @@ class SingleDoFLinearSystem(_System):
                        'measurements. Redefine your function in terms of '
                        'non-time varying parameters.')
                 raise ValueError(msg.format(k))
-        self._canonical_coefficients_func = func
+        self._canonical_coeffs_func = func
 
     @staticmethod
     def _natural_frequency(mass, stiffness):
@@ -322,12 +322,12 @@ class SingleDoFLinearSystem(_System):
         return sol_func(times)
 
     def _canonical_coefficients(self):
-        if self.canonical_coefficients_func is None:
+        if self.canonical_coeffs_func is None:
             msg = ('There is no function available to calculate the canonical'
                    ' coeffcients.')
             raise ValueError(msg)
         else:
-            f = self.canonical_coefficients_func
+            f = self.canonical_coeffs_func
             args = [self._get_par_vals(k) for k in getargspec(f).args]
             return f(*args)
 
@@ -727,7 +727,7 @@ class BookOnCupSystem(SingleDoFLinearSystem):
             k = g * radius - g * thickness / 2
             return m, c, k
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
 
 class TorsionalPendulumSystem(SingleDoFLinearSystem):
@@ -771,7 +771,7 @@ class TorsionalPendulumSystem(SingleDoFLinearSystem):
         def coeffs(rotational_inertia, torsional_damping, torsional_stiffness):
             return rotational_inertia, torsional_damping, torsional_stiffness
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
 
 class CompoundPendulumSystem(SingleDoFLinearSystem):
@@ -827,7 +827,7 @@ class CompoundPendulumSystem(SingleDoFLinearSystem):
 
             return i, 0.0, m * g * l
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
 
 class SimplePendulumSystem(SingleDoFLinearSystem):
@@ -876,7 +876,7 @@ class SimplePendulumSystem(SingleDoFLinearSystem):
 
             return m * l**2, 0.0, m * g * l
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
 
 class ClockPendulumSystem(SingleDoFLinearSystem):
@@ -982,7 +982,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem):
 
             return I, C, K
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
 
 class MassSpringDamperSystem(SingleDoFLinearSystem):
@@ -1022,7 +1022,7 @@ class MassSpringDamperSystem(SingleDoFLinearSystem):
         def coeffs(mass, damping, stiffness):
             return mass, damping, stiffness
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
 
 class BaseExcitationSystem(SingleDoFLinearSystem):
@@ -1063,7 +1063,7 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         def coeffs(mass, damping, stiffness):
             return mass, damping, stiffness
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs
 
     def sinusoidal_base_displacing_response(self, amplitude, frequency,
                                             final_time, initial_time=0.0,
@@ -1362,4 +1362,4 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
         def coeffs(sprung_mass, suspension_damping, suspension_stiffness):
             return sprung_mass, suspension_damping, suspension_stiffness
 
-        self.canonical_coefficients_func = coeffs
+        self.canonical_coeffs_func = coeffs

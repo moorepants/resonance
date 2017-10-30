@@ -440,7 +440,7 @@ def test_defining_system_from_scratch():
     # ordinary differential equations, defined as:
     # m * x'' + c * x' + k x = F(m, c, k, t)
 
-    sys.canonical_coefficients_func = second_order_eom_coefficients
+    sys.canonical_coeffs_func = second_order_eom_coefficients
 
     m, c, k = sys._canonical_coefficients()
 
@@ -452,4 +452,4 @@ def test_defining_system_from_scratch():
         return booger, c, k
 
     with pytest.raises(ValueError):
-        sys.canonical_coefficients_func = second_order_eom_coefficients
+        sys.canonical_coeffs_func = second_order_eom_coefficients
