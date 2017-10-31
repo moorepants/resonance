@@ -7,7 +7,7 @@ dependencies:
   - setuptools
   - pip
   - numpy
-  - scipy
+  - scipy>=1.0
   - matplotlib >=2.1
   - pandas
   - sympy
