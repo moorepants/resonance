@@ -29,8 +29,7 @@ script:
   - set -e
   # run tests on resonance lib
   - py.test --cov=resonance
-  # build rst files into notebooks, run them, convert to html
-  - bin/build_notebooks.sh
+  # execute notebooks, convert to html
   - bin/execute_notebooks.sh
   # set up an area for deployed html/ipynb files and push to gh_pages
   - bin/prepare_deploy.sh
