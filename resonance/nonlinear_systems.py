@@ -2,7 +2,6 @@ from inspect import getargspec
 
 import numpy as np
 import scipy as sp
-import scipy.integrate  # scipy doesn't import automatically
 import matplotlib as mp
 
 from .system import System as _System
@@ -81,84 +80,39 @@ class SingleDoFNonLinearSystem(_System):
         coord_idx = ode_func_arg_names.index(coord_name)
         speed_idx = ode_func_arg_names.index(speed_name)
 
-        def eval_rhs(x, t):
+        def eval_rhs(t, x):
             ode_func_args[coord_idx] = x[0]
             ode_func_args[speed_idx] = x[1]
             return np.asarray(self.ode_func(*ode_func_args))
 
         return eval_rhs
 
-    def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
+    def _integrate_equations_of_motion(self, times, **kwargs):
 
         x0 = list(self.coordinates.values())[0]
         v0 = list(self.speeds.values())[0]
 
         initial_conditions = np.array([x0, v0])
 
-        method_name = '_integrate_with_{}'.format(integrator)
-        integrator_method = getattr(self, method_name)
+        integrator = getattr(self, 'integrator', 'RK45')
 
-        return integrator_method(initial_conditions, times)
-
-    def _integrate_with_lsoda(self, initial_conditions, times):
-        """This method should return the integration results in the form of
-        odeint.
-
-        Parameters
-        ==========
-        initial_conditions : ndarray, shape(n,)
-            The initial condition of each state.
-        times : ndarray, shape(m,)
-            The monotonically increasing time values.
-
-        """
-        return sp.integrate.odeint(self._array_rhs_eval_func,
-                                   initial_conditions, times)
-
-    def _integrate_with_rungakutta4(self, initial_conditions, times):
-        """4th-order Runge-Kutta integration.
-
-        Parameters
-        ----------
-        initial_conditions : array_like, shape(n,)
-            Initial values of the state variables.
-        times : array, shape(m,)
-            Array of time values at which to solve.
-
-        Returns
-        -------
-        x : ndarray, shape(m, n)
-            Array containing the values of the state variables at the
-            specified time values in `t`.
-
-        """
-
-        def _rk4(t, dt, x, f, args=None):
-            """4th-order Runge-Kutta integration step."""
-            x = np.asarray(x)
-            if args is None:
-                args = []
-            k1 = np.asarray(f(x, t, *args))
-            k2 = np.asarray(f(x + 0.5*dt*k1, t + 0.5*dt, *args))
-            k3 = np.asarray(f(x + 0.5*dt*k2, t + 0.5*dt, *args))
-            k4 = np.asarray(f(x + dt*k3, t + dt, *args))
-            return x + dt*(k1 + 2*k2 + 2*k3 + k4)/6.0
-
-        x = np.zeros((len(times), len(initial_conditions)))
-        x[0, :] = initial_conditions
-        for i in range(1, len(times)):
-            dt = times[i] - times[i-1]
-            x[i] = _rk4(times[i], dt, x[i-1], self._array_rhs_eval_func)
-        return x
+        return sp.integrate.solve_ivp(self._array_rhs_eval_func,
+                                      (times[0], times[-1]),
+                                      initial_conditions,
+                                      t_eval=times,
+                                      method=integrator,
+                                      vectorized=True,
+                                      **kwargs)
 
     def _generate_state_trajectories(self, times):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
-        int_res = self._integrate_equations_of_motion(times)
+        int_bunch = self._integrate_equations_of_motion(times)
+        int_res = int_bunch.y
 
-        res = self._array_rhs_eval_func(int_res.T, times)
+        res = self._array_rhs_eval_func(times, int_res)
 
-        return int_res[:, 0], int_res[:, 1], res[1, :]
+        return int_res[0], int_res[1], res[1, :]
 
 
 class ClockPendulumSystem(SingleDoFNonLinearSystem):
