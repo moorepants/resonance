@@ -33,7 +33,7 @@ def equations_of_motion(angle, angle_vel, length, acc_due_to_grav):
 
 # function that computes the right hand side of the equations of motion in
 # first order form
-sys.ode_func = equations_of_motion
+sys.diff_eq_func = equations_of_motion
 
 
 def height(angle, length):

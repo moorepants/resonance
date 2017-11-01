@@ -17,24 +17,24 @@ class SingleDoFNonLinearSystem(_System):
 
         super(SingleDoFNonLinearSystem, self).__init__()
 
-        self._ode_func = None
+        self._diff_eq_func = None
 
     @property
-    def ode_func(self):
+    def diff_eq_func(self):
         """A function that returns the time derivatives of the coordinate and
-        speed, i.e. computes the right hand side of the two order ordinary
-        differential equations.  This equation looks like the following for
-        linear motion:
+        speed, i.e. computes the right hand side of the two order differential
+        equations. This equation looks like the following for linear motion:
 
             dy
-            -- = f(t, y, *p)
+            -- = f(t, y, p1, p2, ..., pO)
             dt
 
         where:
 
             - t: a time value
             - y: a vector containing the coordinate value and the speed value
-            - *p: any number of constants or measurements
+            - p: any number of constants or measurements, O is the number of
+              constants.
 
         Notes
         =====
@@ -56,35 +56,35 @@ class SingleDoFNonLinearSystem(_System):
         ...     thetad = omega
         ...     omegad = (-m*g*l*np.sin(theta)) / m / l**2
         ...     return thetad, omegad  # in order of sys.states
-        >>> sys.ode_func = rhs
+        >>> sys.diff_eq_func = rhs
 
         """
-        return self._ode_func
+        return self._diff_eq_func
 
-    @ode_func.setter
-    def ode_func(self, func):
+    @diff_eq_func.setter
+    def diff_eq_func(self, func):
         self._measurements._check_for_duplicate_keys()
         # NOTE : This will throw an error if the function's args are not in the
         # system.
         [self._get_par_vals(k) for k in getargspec(func).args]
-        self._ode_func = func
+        self._diff_eq_func = func
 
     @property
     def _array_rhs_eval_func(self):
 
-        ode_func_arg_names = getargspec(self.ode_func).args
-        ode_func_args = [self._get_par_vals(k) for k in ode_func_arg_names]
+        diff_eq_func_arg_names = getargspec(self.diff_eq_func).args
+        diff_eq_func_args = [self._get_par_vals(k) for k in diff_eq_func_arg_names]
 
         coord_name = list(self.coordinates.keys())[0]
         speed_name = list(self.speeds.keys())[0]
 
-        coord_idx = ode_func_arg_names.index(coord_name)
-        speed_idx = ode_func_arg_names.index(speed_name)
+        coord_idx = diff_eq_func_arg_names.index(coord_name)
+        speed_idx = diff_eq_func_arg_names.index(speed_name)
 
         def eval_rhs(x, t):
-            ode_func_args[coord_idx] = x[0]
-            ode_func_args[speed_idx] = x[1]
-            return np.asarray(self.ode_func(*ode_func_args))
+            diff_eq_func_args[coord_idx] = x[0]
+            diff_eq_func_args[speed_idx] = x[1]
+            return np.asarray(self.diff_eq_func(*diff_eq_func_args))
 
         return eval_rhs
 
@@ -310,4 +310,4 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
             # specifically label things?
             #return {'angle': angle_dot, 'angle_vel': angle_vel_dot}
 
-        self.ode_func = rhs
+        self.diff_eq_func = rhs
