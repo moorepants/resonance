@@ -181,8 +181,14 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
             The length of the rod which connects the pivot joint to the center
             of the bob.
         coeff_of_friction, mu [unitless]
-            The torsional Coulomb coefficient of friction at the pivot joint.
-            The joint is clamped via a 1 Nm force.
+            The Coulomb coefficient of friction between the materials of the
+            pivot joint.
+        joint_friction_radius, R [m]
+            The radius of the contact disc at the pivot joint. The joint is
+            assumed to be two flat discs pressed together.
+        joint_clamp_force, F_N [N]
+            The clamping force pressing the two flat discs together at the
+            pivot joint.
         acc_due_to_gravity, g [m/s**2]
             The acceleration due to gravity.
     coordinates
@@ -205,6 +211,8 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
         self.constants['rod_mass'] = 0.1  # kg
         self.constants['rod_length'] = 0.2799  # m
         self.constants['coeff_of_friction'] = 0.0  # unitless
+        self.constants['joint_friction_radius'] = 0.03  # m
+        self.constants['joint_clamp_force'] = 1.0  # N
         self.constants['acc_due_to_gravity'] = 9.81  # m / s**2
 
         self.coordinates['angle'] = 0.0
@@ -289,20 +297,25 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
         self.config_plot_update_func = update_plot
 
         def rhs(angle, angle_vel, bob_mass, bob_radius, rod_mass, rod_length,
-                coeff_of_friction, acc_due_to_gravity):
+                coeff_of_friction, joint_friction_radius, joint_clamp_force,
+                acc_due_to_gravity):
 
             Irod_O = rod_mass * rod_length**2 / 3
             Ibob_P = bob_mass * bob_radius**2 / 2
             Ibob_O = Ibob_P + bob_mass * rod_length**2
             I = Irod_O + Ibob_O
 
+            friction_torque = (2 / 3 * joint_friction_radius *
+                               coeff_of_friction * joint_clamp_force *
+                               np.sign(angle_vel))
+
             angle_dot = angle_vel
-            angle_vel_dot = -(coeff_of_friction * np.sign(angle_vel) +
-                              acc_due_to_gravity * rod_length * (bob_mass +
-                              rod_mass / 2.0) * np.sin(angle)) / I
+            angle_vel_dot = -(friction_torque +
+                              acc_due_to_gravity * rod_length *
+                              (bob_mass + rod_mass / 2.0) * np.sin(angle)) / I
 
             # NOTE : These have to be in the correct order that matches
-            # System.states, otherwise there is not way to detect which order
+            # System.states, otherwise there is no way to detect which order
             # the user selected.
             return angle_dot, angle_vel_dot
 
