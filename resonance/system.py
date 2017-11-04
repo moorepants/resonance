@@ -64,12 +64,7 @@ class _CoordinatesDict(_collections.MutableMapping, dict):
 
     def __setitem__(self, key, value):
         # TODO : Shouldn't allow coordinates to be named with suffix _vel.
-        if len(self.keys()) == 1 and key != list(self.keys())[0]:
-            msg = ("There is already a coordinate set for this system, only "
-                   "one coordinate is permitted. Use del to remove the "
-                   "coordinate if you'd like to add a new one.")
-            raise ValueError(msg)
-        elif not key.isidentifier():
+        if not key.isidentifier():
             msg = ('{} is not a valid coordinate or speed name. '
                    'It must be a valid Python variable name.')
             raise ValueError(msg.format(key))
@@ -95,6 +90,17 @@ class _CoordinatesDict(_collections.MutableMapping, dict):
 
     def __contains__(self, x):
         return dict.__contains__(self, x)
+
+
+class _SingleDoFCoordinatesDict(_CoordinatesDict):
+    def __setitem__(self, key, value):
+        if len(self.keys()) == 1 and key != list(self.keys())[0]:
+            msg = ("There is already a coordinate set for this system, only "
+                   "one coordinate is permitted. Use del to remove the "
+                   "coordinate if you'd like to add a new one.")
+            raise ValueError(msg)
+        else:
+            super(_SingleDoFCoordinatesDict, self).__setitem__(key, value)
 
 
 class _MeasurementsDict(_collections.MutableMapping, dict):
@@ -457,28 +463,31 @@ class System(object):
 
     def _state_traj_to_dataframe(self, times, pos, vel, acc):
 
-        coord_name = list(self.coordinates.keys())[0]
-        speed_name = list(self.speeds.keys())[0]
-        if not speed_name:
-            speed_name = coord_name + self._vel_append
-        acc_name = coord_name + self._acc_append
+        pos = np.atleast_2d(pos)
+        vel = np.atleast_2d(vel)
+        acc = np.atleast_2d(acc)
 
         # TODO : What if they added a coordinate with the acc names?
-        df = pd.DataFrame({coord_name: pos,
-                           speed_name: vel,
-                           acc_name: acc},
-                          index=times)
+        data = {}
+        for i, c_name in enumerate(list(self.coordinates.keys())):
+            data[c_name] = pos[i]
+        for i, s_name in enumerate(list(self.speeds.keys())):
+            data[s_name] = vel[i]
+            data[s_name + self._acc_append] = acc[i]
+        df = pd.DataFrame(data, index=times)
         df.index.name = self._time_var_name
 
         # TODO : Allow acc to be used in measurements.
         # store current values of coords, speeds, and time
-        x0 = list(self.coordinates.values())[0]
-        v0 = list(self.speeds.values())[0]
+        x0s = list(self.coordinates.values())
+        v0s = list(self.speeds.values())
         t0 = self._time['t']
 
         # set coord, speeds, and time to arrays
-        self.coordinates[coord_name] = pos
-        self.speeds[speed_name] = vel
+        for i, c_name in enumerate(list(self.coordinates.keys())):
+            self.coordinates[c_name] = pos[i]
+        for i, s_name in enumerate(list(self.speeds.keys())):
+            self.speeds[s_name] = vel[i]
         self._time['t'] = times
 
         # compute each measurement
@@ -486,8 +495,10 @@ class System(object):
             df[name] = value
 
         # set the coords, speeds, and time back to original values
-        self.coordinates[coord_name] = x0
-        self.speeds[speed_name] = v0
+        for i, c_name in enumerate(list(self.coordinates.keys())):
+            self.coordinates[c_name] = x0s[i]
+        for i, s_name in enumerate(list(self.speeds.keys())):
+            self.speeds[s_name] = v0s[i]
         self._time['t'] = t0
 
         return df
