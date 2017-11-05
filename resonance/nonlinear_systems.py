@@ -8,14 +8,14 @@ import matplotlib as mp
 from .system import System as _System
 
 
-class SingleDoFNonLinearSystem(_System):
+class MultiDoFNonLinearSystem(_System):
     """This is the abstract base class for any single degree of freedom
     nonlinear system.  It can be sub-classed to make a custom system or the
     necessary methods can be added dynamically."""
 
     def __init__(self):
 
-        super(SingleDoFNonLinearSystem, self).__init__()
+        super(MultiDoFNonLinearSystem, self).__init__()
 
         self._diff_eq_func = None
 
@@ -72,28 +72,35 @@ class SingleDoFNonLinearSystem(_System):
     @property
     def _array_rhs_eval_func(self):
 
+        # TODO : All of this indexing could be moved to the the
+        # diff_eq_func.setter to same computation time.
+
         diff_eq_func_arg_names = getargspec(self.diff_eq_func).args
-        diff_eq_func_args = [self._get_par_vals(k) for k in diff_eq_func_arg_names]
+        diff_eq_func_arg_vals = [self._get_par_vals(k) for k in
+                                 diff_eq_func_arg_names]
 
-        coord_name = list(self.coordinates.keys())[0]
-        speed_name = list(self.speeds.keys())[0]
+        coord_names = list(self.coordinates.keys())
+        speed_names = list(self.speeds.keys())
 
-        coord_idx = diff_eq_func_arg_names.index(coord_name)
-        speed_idx = diff_eq_func_arg_names.index(speed_name)
+        coord_idxs = [diff_eq_func_arg_names.index(n) for n in coord_names]
+        speed_idxs = [diff_eq_func_arg_names.index(n) for n in speed_names]
 
         def eval_rhs(x, t):
-            diff_eq_func_args[coord_idx] = x[0]
-            diff_eq_func_args[speed_idx] = x[1]
-            return np.asarray(self.diff_eq_func(*diff_eq_func_args))
+            # TODO : This could be slow for large # coords/speeds.
+            for i in range(len(coord_names)):
+                diff_eq_func_arg_vals[coord_idxs[i]] = x[i]
+            for i in range(len(speed_names)):
+                diff_eq_func_arg_vals[speed_idxs[i]] = x[i + len(speed_names)]
+            return np.asarray(self.diff_eq_func(*diff_eq_func_arg_vals))
 
         return eval_rhs
 
     def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
 
-        x0 = list(self.coordinates.values())[0]
-        v0 = list(self.speeds.values())[0]
+        x0 = list(self.coordinates.values())
+        v0 = list(self.speeds.values())
 
-        initial_conditions = np.array([x0, v0])
+        initial_conditions = np.hstack((x0, v0))
 
         method_name = '_integrate_with_{}'.format(integrator)
         integrator_method = getattr(self, method_name)
@@ -154,11 +161,25 @@ class SingleDoFNonLinearSystem(_System):
     def _generate_state_trajectories(self, times):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
-        int_res = self._integrate_equations_of_motion(times)
 
-        res = self._array_rhs_eval_func(int_res.T, times)
+        # rows correspond to the states
+        int_res = self._integrate_equations_of_motion(times).T
 
-        return int_res[:, 0], int_res[:, 1], res[1, :]
+        # rows correspond to the derivatives of the states
+        res = self._array_rhs_eval_func(int_res, times)
+
+        num_coords = len(self.coordinates.keys())
+
+        pos = int_res[:num_coords]
+        vel = int_res[num_coords:]
+        acc = res[num_coords:]
+
+        return pos, vel, acc
+
+
+# NOTE : For now, these classes are the same.
+class SingleDoFNonLinearSystem(MultiDoFNonLinearSystem):
+    pass
 
 
 class ClockPendulumSystem(SingleDoFNonLinearSystem):

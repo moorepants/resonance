@@ -7,6 +7,7 @@ from matplotlib.patches import Circle, Rectangle
 import numpy as np
 
 from .system import System as _System
+from .system import _SingleDoFCoordinatesDict
 
 
 class SingleDoFLinearSystem(_System):
@@ -17,6 +18,11 @@ class SingleDoFLinearSystem(_System):
     def __init__(self):
 
         super(SingleDoFLinearSystem, self).__init__()
+
+        self._coordinates = _SingleDoFCoordinatesDict({})
+        self._speeds = _SingleDoFCoordinatesDict({})
+        self._measurements._coordinates = self._coordinates
+        self._measurements._speeds = self._speeds
 
         self._canonical_coeffs_func = None
 

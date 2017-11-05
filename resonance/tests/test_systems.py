@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pytest
 
 from ..system import (System, _ConstantsDict, _MeasurementsDict,
-                      _CoordinatesDict, _StatesDict)
+                      _SingleDoFCoordinatesDict, _StatesDict)
 
 
 def test_nonvalid_parameters_key():
@@ -29,23 +29,30 @@ def test_setting_measurements_item():
 
 
 def test_setting_coordinates_item():
-    m = _CoordinatesDict({})
-    with pytest.raises(ValueError):
-        m['a '] = 12.0
+    c = _SingleDoFCoordinatesDict({})
 
+    # not a python identifier
     with pytest.raises(ValueError):
-        m['time'] = 12.0
+        c['a '] = 12.0
 
+    # reserved variable name
     with pytest.raises(ValueError):
-        m['time__hist'] = 12.0
+        c['time'] = 12.0
 
-    m['first_key'] = 12.0
+    # reserved variable name
     with pytest.raises(ValueError):
-        m['second_key'] = 12.0
+        c['time__hist'] = 12.0
 
-    if 'first_key' in m:
-        pass
-    del m['first_key']
+    # can only add one coordinate
+    c['first_key'] = 12.0
+    with pytest.raises(ValueError):
+        c['second_key'] = 12.0
+
+    assert 'first_key' in c
+
+    del c['first_key']
+
+    assert 'first_key' not in c
 
 
 def test_setting_state_item():
