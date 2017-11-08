@@ -469,7 +469,7 @@ def test_multi_dof_linear_system():
     sys.speeds['v1'] = 0.0  # m/s
     sys.speeds['v2'] = 0.0  # m/s
 
-    def coeff_func(m1, m2, k1, k2, x1, x2, v1, v2):
+    def coeff_func(m1, m2, k1, k2):
 
         # this is the eom of a simple serial spring mass system sliding on
         # ground
@@ -496,15 +496,15 @@ def test_multi_dof_linear_system():
 
     sys.free_response(2.0)
 
-    sys.constants['w1'] = np.pi / 10  # rad/s
-    sys.constants['w2'] = np.pi / 20  # rad/s
-    sys.constants['f1'] = 1.0  # N
-    sys.constants['f2'] = 0.5  # N
-
-    def forcing_func(w1, w2, f1, f2, time):
-        return np.array([[f1 * np.cos(w1 * time)],
-                         [f2 * np.cos(w2 * time)]])
-
-    sys.forcing_func = forcing_func
-
-    sys.forced_response(2.0)
+    #sys.constants['w1'] = np.pi / 10  # rad/s
+    #sys.constants['w2'] = np.pi / 20  # rad/s
+    #sys.constants['f1'] = 1.0  # N
+    #sys.constants['f2'] = 0.5  # N
+#
+    #def forcing_func(w1, w2, f1, f2, time):
+        #return np.array([[f1 * np.cos(w1 * time)],
+                         #[f2 * np.cos(w2 * time)]])
+#
+    #sys.forcing_func = forcing_func
+#
+    #sys.forced_response(2.0)

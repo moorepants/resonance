@@ -8,12 +8,11 @@ import numpy as np
 
 from .system import System as _System
 from .system import _SingleDoFCoordinatesDict
+from .nonlinear_systems import MultiDoFNonLinearSystem as _MDNLS
 
 
 class _LinearSystem(_System):
-    """This is the abstract base class for any linear system. It can be
-    sub-classed to make a custom system or the necessary methods can be added
-    dynamically."""
+    """This is the abstract base class for any linear system."""
 
     def __init__(self):
 
@@ -697,6 +696,96 @@ class SingleDoFLinearSystem(_LinearSystem):
         axes[1].set_xlabel('Forcing Frequency, $\omega$, [rad/s]')
 
         return axes
+
+
+class MultiDoFLinearSystem(_MDNLS):
+    def __init__(self):
+
+        super(MultiDoFLinearSystem, self).__init__()
+
+        self._canonical_coeffs_func = None
+        self._forcing_func = None
+        self._compute_forcing = False
+
+    @property
+    def canonical_coeffs_func(self):
+        return self._canonical_coeffs_func
+
+    @canonical_coeffs_func.setter
+    def canonical_coeffs_func(self, func):
+        self._measurements._check_for_duplicate_keys()
+        for k in getargspec(func).args:
+            # NOTE : Measurements do not have to be time varying.
+            if k not in (list(self.constants.keys()) +
+                         list(self.measurements.keys())):
+                msg = ('The function argument {} is not in constants or '
+                       'measurements. Redefine your function in terms of '
+                       'non-time varying parameters.')
+                raise ValueError(msg.format(k))
+        self._canonical_coeffs_func = func
+
+    def _canonical_coefficients(self):
+        if self.canonical_coeffs_func is None:
+            msg = ('There is no function available to calculate the canonical'
+                   ' coeffcients.')
+            raise ValueError(msg)
+        else:
+            f = self.canonical_coeffs_func
+            args = [self._get_par_vals(k) for k in getargspec(f).args]
+            return f(*args)
+
+    def _form_A_B(self):
+
+        M, C, K = self._canonical_coefficients()
+
+        num_states = len(self.states)
+        num_coords = len(self.coordinates)
+        num_speeds = len(self.speeds)
+
+        # A = [0       I     ] x = [coords]
+        #     [M^-1 K  M^-1 C]     [speeds]
+        # B = [0]    u = [0]
+        #     [M^-1]     [generalized forces]
+
+        A = np.zeros((num_states, num_states))
+        A[:num_coords, num_coords:] = np.eye(num_coords)
+        A[num_coords:, :num_coords] = np.linalg.solve(M, -K)
+        A[num_coords:, num_coords:] = np.linalg.solve(M, -C)
+
+        B = np.zeros((num_states, num_speeds))
+        # wouldn't this be better to do np.linalg.solve(M, self.forcing())
+        B[num_coords:] = np.linalg.inv(M)
+
+        return A, B
+
+    def _eval_forcing(self):
+        if self._compute_forcing:
+            arg_names = getargspec(self.forcing_func).args
+            arg_vals = [self._get_par_vals(k) for k in arg_names]
+            return self.forcing_func(*arg_vals)
+        else:
+            return np.zeros((len(self.speeds), 1))
+
+    @property
+    def _array_rhs_eval_func(self):
+
+        A, B = self._form_A_B()
+
+        def eval_rhs(x, t):
+            F = self._eval_forcing()
+            if len(x.shape) > 1:
+                if x.shape[-1] != F.shape[-1]:
+                    F = F.repeat(x.shape[-1], axis=1)
+            return A @ x #+ B @ F
+
+        return eval_rhs
+
+    def _forced_response(self, *args, **kwargs):
+        self._compute_forcing = True
+        traj = self.free_response(*args, **kwargs)
+        self._compute_forcing = False
+        return traj
+
 
 class BookOnCupSystem(SingleDoFLinearSystem):
     """This system represents dynamics of a typical engineering textbook set
