@@ -47,7 +47,7 @@ class MultiDoFNonLinearSystem(_System):
         >>> sys = SingleDoFNonLinearSystem()
         >>> sys.constants['gravity'] = 9.8  # m/s**2
         >>> sys.constants['length'] = 1.0  # m
-        >>> sys.constnats['mass'] = 0.5  # kg
+        >>> sys.constants['mass'] = 0.5  # kg
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> def rhs(theta, omega, gravity, length, mass):
