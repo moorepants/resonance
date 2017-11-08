@@ -11954,7 +11954,7 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      &gt;&gt;&gt; sys = SingleDoFNonLinearSystem()
  |      &gt;&gt;&gt; sys.constants[&#39;gravity&#39;] = 9.8  # m/s**2
  |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 1.0  # m
- |      &gt;&gt;&gt; sys.constnats[&#39;mass&#39;] = 0.5  # kg
+ |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 0.5  # kg
  |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
  |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
  |      &gt;&gt;&gt; def rhs(theta, omega, gravity, length, mass):
@@ -18463,29 +18463,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_img2116768b4ff24039b841b2e43171584b">
+    <img id="_anim_img60ecea244d1745e8b099d742ecd10117">
     <br>
-    <input id="_anim_slider2116768b4ff24039b841b2e43171584b" type="range" style="width:350px"
+    <input id="_anim_slider60ecea244d1745e8b099d742ecd10117" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="anim2116768b4ff24039b841b2e43171584b.set_frame(parseInt(this.value));"></input>
+           onchange="anim60ecea244d1745e8b099d742ecd10117.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.previous_frame()">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.reverse_animation()">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.pause_animation()"><i class="fa fa-pause">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="anim2116768b4ff24039b841b2e43171584b.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_select2116768b4ff24039b841b2e43171584b" class="anim_control">
+    <button onclick="anim60ecea244d1745e8b099d742ecd10117.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_select60ecea244d1745e8b099d742ecd10117" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -18500,9 +18500,9 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_img2116768b4ff24039b841b2e43171584b";
-    var slider_id = "_anim_slider2116768b4ff24039b841b2e43171584b";
-    var loop_select_id = "_anim_loop_select2116768b4ff24039b841b2e43171584b";
+    var img_id = "_anim_img60ecea244d1745e8b099d742ecd10117";
+    var slider_id = "_anim_slider60ecea244d1745e8b099d742ecd10117";
+    var loop_select_id = "_anim_loop_select60ecea244d1745e8b099d742ecd10117";
     var frames = new Array(0);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -43061,7 +43061,7 @@ GADAlggwAIAtEWAAAFsiwAAAtkSAAQBs6f8B9fg3pZjkBc4AAAAASUVORK5CYII=\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anim2116768b4ff24039b841b2e43171584b = new Animation(frames, img_id, slider_id, 16.0,
+        anim60ecea244d1745e8b099d742ecd10117 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
