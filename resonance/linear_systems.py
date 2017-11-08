@@ -11,25 +11,15 @@ from .system import _SingleDoFCoordinatesDict
 
 
 class _LinearSystem(_System):
-    """This is the abstract base class for any single degree of freedom linear
-    system. It can be sub-classed to make a custom system or the necessary
-    methods can be added dynamically."""
+    """This is the abstract base class for any linear system. It can be
+    sub-classed to make a custom system or the necessary methods can be added
+    dynamically."""
 
     def __init__(self):
 
-        super(SingleDoFLinearSystem, self).__init__()
-
-        self._coordinates = _SingleDoFCoordinatesDict({})
-        self._speeds = _SingleDoFCoordinatesDict({})
-        self._measurements._coordinates = self._coordinates
-        self._measurements._speeds = self._speeds
+        super(_LinearSystem, self).__init__()
 
         self._canonical_coeffs_func = None
-
-    def _initial_conditions(self):
-        x0 = list(self.coordinates.values())[0]
-        v0 = list(self.speeds.values())[0]
-        return x0, v0
 
     @property
     def canonical_coeffs_func(self):
@@ -89,6 +79,38 @@ class _LinearSystem(_System):
                        'non-time varying parameters.')
                 raise ValueError(msg.format(k))
         self._canonical_coeffs_func = func
+
+    def _canonical_coefficients(self):
+        if self.canonical_coeffs_func is None:
+            msg = ('There is no function available to calculate the canonical'
+                   ' coeffcients.')
+            raise ValueError(msg)
+        else:
+            f = self.canonical_coeffs_func
+            args = [self._get_par_vals(k) for k in getargspec(f).args]
+            return f(*args)
+
+
+class SingleDoFLinearSystem(_LinearSystem):
+    """This is the abstract base class for any single degree of freedom linear
+    system. It can be sub-classed to make a custom system or the necessary
+    methods can be added dynamically."""
+
+    def __init__(self):
+
+        super(_LinearSystem, self).__init__()
+
+        self._coordinates = _SingleDoFCoordinatesDict({})
+        self._speeds = _SingleDoFCoordinatesDict({})
+        self._measurements._coordinates = self._coordinates
+        self._measurements._speeds = self._speeds
+
+        self._canonical_coeffs_func = None
+
+    def _initial_conditions(self):
+        x0 = list(self.coordinates.values())[0]
+        v0 = list(self.speeds.values())[0]
+        return x0, v0
 
     @staticmethod
     def _natural_frequency(mass, stiffness):
@@ -310,6 +332,12 @@ class _LinearSystem(_System):
 
         return pos, vel, acc
 
+    def _generate_state_trajectories(self, times):
+
+        sol_func = self._solution_func()
+
+        return sol_func(times)
+
     def period(self):
         """Returns the (damped) period of oscillation of the coordinate in
         seconds."""
@@ -320,22 +348,6 @@ class _LinearSystem(_System):
             return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
         else:
             return np.inf
-
-    def _generate_state_trajectories(self, times):
-
-        sol_func = self._solution_func()
-
-        return sol_func(times)
-
-    def _canonical_coefficients(self):
-        if self.canonical_coeffs_func is None:
-            msg = ('There is no function available to calculate the canonical'
-                   ' coeffcients.')
-            raise ValueError(msg)
-        else:
-            f = self.canonical_coeffs_func
-            args = [self._get_par_vals(k) for k in getargspec(f).args]
-            return f(*args)
 
     def _periodic_forcing_steady_state(self, a0, an, bn, wT, t):
 
@@ -685,7 +697,6 @@ class _LinearSystem(_System):
         axes[1].set_xlabel('Forcing Frequency, $\omega$, [rad/s]')
 
         return axes
-
 
 class BookOnCupSystem(SingleDoFLinearSystem):
     """This system represents dynamics of a typical engineering textbook set
@@ -1369,7 +1380,3 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
             return sprung_mass, suspension_damping, suspension_stiffness
 
         self.canonical_coeffs_func = coeffs
-
-
-class SingleDoFLinearSystem(_LinearSystem):
-    pass
