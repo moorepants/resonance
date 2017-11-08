@@ -10,7 +10,7 @@ from .system import System as _System
 from .system import _SingleDoFCoordinatesDict
 
 
-class SingleDoFLinearSystem(_System):
+class _LinearSystem(_System):
     """This is the abstract base class for any single degree of freedom linear
     system. It can be sub-classed to make a custom system or the necessary
     methods can be added dynamically."""
@@ -1369,3 +1369,7 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
             return sprung_mass, suspension_damping, suspension_stiffness
 
         self.canonical_coeffs_func = coeffs
+
+
+class SingleDoFLinearSystem(_LinearSystem):
+    pass
