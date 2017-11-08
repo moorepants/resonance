@@ -11933,13 +11933,14 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      equations. This equation looks like the following for linear motion:
  |      
  |          dy
- |          -- = f(t, y, p1, p2, ..., pO)
+ |          -- = f(t, q1, ..., qn, u1, ..., un, p1, p2, ..., pO)
  |          dt
  |      
  |      where:
  |      
  |          - t: a time value
- |          - y: a vector containing the coordinate value and the speed value
+ |          - q: the coordinates
+ |          - u: the speeds
  |          - p: any number of constants or measurements, O is the number of
  |            constants.
  |      
@@ -11948,6 +11949,9 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      Your function should be able to operate on 1d arrays as inputs, i.e.
  |      use numpy math functions in your function, e.g. ``numpy.sin`` instead
  |      of ``math.sin``.
+ |      
+ |      The function has to return the derivatives of the states in the order
+ |      of the ``state`` attribute.
  |      
  |      Example
  |      =======
@@ -18463,29 +18467,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_img60ecea244d1745e8b099d742ecd10117">
+    <img id="_anim_img0096ffc4763d40a1b4466cb8cf991099">
     <br>
-    <input id="_anim_slider60ecea244d1745e8b099d742ecd10117" type="range" style="width:350px"
+    <input id="_anim_slider0096ffc4763d40a1b4466cb8cf991099" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="anim60ecea244d1745e8b099d742ecd10117.set_frame(parseInt(this.value));"></input>
+           onchange="anim0096ffc4763d40a1b4466cb8cf991099.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.previous_frame()">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.reverse_animation()">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.pause_animation()"><i class="fa fa-pause">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="anim60ecea244d1745e8b099d742ecd10117.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_select60ecea244d1745e8b099d742ecd10117" class="anim_control">
+    <button onclick="anim0096ffc4763d40a1b4466cb8cf991099.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_select0096ffc4763d40a1b4466cb8cf991099" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -18500,9 +18504,9 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_img60ecea244d1745e8b099d742ecd10117";
-    var slider_id = "_anim_slider60ecea244d1745e8b099d742ecd10117";
-    var loop_select_id = "_anim_loop_select60ecea244d1745e8b099d742ecd10117";
+    var img_id = "_anim_img0096ffc4763d40a1b4466cb8cf991099";
+    var slider_id = "_anim_slider0096ffc4763d40a1b4466cb8cf991099";
+    var loop_select_id = "_anim_loop_select0096ffc4763d40a1b4466cb8cf991099";
     var frames = new Array(0);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -43061,7 +43065,7 @@ GADAlggwAIAtEWAAAFsiwAAAtkSAAQBs6f8B9fg3pZjkBc4AAAAASUVORK5CYII=\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anim60ecea244d1745e8b099d742ecd10117 = new Animation(frames, img_id, slider_id, 16.0,
+        anim0096ffc4763d40a1b4466cb8cf991099 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
