@@ -10,7 +10,7 @@ from .system import System as _System
 
 class MultiDoFNonLinearSystem(_System):
     """This is the abstract base class for any single degree of freedom
-    nonlinear system.  It can be sub-classed to make a custom system or the
+    nonlinear system. It can be sub-classed to make a custom system or the
     necessary methods can be added dynamically."""
 
     def __init__(self):
@@ -26,13 +26,14 @@ class MultiDoFNonLinearSystem(_System):
         equations. This equation looks like the following for linear motion:
 
             dy
-            -- = f(t, y, p1, p2, ..., pO)
+            -- = f(t, q1, ..., qn, u1, ..., un, p1, p2, ..., pO)
             dt
 
         where:
 
             - t: a time value
-            - y: a vector containing the coordinate value and the speed value
+            - q: the coordinates
+            - u: the speeds
             - p: any number of constants or measurements, O is the number of
               constants.
 
@@ -41,6 +42,9 @@ class MultiDoFNonLinearSystem(_System):
         Your function should be able to operate on 1d arrays as inputs, i.e.
         use numpy math functions in your function, e.g. ``numpy.sin`` instead
         of ``math.sin``.
+
+        The function has to return the derivatives of the states in the order
+        of the ``state`` attribute.
 
         Example
         =======
