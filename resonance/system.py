@@ -471,9 +471,9 @@ class System(object):
         data = {}
         for i, c_name in enumerate(list(self.coordinates.keys())):
             data[c_name] = pos[i]
+            data[c_name + self._acc_append] = acc[i]
         for i, s_name in enumerate(list(self.speeds.keys())):
             data[s_name] = vel[i]
-            data[s_name + self._acc_append] = acc[i]
         df = pd.DataFrame(data, index=times)
         df.index.name = self._time_var_name
 
