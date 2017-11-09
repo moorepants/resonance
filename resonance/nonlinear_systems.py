@@ -5,7 +5,7 @@ import scipy as sp
 import scipy.integrate  # scipy doesn't import automatically
 import matplotlib as mp
 
-from .system import System as _System
+from .system import System as _System, _SingleDoFCoordinatesDict
 
 
 class MultiDoFNonLinearSystem(_System):
@@ -43,8 +43,8 @@ class MultiDoFNonLinearSystem(_System):
         use numpy math functions in your function, e.g. ``numpy.sin`` instead
         of ``math.sin``.
 
-        The function has to return the derivatives of the states in the order
-        of the ``state`` attribute.
+        **The function has to return the derivatives of the states in the order
+        of the ``state`` attribute.**
 
         Example
         =======
@@ -54,6 +54,8 @@ class MultiDoFNonLinearSystem(_System):
         >>> sys.constants['mass'] = 0.5  # kg
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
+        >>> sys.states
+        {'theta': 0.3, 'omega': 0.0}  # note the order!
         >>> def rhs(theta, omega, gravity, length, mass):
         >>>     # Represents a linear model of a simple pendulum:
         ...     #  m * l**2 ω' + m * g * l * sin(θ) = 0
@@ -72,12 +74,9 @@ class MultiDoFNonLinearSystem(_System):
         # system.
         [self._get_par_vals(k) for k in getargspec(func).args]
         self._diff_eq_func = func
+        self._ode_eval_func = self._generate_array_rhs_eval_func()
 
-    @property
-    def _array_rhs_eval_func(self):
-
-        # TODO : All of this indexing could be moved to the the
-        # diff_eq_func.setter to same computation time.
+    def _generate_array_rhs_eval_func(self):
 
         diff_eq_func_arg_names = getargspec(self.diff_eq_func).args
         diff_eq_func_arg_vals = [self._get_par_vals(k) for k in
@@ -95,7 +94,17 @@ class MultiDoFNonLinearSystem(_System):
                 diff_eq_func_arg_vals[coord_idxs[i]] = x[i]
             for i in range(len(speed_names)):
                 diff_eq_func_arg_vals[speed_idxs[i]] = x[i + len(speed_names)]
-            return np.asarray(self.diff_eq_func(*diff_eq_func_arg_vals))
+            return np.atleast_1d(self.diff_eq_func(*diff_eq_func_arg_vals))
+
+        x_test = np.random.random(len(self.states))
+        t_test = float(np.random.random(1))
+        xd_test = eval_rhs(x_test, t_test)
+
+        if len(xd_test) != len(self.states):
+            msg = ('Your diff_eq_func does not return the correct number of '
+                   'state derivatives. Make sure the number and order of the '
+                   'states match the derivatives of the states you return.')
+            raise ValueError(msg)
 
         return eval_rhs
 
@@ -123,7 +132,7 @@ class MultiDoFNonLinearSystem(_System):
             The monotonically increasing time values.
 
         """
-        return sp.integrate.odeint(self._array_rhs_eval_func,
+        return sp.integrate.odeint(self._ode_eval_func,
                                    initial_conditions, times)
 
     def _integrate_with_rungakutta4(self, initial_conditions, times):
@@ -159,20 +168,27 @@ class MultiDoFNonLinearSystem(_System):
         x[0, :] = initial_conditions
         for i in range(1, len(times)):
             dt = times[i] - times[i-1]
-            x[i] = _rk4(times[i], dt, x[i-1], self._array_rhs_eval_func)
+            x[i] = _rk4(times[i], dt, x[i-1], self._ode_eval_func)
         return x
 
-    def _generate_state_trajectories(self, times):
+    def _generate_state_trajectories(self, times, integrator='rungakutta4'):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
 
         # rows correspond to the states
-        int_res = self._integrate_equations_of_motion(times).T
+        int_res = self._integrate_equations_of_motion(times,
+                                                      integrator=integrator).T
 
         # rows correspond to the derivatives of the states
-        res = self._array_rhs_eval_func(int_res, times)
+        res = self._ode_eval_func(int_res, times)
 
-        num_coords = len(self.coordinates.keys())
+        num_coords = len(self.coordinates)
+        num_speeds = len(self.speeds)
+
+        if num_coords != num_speeds:
+            msg = ('You do not have the same number of coordinates as you do '
+                   'speeds. There should be one speed for each coordinate.')
+            raise ValueError(msg)
 
         pos = int_res[:num_coords]
         vel = int_res[num_coords:]
@@ -181,9 +197,16 @@ class MultiDoFNonLinearSystem(_System):
         return pos, vel, acc
 
 
-# NOTE : For now, these classes are the same.
 class SingleDoFNonLinearSystem(MultiDoFNonLinearSystem):
-    pass
+
+    def __init__(self):
+
+        super(SingleDoFNonLinearSystem, self).__init__()
+
+        self._coordinates = _SingleDoFCoordinatesDict({})
+        self._speeds = _SingleDoFCoordinatesDict({})
+        self._measurements._coordinates = self._coordinates
+        self._measurements._speeds = self._speeds
 
 
 class ClockPendulumSystem(SingleDoFNonLinearSystem):
