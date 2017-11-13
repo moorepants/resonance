@@ -86,12 +86,14 @@ class MultiDoFNonLinearSystem(_System):
         speed_idxs = [diff_eq_func_arg_names.index(n) for n in speed_names]
 
         def eval_rhs(x, t):
+            # x is either shape(2n, 1) or shape(2n, 1, m)
+            # t is either float or shape(m,)
             # TODO : This could be slow for large # coords/speeds.
             for i in range(len(coord_names)):
-                diff_eq_func_arg_vals[coord_idxs[i]] = x[i]
+                diff_eq_func_arg_vals[coord_idxs[i]] = np.squeeze(x[i])
             for i in range(len(speed_names)):
-                diff_eq_func_arg_vals[speed_idxs[i]] = x[i + len(speed_names)]
-            return np.asarray(self.diff_eq_func(*diff_eq_func_arg_vals))
+                diff_eq_func_arg_vals[speed_idxs[i]] = np.squeeze(x[i + len(coord_names)])
+            return  np.atleast_2d(self.diff_eq_func(*diff_eq_func_arg_vals))
 
         return eval_rhs
 
@@ -142,19 +144,24 @@ class MultiDoFNonLinearSystem(_System):
 
         def _rk4(t, dt, x, f, args=None):
             """4th-order Runge-Kutta integration step."""
-            x = np.asarray(x)
+            # x.shape = (2n, 1)
+            # f returns shape = (2n, 1)
+            # t is a float or t.shape = (m,)
+            # dt is a float
             if args is None:
                 args = []
-            k1 = np.asarray(f(x, t, *args))
-            k2 = np.asarray(f(x + 0.5*dt*k1, t + 0.5*dt, *args))
-            k3 = np.asarray(f(x + 0.5*dt*k2, t + 0.5*dt, *args))
-            k4 = np.asarray(f(x + dt*k3, t + dt, *args))
+            k1 = f(x, t, *args)
+            k2 = f(x + 0.5*dt*k1, t + 0.5*dt, *args)
+            k3 = f(x + 0.5*dt*k2, t + 0.5*dt, *args)
+            k4 = f(x + dt*k3, t + dt, *args)
             return x + dt*(k1 + 2*k2 + 2*k3 + k4)/6.0
 
-        x = np.zeros((len(times), len(initial_conditions)))
-        x[0, :] = initial_conditions
+        # m x 2n x 1
+        x = np.zeros((len(times), len(initial_conditions), 1))
+        x[0, :, 0] = initial_conditions
         for i in range(1, len(times)):
             dt = times[i] - times[i-1]
+            # x[i] is 2n x 1
             x[i] = _rk4(times[i], dt, x[i-1], self._array_rhs_eval_func)
         return x
 
@@ -162,17 +169,25 @@ class MultiDoFNonLinearSystem(_System):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
 
-        # rows correspond to the states
-        int_res = self._integrate_equations_of_motion(times).T
+        # m : num time samples
+        # n : num coordinates/speeds
 
-        # rows correspond to the derivatives of the states
-        res = self._array_rhs_eval_func(int_res, times)
+        # rows correspond to time, columns to states (m x 2n x 1)
+        int_res = self._integrate_equations_of_motion(times)
+
+        assert int_res.shape == (len(times), len(self.states), 1)
+
+        # rows correspond to time, columns to deriv of the states (m x 2n x 1)
+        res = self._array_rhs_eval_func(int_res.swapaxes(0, 1), times)
+        res = res.swapaxes(0, 1)
+
+        assert res.shape == (len(times), len(self.states), 1)
 
         num_coords = len(self.coordinates.keys())
 
-        pos = int_res[:num_coords]
-        vel = int_res[num_coords:]
-        acc = res[num_coords:]
+        pos = int_res[:, :num_coords, 0].T  # n x m
+        vel = int_res[:, num_coords:, 0].T  # n x m
+        acc = res[:, num_coords:, 0].T  # n x m
 
         return pos, vel, acc
 

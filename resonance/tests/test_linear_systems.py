@@ -479,14 +479,14 @@ def test_multi_dof_linear_system():
         # C @ np.array([sys.speeds.keys()]) should work
         # K @ np.array([sys.coordinates.keys()]) should work
 
-        # mass matrix
+        # mass matrix 2 x 2
         M = np.array([[m1, 0],
                       [0, m2]])
 
-        # damping matrix
+        # damping matrix 2 x 2
         C = np.zeros_like(M)
 
-        # stiffness matrix
+        # stiffness matrix 2 x 2
         K = np.array([[k1 + k2, -k2],
                       [-k2, k2]])
 
@@ -496,15 +496,25 @@ def test_multi_dof_linear_system():
 
     sys.free_response(2.0)
 
-    #sys.constants['w1'] = np.pi / 10  # rad/s
-    #sys.constants['w2'] = np.pi / 20  # rad/s
-    #sys.constants['f1'] = 1.0  # N
-    #sys.constants['f2'] = 0.5  # N
-#
-    #def forcing_func(w1, w2, f1, f2, time):
-        #return np.array([[f1 * np.cos(w1 * time)],
-                         #[f2 * np.cos(w2 * time)]])
-#
-    #sys.forcing_func = forcing_func
-#
-    #sys.forced_response(2.0)
+    sys.constants['w1'] = np.pi / 10  # rad/s
+    sys.constants['w2'] = np.pi / 20  # rad/s
+    sys.constants['f1'] = 1.0  # N
+    sys.constants['f2'] = 0.5  # N
+
+    def forcing_func(w1, w2, f1, f2, time):
+        # should this be shape (2,) or shape (2,1)? or both
+        return np.array([[f1 * np.cos(w1 * time)],
+                         [f2 * np.cos(w2 * time)]])
+
+    sys.forcing_func = forcing_func
+
+    sys.forced_response(2.0)
+
+    def forcing_func(w1, w2, f1, f2, time):
+        # should this be shape (2,) or shape (2,1)? or both
+        return np.array([f1 * np.cos(w1 * time),
+                         f2 * np.cos(w2 * time)])
+
+    sys.forcing_func = forcing_func
+
+    sys.forced_response(2.0)

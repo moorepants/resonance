@@ -742,29 +742,35 @@ class MultiDoFLinearSystem(_MDNLS):
         num_coords = len(self.coordinates)
         num_speeds = len(self.speeds)
 
-        # A = [0       I     ] x = [coords]
-        #     [M^-1 K  M^-1 C]     [speeds]
+        assert M.shape == (num_speeds, num_speeds)
+        assert C.shape == (num_speeds, num_speeds)
+        assert K.shape == (num_coords, num_coords)
+
+        # A = [0         I     ] x = [coords]
+        #     [-M^-1 K  -M^-1 C]     [speeds]
         # B = [0]    u = [0]
         #     [M^-1]     [generalized forces]
 
         A = np.zeros((num_states, num_states))
         A[:num_coords, num_coords:] = np.eye(num_coords)
-        A[num_coords:, :num_coords] = np.linalg.solve(M, -K)
-        A[num_coords:, num_coords:] = np.linalg.solve(M, -C)
+        A[num_coords:, :num_coords] = -np.linalg.solve(M, K)
+        A[num_coords:, num_coords:] = -np.linalg.solve(M, C)
 
-        B = np.zeros((num_states, num_speeds))
+        B = np.zeros((num_states, num_states))
         # wouldn't this be better to do np.linalg.solve(M, self.forcing())
-        B[num_coords:] = np.linalg.inv(M)
+        B[num_coords:, num_coords:] = np.linalg.inv(M)
 
         return A, B
 
     def _eval_forcing(self):
+        u = np.zeros((len(self.states), 1))
         if self._compute_forcing:
             arg_names = getargspec(self.forcing_func).args
             arg_vals = [self._get_par_vals(k) for k in arg_names]
-            return self.forcing_func(*arg_vals)
+            u[len(self.coordinates):] = np.atleast_2d(self.forcing_func(*arg_vals))
+            return u
         else:
-            return np.zeros((len(self.speeds), 1))
+            return u
 
     @property
     def _array_rhs_eval_func(self):
@@ -772,15 +778,13 @@ class MultiDoFLinearSystem(_MDNLS):
         A, B = self._form_A_B()
 
         def eval_rhs(x, t):
-            F = self._eval_forcing()
-            if len(x.shape) > 1:
-                if x.shape[-1] != F.shape[-1]:
-                    F = F.repeat(x.shape[-1], axis=1)
-            return A @ x #+ B @ F
+            u = self._eval_forcing()
+            # (2n x 2n) * (2n x 1) + (2n x 2n) * (2n x 1)
+            return A @ x + B @ u
 
         return eval_rhs
 
-    def _forced_response(self, *args, **kwargs):
+    def forced_response(self, *args, **kwargs):
         self._compute_forcing = True
         traj = self.free_response(*args, **kwargs)
         self._compute_forcing = False

@@ -128,8 +128,14 @@ def test_multi_dof_nonlinear_system():
     sys.coordinates['x2'] = 0.2  # m
     sys.coordinates['x1'] = 0.1  # m
 
+    # should be in order of entry
+    assert list(sys.coordinates.keys()) == ['x2', 'x1']
+
     sys.speeds['v1'] = 0.01  # m/s
     sys.speeds['v2'] = 0.02  # m/s
+
+    # should be in order of entry
+    assert list(sys.speeds.keys()) == ['v1', 'v2']
 
     assert list(sys.states.keys()) == ['x2', 'x1', 'v1', 'v2']
 
