@@ -463,6 +463,7 @@ class System(object):
 
     def _state_traj_to_dataframe(self, times, pos, vel, acc):
 
+        # all should be n x m
         assert pos.shape == (len(self.coordinates), len(times))
         assert vel.shape == (len(self.speeds), len(times))
         assert acc.shape == (len(self.speeds), len(times))

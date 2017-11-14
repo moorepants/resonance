@@ -90,10 +90,10 @@ class MultiDoFNonLinearSystem(_System):
             # t is either float or shape(m,)
             # TODO : This could be slow for large # coords/speeds.
             for i in range(len(coord_names)):
-                diff_eq_func_arg_vals[coord_idxs[i]] = np.squeeze(x[i])
+                diff_eq_func_arg_vals[coord_idxs[i]] = x[i]
             for i in range(len(speed_names)):
-                diff_eq_func_arg_vals[speed_idxs[i]] = np.squeeze(x[i + len(coord_names)])
-            return  np.atleast_2d(self.diff_eq_func(*diff_eq_func_arg_vals))
+                diff_eq_func_arg_vals[speed_idxs[i]] = x[i + len(coord_names)]
+            return np.atleast_2d(self.diff_eq_func(*diff_eq_func_arg_vals))
 
         return eval_rhs
 
@@ -177,9 +177,10 @@ class MultiDoFNonLinearSystem(_System):
 
         assert int_res.shape == (len(times), len(self.states), 1)
 
-        # rows correspond to time, columns to deriv of the states (m x 2n x 1)
-        res = self._array_rhs_eval_func(int_res.swapaxes(0, 1), times)
-        res = res.swapaxes(0, 1)
+        # TODO : Make this work with NumPy broadcasting so loop isn't needed.
+        res = np.zeros_like(int_res)
+        for i, (ti, xi) in enumerate(zip(times, int_res)):
+            res[i] = self._array_rhs_eval_func(xi, ti)
 
         assert res.shape == (len(times), len(self.states), 1)
 
