@@ -5,6 +5,9 @@ Resonance: Learning Mechanical Vibration Engineering Through Computation
 .. image:: https://img.shields.io/pypi/v/resonance.svg
    :target: http://pypi.org/project/resonance
 
+.. image:: https://anaconda.org/conda-forge/resonance/badges/version.svg
+   :target: https://anaconda.org/conda-forge/resonance
+
 .. image:: https://readthedocs.org/projects/resonance/badge/?version=latest
    :target: http://resonance.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status

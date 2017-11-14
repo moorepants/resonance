@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
+import pytest
+from pandas.util.testing import assert_frame_equal
 
 from ..nonlinear_systems import (SingleDoFNonLinearSystem,
                                  MultiDoFNonLinearSystem)
@@ -112,6 +114,49 @@ def test_single_dof_nonlinear_system():
     sys.config_plot_update_func = update_plot
 
 
+def test_sdof_trifilar_pendulum():
+
+    sys = SingleDoFNonLinearSystem()
+
+    sys.constants['m'] = 1  # kg
+    sys.constants['r'] = 0.3  # m
+    sys.constants['l'] = 0.75  # m
+    sys.constants['g'] = 9.81  # m/s**2
+    sys.constants['I'] = 0.3**2  # kg m**2
+
+    sys.coordinates['theta'] = 0.2  # rad
+    with pytest.raises(ValueError):
+        sys.coordinates['omega'] = 0.0  # rad/s
+    sys.speeds['omega'] = 0.0  # rad/s
+
+    def eval_rhs(theta, omega, I, m, r, l, g):
+        return theta
+
+    with pytest.raises(ValueError):  # wrong num of return args in diff_eq_func
+        sys.diff_eq_func = eval_rhs
+
+    def eval_rhs(theta, omega, I, m, r, l, g):
+        theta_dot = omega
+        omega_dot = (-m*r**2*(2*g*(l**2 + 2*r**2*np.cos(theta) -
+                                   2*r**2)**4*np.sin(theta) +
+                     2*r**4*(l**2 + 2*r**2*np.cos(theta) -
+                             2*r**2)**(5/2)*omega**2*np.sin(theta)**3 +
+                     r**2*(l**2 + 2*r**2*np.cos(theta) -
+                           2*r**2)**(7/2)*omega**2*np.sin(2*theta)) /
+                     (2*(I*(l**2 + 2*r**2*np.cos(theta) - 2*r**2) +
+                         m*r**4*np.sin(theta)**2)*(l**2 + 2*r**2*np.cos(theta) -
+                                                   2*r**2)**(7/2)))
+        return theta_dot, omega_dot
+
+    sys.diff_eq_func = eval_rhs
+
+    traj = sys.free_response(2.0)
+
+    assert 'theta' in traj.columns
+    assert 'omega' in traj.columns
+    assert 'theta_acc' in traj.columns
+
+
 def test_multi_dof_nonlinear_system():
 
     sys = MultiDoFNonLinearSystem()
@@ -131,6 +176,8 @@ def test_multi_dof_nonlinear_system():
     # should be in order of entry
     assert list(sys.coordinates.keys()) == ['x2', 'x1']
 
+    # TODO : How do we know which speed corresponds to which coordinate
+    # derivative?
     sys.speeds['v1'] = 0.01  # m/s
     sys.speeds['v2'] = 0.02  # m/s
 
@@ -153,13 +200,17 @@ def test_multi_dof_nonlinear_system():
 
     sys.diff_eq_func = rhs
 
-    sys._array_rhs_eval_func([0.1, 0.2, 0.01, 0.02], 0.1)
+    sys._ode_eval_func([0.1, 0.2, 0.01, 0.02], 0.1)
 
-    sys._array_rhs_eval_func(np.array([[0.1, 0.2, 0.01, 0.02],
-                                       [0.1, 0.2, 0.01, 0.02]]).T,
-                             [0.1, 0.2])
+    sys._ode_eval_func(np.array([[0.1, 0.2, 0.01, 0.02],
+                                 [0.1, 0.2, 0.01, 0.02]]).T,
+                       [0.1, 0.2])
 
     traj = sys.free_response(5.0)
 
     for s in sys.states.keys():
         assert s in traj.columns
+
+    traj2 = sys.free_response(5.0, integrator='lsoda')
+
+    assert_frame_equal(traj, traj2, check_less_precise=True)
