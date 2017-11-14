@@ -78,35 +78,50 @@ class MultiDoFNonLinearSystem(_System):
 
     def _generate_array_rhs_eval_func(self):
 
-        diff_eq_func_arg_names = getargspec(self.diff_eq_func).args
-        diff_eq_func_arg_vals = [self._get_par_vals(k) for k in
-                                 diff_eq_func_arg_names]
+        arg_names = getargspec(self.diff_eq_func).args
+        arg_vals = [self._get_par_vals(k) for k in arg_names]
+
+        msg = ('Your diff_eq_func does not return the correct number of '
+               'state derivatives. Make sure the number and order of the '
+               'states match the derivatives of the states you return.')
+        res = self.diff_eq_func(*arg_vals)
+        try:
+            len(res)
+        except TypeError:  # returns a single value, must return at least 2
+            raise ValueError(msg)
+        else:
+            if len(res) != len(self.states):
+                raise ValueError(msg)
 
         coord_names = list(self.coordinates.keys())
         speed_names = list(self.speeds.keys())
 
-        coord_idxs = [diff_eq_func_arg_names.index(n) for n in coord_names]
-        speed_idxs = [diff_eq_func_arg_names.index(n) for n in speed_names]
+        coord_idxs = [arg_names.index(n) for n in coord_names]
+        speed_idxs = [arg_names.index(n) for n in speed_names]
+
+        if 'time' in arg_names:
+            time_idx = arg_names.index('time')
+        else:
+            time_idx = None
 
         def eval_rhs(x, t):
-            # x is either shape(2n, 1) or shape(2n, 1, m)
+            # x is either shape(1, 2n), shape(m, 2n), shape(1, 2n, 1) or shape(m, 2n, 1)
             # t is either float or shape(m,)
             # TODO : This could be slow for large # coords/speeds.
             for i in range(len(coord_names)):
-                diff_eq_func_arg_vals[coord_idxs[i]] = x[i]
+                arg_vals[coord_idxs[i]] = x[:, i, ...]
             for i in range(len(speed_names)):
-                diff_eq_func_arg_vals[speed_idxs[i]] = x[i + len(speed_names)]
-            return np.atleast_2d(self.diff_eq_func(*diff_eq_func_arg_vals))
-
-        x_test = np.random.random(len(self.states))
-        t_test = float(np.random.random(1))
-        xd_test = eval_rhs(x_test, t_test)
-
-        if len(xd_test) != len(self.states):
-            msg = ('Your diff_eq_func does not return the correct number of '
-                   'state derivatives. Make sure the number and order of the '
-                   'states match the derivatives of the states you return.')
-            raise ValueError(msg)
+                arg_vals[speed_idxs[i]] = x[:, i + len(speed_names), ...]
+            if time_idx is not None:
+                if len(x.shape) == 3 and x.shape[-1] == 1:
+                    arg_vals[time_idx] = np.atleast_2d(t).T
+                else:
+                    arg_vals[time_idx] = np.asarray(t)
+            # TODO : Would be nice not to have to create this every eval.
+            x_dot = np.zeros_like(x)
+            for i, dot in enumerate(self.diff_eq_func(*arg_vals)):
+                x_dot[:, i, ...] = dot
+            return x_dot
 
         return eval_rhs
 
@@ -157,10 +172,11 @@ class MultiDoFNonLinearSystem(_System):
 
         def _rk4(t, dt, x, f, args=None):
             """4th-order Runge-Kutta integration step."""
-            # x.shape = (2n, 1)
-            # f returns shape = (2n, 1)
-            # t is a float or t.shape = (m,)
+            # x can have shape(2n, 1)
+            # f returns shape(2n, 1)
+            # t is a float
             # dt is a float
+            x = x[np.newaxis, ...]
             if args is None:
                 args = []
             k1 = f(x, t, *args)
@@ -191,11 +207,7 @@ class MultiDoFNonLinearSystem(_System):
 
         assert int_res.shape == (len(times), len(self.states), 1)
 
-        # TODO : Make this work with NumPy broadcasting so loop isn't needed.
-        res = np.zeros_like(int_res)
-        for i, (ti, xi) in enumerate(zip(times, int_res)):
-            res[i] = self._array_rhs_eval_func(xi, ti)
-            res[i] = self._ode_eval_func(xi, ti)
+        res = self._ode_eval_func(int_res, times)
 
         assert res.shape == (len(times), len(self.states), 1)
 

@@ -723,6 +723,7 @@ class MultiDoFLinearSystem(_MDNLS):
                        'non-time varying parameters.')
                 raise ValueError(msg.format(k))
         self._canonical_coeffs_func = func
+        self._ode_eval_func = self._generate_array_rhs_eval_func()
 
     def _canonical_coefficients(self):
         if self.canonical_coeffs_func is None:
@@ -763,17 +764,21 @@ class MultiDoFLinearSystem(_MDNLS):
         return A, B
 
     def _eval_forcing(self):
+        # shape(2n, 1)
         u = np.zeros((len(self.states), 1))
         if self._compute_forcing:
             arg_names = getargspec(self.forcing_func).args
             arg_vals = [self._get_par_vals(k) for k in arg_names]
-            u[len(self.coordinates):] = np.atleast_2d(self.forcing_func(*arg_vals))
+            f = self.forcing_func(*arg_vals)
+            if len(f.shape) == 1:
+                u[len(self.coordinates):, 0] = f
+            else:
+                u[len(self.coordinates):] = f
             return u
         else:
             return u
 
-    @property
-    def _array_rhs_eval_func(self):
+    def _generate_array_rhs_eval_func(self):
 
         A, B = self._form_A_B()
 
