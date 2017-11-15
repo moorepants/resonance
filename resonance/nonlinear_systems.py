@@ -4,6 +4,8 @@ import numpy as np
 import scipy as sp
 import scipy.integrate  # scipy doesn't import automatically
 import matplotlib as mp
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Wedge
 
 from .system import System as _System, _SingleDoFCoordinatesDict
 
@@ -404,3 +406,88 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem):
             #return {'angle': angle_dot, 'angle_vel': angle_vel_dot}
 
         self.diff_eq_func = rhs
+
+
+class BallChannelPendulumSystem(MultiDoFNonLinearSystem):
+
+    def __init__(self):
+
+        super(BallChannelPendulumSystem, self).__init__()
+
+        self.constants['mp'] = 12/1000  # kg
+        self.constants['mb'] = 3.5/1000  # kg
+        self.constants['r'] = 0.1  # m
+        self.constants['l'] = 0.2  # m
+        self.constants['g'] = 9.81  # m/s**2
+
+        self.coordinates['theta'] = np.deg2rad(10)
+        self.coordinates['phi'] = np.deg2rad(-10)
+
+        self.speeds['alpha'] = 0.0
+        self.speeds['beta'] = 0.0
+
+        def pend_y(l, theta):
+            return (l - l * np.cos(theta))
+
+        def pend_x(l, theta):
+            return l * np.sin(theta)
+
+        self.add_measurement('pend_x', pend_x)
+        self.add_measurement('pend_y', pend_y)
+
+        def ball_y(l, r, theta, phi):
+            return l + r * np.cos(theta) - r * np.cos(theta + phi)
+
+        def ball_x(l, r, theta, phi):
+            return -r * np.sin(theta) + r * np.sin(theta + phi)
+
+        self.add_measurement('ball_x', ball_x)
+        self.add_measurement('ball_y', ball_y)
+
+        def trough_x(r, theta):
+            return -r * np.sin(theta)
+
+        def trough_y(l, r, theta):
+            return l + r * np.cos(theta)
+
+        self.add_measurement('trough_x', trough_x)
+        self.add_measurement('trough_y', trough_y)
+
+        def create_plot(pend_x, pend_y, ball_x, ball_y,
+                        trough_x, trough_y, l, r):
+            # create a blank figure and set basic settings on the axis
+            fig, ax = plt.subplots(1, 1)
+            ax.set_xlim((-1, 1.0))
+            ax.set_ylim((-r, l + r + r))
+            ax.set_xlabel('x [m]')
+            ax.set_ylabel('y [m]')
+            ax.set_aspect('equal')
+
+            ax.plot([0, 0], [0, l])
+
+            pend_line = ax.plot([0, pend_x], [l, pend_y], color='red')[0]
+
+            trough = Wedge((trough_x, trough_y), r, 180, 360, width=0.01)
+
+            # circles are created by supplying an (x, y) pair and the radius
+            ball = Circle((ball_x, ball_y), radius=0.02, color='black')
+            bob = Circle((pend_x, pend_y), radius=0.05)
+
+            ax.add_patch(trough)
+            ax.add_patch(ball)
+            ax.add_patch(bob)
+
+            return fig, ball, bob, trough, pend_line
+
+        self.config_plot_func = create_plot
+
+        def update(pend_x, pend_y, ball_x, ball_y, l, theta, trough_x,
+                   trough_y, ball, bob, trough, pend_line):
+            ball.center = (ball_x, ball_y)
+            bob.center = (pend_x, pend_y)
+            pend_line.set_data([0, pend_x], [l, pend_y])
+            trough.set_theta1(180 + np.rad2deg(theta))
+            trough.set_theta2(360 + np.rad2deg(theta))
+            trough.set_center((trough_x, trough_y))
+
+        self.config_plot_update_func = update
