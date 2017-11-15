@@ -12311,6 +12311,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |  Method resolution order:
  |      ClockPendulumSystem
  |      SingleDoFLinearSystem
+ |      _LinearSystem
  |      resonance.system.System
  |      builtins.object
  |  
@@ -12449,7 +12450,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |          measurements as columns.
  |  
  |  ----------------------------------------------------------------------
- |  Data descriptors inherited from SingleDoFLinearSystem:
+ |  Data descriptors inherited from _LinearSystem:
  |  
  |  canonical_coeffs_func
  |      A function that returns the three linear coefficients of the left
@@ -18861,29 +18862,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_imga1b9ab793aed4144930d91980492497a">
+    <img id="_anim_imgd9debf2ee4dc4553afd15ccff12ef809">
     <br>
-    <input id="_anim_slidera1b9ab793aed4144930d91980492497a" type="range" style="width:350px"
+    <input id="_anim_sliderd9debf2ee4dc4553afd15ccff12ef809" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="anima1b9ab793aed4144930d91980492497a.set_frame(parseInt(this.value));"></input>
+           onchange="animd9debf2ee4dc4553afd15ccff12ef809.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.previous_frame()">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.reverse_animation()">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.pause_animation()"><i class="fa fa-pause">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="anima1b9ab793aed4144930d91980492497a.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_selecta1b9ab793aed4144930d91980492497a" class="anim_control">
+    <button onclick="animd9debf2ee4dc4553afd15ccff12ef809.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_selectd9debf2ee4dc4553afd15ccff12ef809" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -18898,9 +18899,9 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imga1b9ab793aed4144930d91980492497a";
-    var slider_id = "_anim_slidera1b9ab793aed4144930d91980492497a";
-    var loop_select_id = "_anim_loop_selecta1b9ab793aed4144930d91980492497a";
+    var img_id = "_anim_imgd9debf2ee4dc4553afd15ccff12ef809";
+    var slider_id = "_anim_sliderd9debf2ee4dc4553afd15ccff12ef809";
+    var loop_select_id = "_anim_loop_selectd9debf2ee4dc4553afd15ccff12ef809";
     var frames = new Array(0);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -43916,7 +43917,7 @@ jIiIVIkBRkREqsQAIyIiVWKAERGRKjHAiIhIlRhgRESkSv8LOLvHVxspvLwAAAAASUVORK5CYII=\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anima1b9ab793aed4144930d91980492497a = new Animation(frames, img_id, slider_id, 16.0,
+        animd9debf2ee4dc4553afd15ccff12ef809 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
