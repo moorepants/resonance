@@ -78,37 +78,57 @@ class MultiDoFNonLinearSystem(_System):
 
     def _generate_array_rhs_eval_func(self):
 
-        diff_eq_func_arg_names = getargspec(self.diff_eq_func).args
-        diff_eq_func_arg_vals = [self._get_par_vals(k) for k in
-                                 diff_eq_func_arg_names]
+        arg_names = getargspec(self.diff_eq_func).args
+        arg_vals = [self._get_par_vals(k) for k in arg_names]
+
+        msg = ('Your diff_eq_func does not return the correct number of '
+               'state derivatives. Make sure the number and order of the '
+               'states match the derivatives of the states you return.')
+        res = self.diff_eq_func(*arg_vals)
+        try:
+            len(res)
+        except TypeError:  # returns a single value, must return at least 2
+            raise ValueError(msg)
+        else:
+            if len(res) != len(self.states):
+                raise ValueError(msg)
 
         coord_names = list(self.coordinates.keys())
         speed_names = list(self.speeds.keys())
 
-        coord_idxs = [diff_eq_func_arg_names.index(n) for n in coord_names]
-        speed_idxs = [diff_eq_func_arg_names.index(n) for n in speed_names]
+        coord_idxs = [arg_names.index(n) for n in coord_names]
+        speed_idxs = [arg_names.index(n) for n in speed_names]
+
+        if 'time' in arg_names:
+            time_idx = arg_names.index('time')
+        else:
+            time_idx = None
 
         def eval_rhs(x, t):
+            # x is either shape(1, 2n), shape(m, 2n), shape(1, 2n, 1) or shape(m, 2n, 1)
+            # t is either float or shape(m,)
             # TODO : This could be slow for large # coords/speeds.
             for i in range(len(coord_names)):
-                diff_eq_func_arg_vals[coord_idxs[i]] = x[i]
+                arg_vals[coord_idxs[i]] = x[:, i, ...]
             for i in range(len(speed_names)):
-                diff_eq_func_arg_vals[speed_idxs[i]] = x[i + len(speed_names)]
-            return np.atleast_1d(self.diff_eq_func(*diff_eq_func_arg_vals))
-
-        x_test = np.random.random(len(self.states))
-        t_test = float(np.random.random(1))
-        xd_test = eval_rhs(x_test, t_test)
-
-        if len(xd_test) != len(self.states):
-            msg = ('Your diff_eq_func does not return the correct number of '
-                   'state derivatives. Make sure the number and order of the '
-                   'states match the derivatives of the states you return.')
-            raise ValueError(msg)
+                arg_vals[speed_idxs[i]] = x[:, i + len(speed_names), ...]
+            if time_idx is not None:
+                if len(x.shape) == 3 and x.shape[-1] == 1:
+                    arg_vals[time_idx] = np.atleast_2d(t).T
+                else:
+                    arg_vals[time_idx] = np.asarray(t)
+            # TODO : Would be nice not to have to create this every eval.
+            x_dot = np.zeros_like(x)
+            for i, dot in enumerate(self.diff_eq_func(*arg_vals)):
+                x_dot[:, i, ...] = dot
+            return x_dot
 
         return eval_rhs
 
     def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
+        # TODO : This overrides the integrator option. Remove this once the
+        # other integrator(s) work.
+        integrator = 'rungakutta4'
 
         x0 = list(self.coordinates.values())
         v0 = list(self.speeds.values())
@@ -155,19 +175,25 @@ class MultiDoFNonLinearSystem(_System):
 
         def _rk4(t, dt, x, f, args=None):
             """4th-order Runge-Kutta integration step."""
-            x = np.asarray(x)
+            # x can have shape(2n, 1)
+            # f returns shape(2n, 1)
+            # t is a float
+            # dt is a float
+            x = x[np.newaxis, ...]
             if args is None:
                 args = []
-            k1 = np.asarray(f(x, t, *args))
-            k2 = np.asarray(f(x + 0.5*dt*k1, t + 0.5*dt, *args))
-            k3 = np.asarray(f(x + 0.5*dt*k2, t + 0.5*dt, *args))
-            k4 = np.asarray(f(x + dt*k3, t + dt, *args))
+            k1 = f(x, t, *args)
+            k2 = f(x + 0.5*dt*k1, t + 0.5*dt, *args)
+            k3 = f(x + 0.5*dt*k2, t + 0.5*dt, *args)
+            k4 = f(x + dt*k3, t + dt, *args)
             return x + dt*(k1 + 2*k2 + 2*k3 + k4)/6.0
 
-        x = np.zeros((len(times), len(initial_conditions)))
-        x[0, :] = initial_conditions
+        # m x 2n x 1
+        x = np.zeros((len(times), len(initial_conditions), 1))
+        x[0, :, 0] = initial_conditions
         for i in range(1, len(times)):
             dt = times[i] - times[i-1]
+            # x[i] is 2n x 1
             x[i] = _rk4(times[i], dt, x[i-1], self._ode_eval_func)
         return x
 
@@ -175,12 +201,18 @@ class MultiDoFNonLinearSystem(_System):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
 
-        # rows correspond to the states
-        int_res = self._integrate_equations_of_motion(times,
-                                                      integrator=integrator).T
+        # m : num time samples
+        # n : num coordinates/speeds
 
-        # rows correspond to the derivatives of the states
+        # rows correspond to time, columns to states (m x 2n x 1)
+        int_res = self._integrate_equations_of_motion(times,
+                                                      integrator=integrator)
+
+        assert int_res.shape == (len(times), len(self.states), 1)
+
         res = self._ode_eval_func(int_res, times)
+
+        assert res.shape == (len(times), len(self.states), 1)
 
         num_coords = len(self.coordinates)
         num_speeds = len(self.speeds)
@@ -190,9 +222,9 @@ class MultiDoFNonLinearSystem(_System):
                    'speeds. There should be one speed for each coordinate.')
             raise ValueError(msg)
 
-        pos = int_res[:num_coords]
-        vel = int_res[num_coords:]
-        acc = res[num_coords:]
+        pos = int_res[:, :num_coords, 0].T  # n x m
+        vel = int_res[:, num_coords:, 0].T  # n x m
+        acc = res[:, num_coords:, 0].T  # n x m
 
         return pos, vel, acc
 

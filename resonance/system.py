@@ -463,9 +463,15 @@ class System(object):
 
     def _state_traj_to_dataframe(self, times, pos, vel, acc):
 
+        # pads with singleton dimension
         pos = np.atleast_2d(pos)
         vel = np.atleast_2d(vel)
         acc = np.atleast_2d(acc)
+
+        # all should be n x m
+        assert pos.shape == (len(self.coordinates), len(times))
+        assert vel.shape == (len(self.speeds), len(times))
+        assert acc.shape == (len(self.speeds), len(times))
 
         # TODO : What if they added a coordinate with the acc names?
         data = {}

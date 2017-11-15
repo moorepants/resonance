@@ -8,28 +8,17 @@ import numpy as np
 
 from .system import System as _System
 from .system import _SingleDoFCoordinatesDict
+from .nonlinear_systems import MultiDoFNonLinearSystem as _MDNLS
 
 
-class SingleDoFLinearSystem(_System):
-    """This is the abstract base class for any single degree of freedom linear
-    system. It can be sub-classed to make a custom system or the necessary
-    methods can be added dynamically."""
+class _LinearSystem(_System):
+    """This is the abstract base class for any linear system."""
 
     def __init__(self):
 
-        super(SingleDoFLinearSystem, self).__init__()
-
-        self._coordinates = _SingleDoFCoordinatesDict({})
-        self._speeds = _SingleDoFCoordinatesDict({})
-        self._measurements._coordinates = self._coordinates
-        self._measurements._speeds = self._speeds
+        super(_LinearSystem, self).__init__()
 
         self._canonical_coeffs_func = None
-
-    def _initial_conditions(self):
-        x0 = list(self.coordinates.values())[0]
-        v0 = list(self.speeds.values())[0]
-        return x0, v0
 
     @property
     def canonical_coeffs_func(self):
@@ -89,6 +78,38 @@ class SingleDoFLinearSystem(_System):
                        'non-time varying parameters.')
                 raise ValueError(msg.format(k))
         self._canonical_coeffs_func = func
+
+    def _canonical_coefficients(self):
+        if self.canonical_coeffs_func is None:
+            msg = ('There is no function available to calculate the canonical'
+                   ' coefficients.')
+            raise ValueError(msg)
+        else:
+            f = self.canonical_coeffs_func
+            args = [self._get_par_vals(k) for k in getargspec(f).args]
+            return f(*args)
+
+
+class SingleDoFLinearSystem(_LinearSystem):
+    """This is the abstract base class for any single degree of freedom linear
+    system. It can be sub-classed to make a custom system or the necessary
+    methods can be added dynamically."""
+
+    def __init__(self):
+
+        super(_LinearSystem, self).__init__()
+
+        self._coordinates = _SingleDoFCoordinatesDict({})
+        self._speeds = _SingleDoFCoordinatesDict({})
+        self._measurements._coordinates = self._coordinates
+        self._measurements._speeds = self._speeds
+
+        self._canonical_coeffs_func = None
+
+    def _initial_conditions(self):
+        x0 = list(self.coordinates.values())[0]
+        v0 = list(self.speeds.values())[0]
+        return x0, v0
 
     @staticmethod
     def _natural_frequency(mass, stiffness):
@@ -310,6 +331,12 @@ class SingleDoFLinearSystem(_System):
 
         return pos, vel, acc
 
+    def _generate_state_trajectories(self, times):
+
+        sol_func = self._solution_func()
+
+        return sol_func(times)
+
     def period(self):
         """Returns the (damped) period of oscillation of the coordinate in
         seconds."""
@@ -320,22 +347,6 @@ class SingleDoFLinearSystem(_System):
             return 2.0 * np.pi / self._damped_natural_frequency(wn, z)
         else:
             return np.inf
-
-    def _generate_state_trajectories(self, times):
-
-        sol_func = self._solution_func()
-
-        return sol_func(times)
-
-    def _canonical_coefficients(self):
-        if self.canonical_coeffs_func is None:
-            msg = ('There is no function available to calculate the canonical'
-                   ' coeffcients.')
-            raise ValueError(msg)
-        else:
-            f = self.canonical_coeffs_func
-            args = [self._get_par_vals(k) for k in getargspec(f).args]
-            return f(*args)
 
     def _periodic_forcing_steady_state(self, a0, an, bn, wT, t):
 
@@ -685,6 +696,245 @@ class SingleDoFLinearSystem(_System):
         axes[1].set_xlabel('Forcing Frequency, $\omega$, [rad/s]')
 
         return axes
+
+
+class MultiDoFLinearSystem(_MDNLS):
+    """This is the abstract base class for any multi degree of freedom linear
+    system. It can be sub-classed to make a custom system or the necessary
+    methods can be added dynamically."""
+
+    def __init__(self):
+
+        super(MultiDoFLinearSystem, self).__init__()
+
+        self._canonical_coeffs_func = None
+        self._forcing_func = None
+        self._compute_forcing = False
+
+    @property
+    def canonical_coeffs_func(self):
+        """A function that returns the three linear coefficient matrices of the
+        left hand side of a set of canonical second order ordinary differential
+        equations. This equation looks like the following:
+
+            Mv' + Cv + Kx = F(t)
+
+        where:
+
+            - M: mass matrix
+            - C: damping matrix
+            - K: stiffness matrix
+            - x: the generalized coordinate vector
+            - v: the generalized speed vector
+
+        The coefficients M, C, and K must be defined in terms of the system's
+        constants.
+
+        Example
+        =======
+        This is an example of a simple double pendulum linearized about its
+        equilibrium.
+
+        >>> sys = MulitDoFLinearSystem()
+        >>> sys.constants['g'] = 9.8  # m/s**2
+        >>> sys.constants['l1'] = 1.0  # m
+        >>> sys.constants['l2'] = 1.0  # m
+        >>> sys.constnats['m1'] = 0.5  # kg
+        >>> sys.constnats['m2'] = 0.5  # kg
+        >>> sys.coordinates['theta1'] = 0.3  # rad
+        >>> sys.coordinates['theta2'] = 0.0  # rad
+        >>> sys.speeds['omega1'] = 0.0  # rad/s
+        >>> sys.speeds['omega2'] = 0.0  # rad/s
+        >>> def coeffs(m1, m2, l1, l2, g):
+        ...     # Represents a linear model of a simple double pendulum
+        ...     M = np.array([[l1 * (m1 + m2), m2 * l2],
+        ...                   [m2 * l2, m2 * l1]])
+        ...     C = 0.0
+        ...     K = np.array([[-g * (m1 + m2), 0],
+        ...                   [0, -m2 * g]])
+        ...     return M, C, K
+        >>> sys.canonical_coeffs_func = coeffs
+
+        """
+        return self._canonical_coeffs_func
+
+    @canonical_coeffs_func.setter
+    def canonical_coeffs_func(self, func):
+        self._measurements._check_for_duplicate_keys()
+        for k in getargspec(func).args:
+            # NOTE : Measurements do not have to be time varying.
+            if k not in (list(self.constants.keys()) +
+                         list(self.measurements.keys())):
+                msg = ('The function argument {} is not in constants or '
+                       'measurements. Redefine your function in terms of '
+                       'non-time varying parameters.')
+                raise ValueError(msg.format(k))
+        self._canonical_coeffs_func = func
+        self._ode_eval_func = self._generate_array_rhs_eval_func()
+
+    @property
+    def forcing_func(self):
+        """A function that returns the right hand side forcing vector of the
+        canonical second order linear ordinary differential equations. This
+        equation looks like the following:
+
+            Mv' + Cv + Kx = F(t)
+
+        where:
+
+            - M: mass matrix
+            - C: damping matrix
+            - K: stiffness matrix
+            - x: the generalized coordinate vector
+            - v: the generalized speed vector
+
+        The coefficients M, C, and K must be defined in terms of the system's
+        constants.
+
+        Example
+        =======
+        This is an example of a simple double pendulum linearized about its
+        equilibrium. The angles, theta1 and theta2, are defined relative to the
+        vertical and when both are zero the pendulum is in its hanging
+        equilibrium. The forcing function applies sinusoidal torquing with
+        respect to theta1 and theta2.
+
+        >>> sys = MulitDoFLinearSystem()
+        >>> sys.constants['g'] = 9.8  # m/s**2
+        >>> sys.constants['l1'] = 1.0  # m
+        >>> sys.constants['l2'] = 1.0  # m
+        >>> sys.constnats['m1'] = 0.5  # kg
+        >>> sys.constnats['m2'] = 0.5  # kg
+        >>> sys.coordinates['theta1'] = 0.3  # rad
+        >>> sys.coordinates['theta2'] = 0.0  # rad
+        >>> sys.speeds['omega1'] = 0.0  # rad/s
+        >>> sys.speeds['omega2'] = 0.0  # rad/s
+        >>> def coeffs(m1, m2, l1, l2, g):
+        ...     # Represents a linear model of a simple double pendulum
+        ...     M = np.array([[l1 * (m1 + m2), m2 * l2],
+        ...                   [m2 * l2, m2 * l1]])
+        ...     C = np.zeros_like(M)
+        ...     K = np.array([[-g * (m1 + m2), 0],
+        ...                   [0, -m2 * g]])
+        ...     return M, C, K
+        >>> sys.canonical_coeffs_func = coeffs
+        >>> sys.constants['To'] = 1.0  # Nm
+        >>> sys.constants['beta'] = 0.01  # rad/s
+        >>> def forcing(To, beta, time):
+        ...     return np.array([[To * np.cos(beta * time)],
+        ...                      [To * np.sin(beta * time)]])
+        ...
+        >>> sys.forcing_func = forcing
+
+        """
+        return self._forcing_func
+
+    @forcing_func.setter
+    def forcing_func(self, func):
+        self._forcing_func = func
+
+    def _canonical_coefficients(self):
+        if self.canonical_coeffs_func is None:
+            msg = ('There is no function available to calculate the canonical'
+                   ' coefficients.')
+            raise ValueError(msg)
+        else:
+            f = self.canonical_coeffs_func
+            args = [self._get_par_vals(k) for k in getargspec(f).args]
+            return f(*args)
+
+    def _form_A_B(self):
+
+        M, C, K = self._canonical_coefficients()
+
+        num_states = len(self.states)
+        num_coords = len(self.coordinates)
+        num_speeds = len(self.speeds)
+
+        assert M.shape == (num_speeds, num_speeds)
+        assert C.shape == (num_speeds, num_speeds)
+        assert K.shape == (num_coords, num_coords)
+
+        # A = [0         I     ] x = [coords]
+        #     [-M^-1 K  -M^-1 C]     [speeds]
+        # B = [0]    u = [0]
+        #     [M^-1]     [generalized forces]
+
+        A = np.zeros((num_states, num_states))
+        A[:num_coords, num_coords:] = np.eye(num_coords)
+        A[num_coords:, :num_coords] = -np.linalg.solve(M, K)
+        A[num_coords:, num_coords:] = -np.linalg.solve(M, C)
+
+        B = np.zeros((num_states, num_states))
+        # wouldn't this be better to do np.linalg.solve(M, self.forcing())
+        B[num_coords:, num_coords:] = np.linalg.inv(M)
+
+        return A, B
+
+    def _eval_forcing(self):
+        # shape(2n, 1)
+        u = np.zeros((len(self.states), 1))
+        if self._compute_forcing:
+            arg_names = getargspec(self.forcing_func).args
+            arg_vals = [self._get_par_vals(k) for k in arg_names]
+            f = self.forcing_func(*arg_vals)
+            if len(f.shape) == 1:
+                u[len(self.coordinates):, 0] = f
+            else:
+                u[len(self.coordinates):] = f
+            return u
+        else:
+            return u
+
+    def _generate_array_rhs_eval_func(self):
+
+        A, B = self._form_A_B()
+
+        def eval_rhs(x, t):
+            u = self._eval_forcing()
+            # (2n x 2n) * (2n x 1) + (2n x 2n) * (2n x 1)
+            return A @ x + B @ u
+
+        return eval_rhs
+
+    def forced_response(self, final_time, initial_time=0.0, sample_rate=100,
+                        **kwargs):
+        """Returns a data frame with monotonic time values as the index and
+        columns for each coordinate and measurement at the time value for that
+        row. Note that this data frame is stored on the system as the variable
+        ``result`` until this method is called again, which will overwrite it.
+
+        Parameters
+        ==========
+        final_time : float
+            A value of time in seconds corresponding to the end of the
+            simulation.
+        initial_time : float, optional
+            A value of time in seconds corresponding to the start of the
+            simulation.
+        sample_rate : integer, optional
+            The sample rate of the simulation in Hertz (samples per second).
+            The time values will be reported at the initial time and final
+            time, i.e. inclusive, along with times space equally based on the
+            sample rate.
+
+        Returns
+        =======
+        df : pandas.DataFrame
+            A data frame indexed by time with all of the coordinates and
+            measurements as columns.
+
+        Notes
+        =====
+        You must have defined a ``forcing_func`` for this to execute. If there
+        is no forcing function this will return the free response.
+
+        """
+        self._compute_forcing = True
+        traj = self.free_response(final_time, initial_time=initial_time,
+                                  sample_rate=sample_rate, **kwargs)
+        self._compute_forcing = False
+        return traj
 
 
 class BookOnCupSystem(SingleDoFLinearSystem):

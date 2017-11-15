@@ -8,7 +8,7 @@ from pandas.util.testing import assert_frame_equal
 
 from ..linear_systems import (SingleDoFLinearSystem, TorsionalPendulumSystem,
                               SimplePendulumSystem, MassSpringDamperSystem,
-                              BaseExcitationSystem)
+                              BaseExcitationSystem, MultiDoFLinearSystem)
 from ..functions import estimate_period
 
 
@@ -453,3 +453,68 @@ def test_defining_system_from_scratch():
 
     with pytest.raises(ValueError):
         sys.canonical_coeffs_func = second_order_eom_coefficients
+
+
+def test_multi_dof_linear_system():
+
+    sys = MultiDoFLinearSystem()
+
+    sys.constants['m1'] = 1.0  # kg
+    sys.constants['m2'] = 1.0  # kg
+    sys.constants['k1'] = 10.0  # N/m
+    sys.constants['k2'] = 10.0  # N/m
+
+    sys.coordinates['x1'] = 0.1  # m
+    sys.coordinates['x2'] = 0.2  # m
+    sys.speeds['v1'] = 0.0  # m/s
+    sys.speeds['v2'] = 0.0  # m/s
+
+    def coeff_func(m1, m2, k1, k2):
+
+        # this is the eom of a simple serial spring mass system sliding on
+        # ground
+
+        # columns of each matrix have to be in the correct order relative to
+        # the sys.coordinates.keys(), sys.speeds.keys()
+        # C @ np.array([sys.speeds.keys()]) should work
+        # K @ np.array([sys.coordinates.keys()]) should work
+
+        # mass matrix 2 x 2
+        M = np.array([[m1, 0],
+                      [0, m2]])
+
+        # damping matrix 2 x 2
+        C = np.zeros_like(M)
+
+        # stiffness matrix 2 x 2
+        K = np.array([[k1 + k2, -k2],
+                      [-k2, k2]])
+
+        return M, C, K
+
+    sys.canonical_coeffs_func = coeff_func
+
+    sys.free_response(2.0)
+
+    sys.constants['w1'] = np.pi / 10  # rad/s
+    sys.constants['w2'] = np.pi / 20  # rad/s
+    sys.constants['f1'] = 1.0  # N
+    sys.constants['f2'] = 0.5  # N
+
+    def forcing_func(w1, w2, f1, f2, time):
+        # should this be shape (2,) or shape (2,1)? or both
+        return np.array([[f1 * np.cos(w1 * time)],
+                         [f2 * np.cos(w2 * time)]])
+
+    sys.forcing_func = forcing_func
+
+    sys.forced_response(2.0)
+
+    def forcing_func(w1, w2, f1, f2, time):
+        # should this be shape (2,) or shape (2,1)? or both
+        return np.array([f1 * np.cos(w1 * time),
+                         f2 * np.cos(w2 * time)])
+
+    sys.forcing_func = forcing_func
+
+    sys.forced_response(2.0)
