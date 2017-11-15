@@ -126,6 +126,9 @@ class MultiDoFNonLinearSystem(_System):
         return eval_rhs
 
     def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
+        # TODO : This overrides the integrator option. Remove this once the
+        # other integrator(s) work.
+        integrator = 'rungakutta4'
 
         x0 = list(self.coordinates.values())
         v0 = list(self.speeds.values())
