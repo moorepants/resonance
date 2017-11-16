@@ -162,6 +162,11 @@ def test_sdof_trifilar_pendulum():
 
     traj = sys.free_response(2.0)
 
+    # NOTE : See https://github.com/moorepants/resonance/issues/128
+    sys.constants['l'] = 1.0  # m
+    traj2 = sys.free_response(2.0)
+    assert not traj.equals(traj2)
+
     assert 'theta' in traj.columns
     assert 'omega' in traj.columns
     assert 'theta_acc' in traj.columns

@@ -76,9 +76,10 @@ class MultiDoFNonLinearSystem(_System):
         # system.
         [self._get_par_vals(k) for k in getargspec(func).args]
         self._diff_eq_func = func
+        self._check_diff_eq()
         self._ode_eval_func = self._generate_array_rhs_eval_func()
 
-    def _generate_array_rhs_eval_func(self):
+    def _check_diff_eq(self):
 
         arg_names = getargspec(self.diff_eq_func).args
         arg_vals = [self._get_par_vals(k) for k in arg_names]
@@ -94,6 +95,11 @@ class MultiDoFNonLinearSystem(_System):
         else:
             if len(res) != len(self.states):
                 raise ValueError(msg)
+
+    def _generate_array_rhs_eval_func(self):
+
+        arg_names = getargspec(self.diff_eq_func).args
+        arg_vals = [self._get_par_vals(k) for k in arg_names]
 
         coord_names = list(self.coordinates.keys())
         speed_names = list(self.speeds.keys())
@@ -139,6 +145,9 @@ class MultiDoFNonLinearSystem(_System):
 
         method_name = '_integrate_with_{}'.format(integrator)
         integrator_method = getattr(self, method_name)
+
+        # make sure rhs is up-to-date
+        self._ode_eval_func = self._generate_array_rhs_eval_func()
 
         return integrator_method(initial_conditions, times)
 
