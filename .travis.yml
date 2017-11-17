@@ -36,6 +36,8 @@ script:
   - set -e
   # run tests on resonance lib
   - py.test --cov=resonance
+  # only build notebooks with latest versions of software
+  - if [[ $DEP_VERSIONS == "latest" ]]; then
   # execute notebooks, convert to html
   - bin/execute_notebooks.sh
   # set up an area for deployed html/ipynb files and push to gh_pages
@@ -45,6 +47,7 @@ script:
   - git clean -xdf notebooks/
   - pip install doctr
   - doctr deploy --built-docs=deploy/ .
+  - fi
   # try building the documentation
   - cd docs
   - make html
