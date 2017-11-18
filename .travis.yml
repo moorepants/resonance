@@ -1,10 +1,12 @@
 language: generic
 os:
   - linux
-
 env:
   global:
     - secure: "M1MRgER9n92ndfjGIwrPmw6wAzVDDzRc01x3kDmbdWJGMlGsuiNvLFcmEQIuE7VUHvaOgqn3G61cAGgisywQvaLnK9+gzizKOIQZeq6wVNaRUvDkP8LufqKE/HgjW3TQfKBOp60dFoKwf7pfyA3oNyA0xQYPSeYBzXuMdnThk5qmYy4i0ciT8wwCVvflA6bBp7GkfjtjzVHZ2HG5kRA+i+isBAMVjD/W3bduJ9LNM9ES/dY/PPgCNSGV0ZrykvRZ5cpqrLCA84ABM9hXDB28+DRnv+qrqvLXtY+2q+jPW7jhZl+9L7UACc/g0h5Mc73FMgc7xDRFbPgc+VbdzHUFlkkc/MahY4xuMIBOAnjcXmWs6H9Mr6dlU+yBJ2VHoThrAdz35X3OKh4Iv1JiFKot5ij9Yfq44fVzgiNNyRoDAne2CuKyHuRmm1NS3dHKrFwelyCR2Q3fLgrlghkX3wihtTMKYR+5/7KQw+f/BQUebiXnEt4IDykr36l/A8HH18nc+dWLDxCxY2uXaaSxZSSdL565S+K5v7KWRxeB48FKdOG86LhChJv4pIHqgPDar2xjhmFcjnCyaV4ROA0IisABTc9iSJGYYNd7k5V8J6gCpuYcgNr7n8Hamp940XxjXPq4DK+z7wT1wXB8gkB9fNcWs2H0cbjXbdnyitYO3RSj4xM="
+  matrix:
+    - DEP_VERSIONS="oldest"  # Approximately the versions available in the last LTS release of Ubuntu.
+    - DEP_VERSIONS="latest"
 install:
   - |
     MINICONDA_URL="https://repo.continuum.io/miniconda"
@@ -14,9 +16,14 @@ install:
   - source ~/miniconda3/bin/activate root
   - conda config --set always_yes yes
   - conda update -q conda
-  - conda env create -f dev-environment.yml
-  - source activate resonance-dev
-  - pip install .
+  - if [[ $DEP_VERSIONS == "oldest" ]]; then
+      conda env create -f dev-oldest-environment.yml;
+      source activate resonance-dev-oldest;
+    elif [[ $DEP_VERSIONS == "latest" ]]; then
+      conda env create -f dev-environment.yml;
+      source activate resonance-dev;
+    fi
+  - python setup.py install
 before_script:
   - conda info
   - conda list
@@ -29,15 +36,19 @@ script:
   - set -e
   # run tests on resonance lib
   - py.test --cov=resonance
-  # execute notebooks, convert to html
-  - bin/execute_notebooks.sh
-  # set up an area for deployed html/ipynb files and push to gh_pages
-  - bin/prepare_deploy.sh
-  - git reset --hard
-  - git clean -Xdf notebooks/
-  - git clean -xdf notebooks/
-  - pip install doctr
-  - doctr deploy --built-docs=deploy/ .
+  # only build notebooks with latest versions of software
+  - |
+    if [[ $DEP_VERSIONS == "latest" ]]; then
+      # execute notebooks, convert to html
+      bin/execute_notebooks.sh;
+      # set up an area for deployed html/ipynb files and push to gh_pages
+      bin/prepare_deploy.sh;
+      git reset --hard;
+      git clean -Xdf notebooks/;
+      git clean -xdf notebooks/;
+      pip install doctr;
+      doctr deploy --built-docs=deploy/ .;
+    fi
   # try building the documentation
   - cd docs
   - make html

@@ -15,10 +15,11 @@ setup(
     keywords="engineering vibrations mechanical",
     license='CC-BY 4.0',
     packages=find_packages(),
-    install_requires=['numpy>=1.13',
-                      'matplotlib>=2.1',
-                      'scipy>=0.19',
-                      'pandas>=0.20'],
+    # Try to work with packages in the Ubuntu 16.04 LTS release if possible.
+    install_requires=['numpy>=1.11',
+                      'matplotlib>=1.5',
+                      'scipy>=0.17',
+                      'pandas>=0.17'],
     extras_require={'notebooks': ['notebook', 'ipywidgets']},
     classifiers=[
         'Development Status :: 3 - Alpha',

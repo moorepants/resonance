@@ -56,11 +56,8 @@ class _StatesDict(_collections.OrderedDict):
             raise ValueError(msg)
 
 
-class _CoordinatesDict(_collections.MutableMapping, dict):
+class _CoordinatesDict(_collections.OrderedDict):
     """A custom dictionary for storing coordinates and speeds."""
-
-    def __getitem__(self, key):
-        return dict.__getitem__(self, key)
 
     def __setitem__(self, key, value):
         # TODO : Shouldn't allow coordinates to be named with suffix _vel.
@@ -77,19 +74,7 @@ class _CoordinatesDict(_collections.MutableMapping, dict):
                    'Choose something different.')
             raise ValueError(msg.format(_FORBIDDEN_SUFFIXES))
         else:
-            dict.__setitem__(self, key, value)
-
-    def __delitem__(self, key):
-        dict.__delitem__(self, key)
-
-    def __iter__(self):
-        return dict.__iter__(self)
-
-    def __len__(self):
-        return dict.__len__(self)
-
-    def __contains__(self, x):
-        return dict.__contains__(self, x)
+            _collections.OrderedDict.__setitem__(self, key, value)
 
 
 class _SingleDoFCoordinatesDict(_CoordinatesDict):
