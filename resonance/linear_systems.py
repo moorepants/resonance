@@ -79,7 +79,9 @@ class _LinearSystem(_System):
                 raise ValueError(msg.format(k))
         self._canonical_coeffs_func = func
 
-    def _canonical_coefficients(self):
+    def canonical_coefficients(self):
+        """Returns the mass, damping, and stiffness coefficients in that
+        order."""
         if self.canonical_coeffs_func is None:
             msg = ('There is no function available to calculate the canonical'
                    ' coefficients.')
@@ -148,7 +150,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
     def _solution_type(self):
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         omega_n = self._natural_frequency(m, k)
 
         if math.isclose(c, 0.0):
@@ -170,7 +172,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
     def _solution_func(self):
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         omega_n = self._natural_frequency(m, k)
 
         if math.isclose(c, 0.0):
@@ -196,7 +198,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         t = time
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         wn = self._natural_frequency(m, k)
 
@@ -216,7 +218,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         t = time
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         wn = self._natural_frequency(m, k).imag
 
@@ -240,7 +242,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         """
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
 
         pos = A * np.exp(-z*wn*t) * np.sin(wd*t + phi)
@@ -259,7 +261,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         t = time
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
 
         x0, v0 = self._initial_conditions()
@@ -276,7 +278,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         t = time
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
@@ -314,7 +316,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         t = time
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         wn = self._natural_frequency(m, k)
 
@@ -340,7 +342,7 @@ class SingleDoFLinearSystem(_LinearSystem):
     def period(self):
         """Returns the (damped) period of oscillation of the coordinate in
         seconds."""
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn = self._natural_frequency(m, k)
         z = self._damping_ratio(m, c, wn)
         if z < 1.0:  # underdamped, no damping, or unstable
@@ -353,7 +355,7 @@ class SingleDoFLinearSystem(_LinearSystem):
         M = t.shape[0]
 
         # scalars
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
 
         N = an.shape[0]
@@ -403,7 +405,7 @@ class SingleDoFLinearSystem(_LinearSystem):
     def _periodic_forcing_transient_A_phi(self, wT, n, a0, an, bn, theta_n,
                                           denom, t):
         # scalars
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
 
         # the transient solution (homogeneous)
@@ -489,7 +491,7 @@ class SingleDoFLinearSystem(_LinearSystem):
         t = self._calc_times(final_time, initial_time, sample_rate)
 
         # scalars
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
         wT = frequency
 
@@ -568,7 +570,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         x0, v0 = self._initial_conditions()
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         Fo = amplitude
         w = frequency
@@ -650,7 +652,7 @@ class SingleDoFLinearSystem(_LinearSystem):
             forcing.
 
         """
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
 
         fo = amplitude / m
@@ -675,7 +677,7 @@ class SingleDoFLinearSystem(_LinearSystem):
             If True, the amplitude will be plotted on a semi-log Y plot.
 
         """
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
         wn, z, wd = self._normalized_form(m, c, k)
 
         w = np.linspace(0.0, 5 * wn, num=200)
@@ -833,7 +835,8 @@ class MultiDoFLinearSystem(_MDNLS):
     def forcing_func(self, func):
         self._forcing_func = func
 
-    def _canonical_coefficients(self):
+    def canonical_coefficients(self):
+        """Returns the mass, damping, and stiffness matrices in that order."""
         if self.canonical_coeffs_func is None:
             msg = ('There is no function available to calculate the canonical'
                    ' coefficients.')
@@ -845,7 +848,7 @@ class MultiDoFLinearSystem(_MDNLS):
 
     def _form_A_B(self):
 
-        M, C, K = self._canonical_coefficients()
+        M, C, K = self.canonical_coefficients()
 
         num_states = len(self.states)
         num_coords = len(self.coordinates)
@@ -1367,7 +1370,7 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
             measurements as columns.
 
         """
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         a0 = 0.0
         a1 = c * amplitude * frequency
@@ -1454,7 +1457,7 @@ class BaseExcitationSystem(SingleDoFLinearSystem):
         """
         t = self._calc_times(final_time, initial_time, sample_rate)
 
-        m, c, k = self._canonical_coefficients()
+        m, c, k = self.canonical_coefficients()
 
         # shape(N,)
         cos_coeffs = np.atleast_1d(cos_coeffs)

@@ -41,7 +41,7 @@ def test_torsional_pendulum_system():
     sys.coordinates['torsion_angle'] = 3.0
     sys.speeds['torsion_angle_vel'] = 5.0
 
-    m, c, k = sys._canonical_coefficients()
+    m, c, k = sys.canonical_coefficients()
 
     assert isclose(m, 2.0)
     assert isclose(c, 1.0)
@@ -442,7 +442,7 @@ def test_defining_system_from_scratch():
 
     sys.canonical_coeffs_func = second_order_eom_coefficients
 
-    m, c, k = sys._canonical_coefficients()
+    m, c, k = sys.canonical_coefficients()
 
     assert isclose(m, 1.0)
     assert isclose(c, 2.0)
