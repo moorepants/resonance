@@ -11928,30 +11928,35 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |  Data descriptors inherited from MultiDoFNonLinearSystem:
  |  
  |  diff_eq_func
- |      A function that returns the time derivatives of the coordinate and
- |      speed, i.e. computes the right hand side of the two order differential
- |      equations. This equation looks like the following for linear motion:
+ |      A function that returns the time derivatives of the coordinates and
+ |      speeds, i.e. computes the right hand side of the explicit first order
+ |      differential equations. This equation looks like the following for
+ |      linear motion::
  |      
- |          dy
+ |          dx
  |          -- = f(t, q1, ..., qn, u1, ..., un, p1, p2, ..., pO)
  |          dt
  |      
  |      where:
  |      
- |          - t: a time value
- |          - q: the coordinates
- |          - u: the speeds
- |          - p: any number of constants or measurements, O is the number of
- |            constants.
+ |      - x: [q1, ..., qn, u1, ..., un], the &#34;state vector&#34;
+ |      - t: a time value
+ |      - q: the coordinates
+ |      - u: the speeds
+ |      - p: any number of constants, O is the number of constants
  |      
- |      Notes
- |      =====
  |      Your function should be able to operate on 1d arrays as inputs, i.e.
  |      use numpy math functions in your function, e.g. ``numpy.sin`` instead
- |      of ``math.sin``.
+ |      of ``math.sin``. Besides the constants, coordinates, and speeds, there
+ |      is a special variable ``time`` that you can use to give the current
+ |      value of time inside your function.
  |      
- |      **The function has to return the derivatives of the states in the order
- |      of the ``state`` attribute.**
+ |      .. note:: The function has to return the derivatives of the states in
+ |         the order of the ``state`` attribute.
+ |      
+ |      .. warning:: Do not use measurements as a function argument. This may
+ |         cause causality issues and is not yet supported. You are unlikely to
+ |         get a correct answer if you use a measurement in this function.
  |      
  |      Example
  |      =======
@@ -11959,15 +11964,18 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      &gt;&gt;&gt; sys.constants[&#39;gravity&#39;] = 9.8  # m/s**2
  |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 1.0  # m
  |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 0.5  # kg
+ |      &gt;&gt;&gt; sys.constants[&#39;omega_b&#39;] = 0.1  # rad/s
  |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
  |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
  |      &gt;&gt;&gt; sys.states
  |      {&#39;theta&#39;: 0.3, &#39;omega&#39;: 0.0}  # note the order!
- |      &gt;&gt;&gt; def rhs(theta, omega, gravity, length, mass):
- |      &gt;&gt;&gt;     # Represents a linear model of a simple pendulum:
- |      ...     #  m * l**2 ω&#39; + m * g * l * sin(θ) = 0
+ |      &gt;&gt;&gt; def rhs(theta, omega, gravity, length, mass, omega_b, time):
+ |      ...     # Represents a linear model of a simple pendulum under
+ |      ...     # sinusoidal torquing.
+ |      ...     #  m * l**2 ω&#39; + m * g * l * sin(θ) = sin(ω_b * t)
  |      ...     thetad = omega
- |      ...     omegad = (-m*g*l*np.sin(theta)) / m / l**2
+ |      ...     omegad = (np.sin(omega_b * time) -
+ |      ...               m*g*l*np.sin(theta)) / m / l**2
  |      ...     return thetad, omegad  # in order of sys.states
  |      &gt;&gt;&gt; sys.diff_eq_func = rhs
  |  
@@ -18476,29 +18484,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_img3de51122bc754ac3bb3fd87b68bc789a">
+    <img id="_anim_imga4071d99276c4860899ae3b88c055c57">
     <br>
-    <input id="_anim_slider3de51122bc754ac3bb3fd87b68bc789a" type="range" style="width:350px"
+    <input id="_anim_slidera4071d99276c4860899ae3b88c055c57" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="anim3de51122bc754ac3bb3fd87b68bc789a.set_frame(parseInt(this.value));"></input>
+           onchange="anima4071d99276c4860899ae3b88c055c57.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.previous_frame()">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.reverse_animation()">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.pause_animation()"><i class="fa fa-pause">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="anim3de51122bc754ac3bb3fd87b68bc789a.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_select3de51122bc754ac3bb3fd87b68bc789a" class="anim_control">
+    <button onclick="anima4071d99276c4860899ae3b88c055c57.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_selecta4071d99276c4860899ae3b88c055c57" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -18513,9 +18521,9 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_img3de51122bc754ac3bb3fd87b68bc789a";
-    var slider_id = "_anim_slider3de51122bc754ac3bb3fd87b68bc789a";
-    var loop_select_id = "_anim_loop_select3de51122bc754ac3bb3fd87b68bc789a";
+    var img_id = "_anim_imga4071d99276c4860899ae3b88c055c57";
+    var slider_id = "_anim_slidera4071d99276c4860899ae3b88c055c57";
+    var loop_select_id = "_anim_loop_selecta4071d99276c4860899ae3b88c055c57";
     var frames = new Array(0);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -43074,7 +43082,7 @@ GADAlggwAIAtEWAAAFsiwAAAtkSAAQBs6f8B9fg3pZjkBc4AAAAASUVORK5CYII=\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anim3de51122bc754ac3bb3fd87b68bc789a = new Animation(frames, img_id, slider_id, 16.0,
+        anima4071d99276c4860899ae3b88c055c57 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
