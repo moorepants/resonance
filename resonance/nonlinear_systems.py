@@ -23,30 +23,35 @@ class MultiDoFNonLinearSystem(_System):
 
     @property
     def diff_eq_func(self):
-        """A function that returns the time derivatives of the coordinate and
-        speed, i.e. computes the right hand side of the two order differential
-        equations. This equation looks like the following for linear motion:
+        """A function that returns the time derivatives of the coordinates and
+        speeds, i.e. computes the right hand side of the explicit first order
+        differential equations. This equation looks like the following for
+        linear motion::
 
-            dy
+            dx
             -- = f(t, q1, ..., qn, u1, ..., un, p1, p2, ..., pO)
             dt
 
         where:
 
-            - t: a time value
-            - q: the coordinates
-            - u: the speeds
-            - p: any number of constants or measurements, O is the number of
-              constants.
+        - x: [q1, ..., qn, u1, ..., un], the "state vector"
+        - t: a time value
+        - q: the coordinates
+        - u: the speeds
+        - p: any number of constants, O is the number of constants
 
-        Notes
-        =====
         Your function should be able to operate on 1d arrays as inputs, i.e.
         use numpy math functions in your function, e.g. ``numpy.sin`` instead
-        of ``math.sin``.
+        of ``math.sin``. Besides the constants, coordinates, and speeds, there
+        is a special variable ``time`` that you can use to give the current
+        value of time inside your function.
 
-        **The function has to return the derivatives of the states in the order
-        of the ``state`` attribute.**
+        .. note:: The function has to return the derivatives of the states in
+           the order of the ``state`` attribute.
+
+        .. warning:: Do not use measurements as a function argument. This may
+           cause causality issues and is not yet supported. You are unlikely to
+           get a correct answer if you use a measurement in this function.
 
         Example
         =======
@@ -54,15 +59,18 @@ class MultiDoFNonLinearSystem(_System):
         >>> sys.constants['gravity'] = 9.8  # m/s**2
         >>> sys.constants['length'] = 1.0  # m
         >>> sys.constants['mass'] = 0.5  # kg
+        >>> sys.constants['omega_b'] = 0.1  # rad/s
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> sys.states
         {'theta': 0.3, 'omega': 0.0}  # note the order!
-        >>> def rhs(theta, omega, gravity, length, mass):
-        >>>     # Represents a linear model of a simple pendulum:
-        ...     #  m * l**2 ω' + m * g * l * sin(θ) = 0
+        >>> def rhs(theta, omega, gravity, length, mass, omega_b, time):
+        ...     # Represents a linear model of a simple pendulum under
+        ...     # sinusoidal torquing.
+        ...     #  m * l**2 ω' + m * g * l * sin(θ) = sin(ω_b * t)
         ...     thetad = omega
-        ...     omegad = (-m*g*l*np.sin(theta)) / m / l**2
+        ...     omegad = (np.sin(omega_b * time) -
+        ...               m*g*l*np.sin(theta)) / m / l**2
         ...     return thetad, omegad  # in order of sys.states
         >>> sys.diff_eq_func = rhs
 
