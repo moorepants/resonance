@@ -448,7 +448,7 @@ class System(object):
 
     def _state_traj_to_dataframe(self, times, pos, vel, acc):
 
-        # pads with singleton dimension
+        # pads with singleton dimension if pos, vel, acc are 1D
         pos = np.atleast_2d(pos)
         vel = np.atleast_2d(vel)
         acc = np.atleast_2d(acc)
@@ -686,6 +686,8 @@ class System(object):
                     args.append(pop_list.pop(0))
             self.config_plot_update_func(*args)
 
+        # TODO : Run this with the initial conditions so that errors will
+        # propogate before the animation is run.
         # NOTE : This is useful to uncomment in debugging because the errors
         # push to the top if in the FuncAnimation.
         #gen_frame((1.0, self.result.iloc[0]), list(objs_to_modify))
