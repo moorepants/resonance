@@ -155,11 +155,20 @@ def test_sdof_trifilar_pendulum():
                                        [0.1, 0.2],
                                        [0.1, 0.2]]), [0.1, 0.2, 0.3])
     assert res.shape == (3, 2)
+
+    # reset these
+    sys.coordinates['theta'] = 0.2  # rad
+    sys.speeds['omega'] = 0.0  # rad/s
+    sys._time['t'] = 0
     # should work with shape(m, 2n, 1)
     res = sys._ode_eval_func(np.random.random(3 * 2 * 1).reshape(3, 2, 1),
                              [0.1, 0.2, 0.3])
     assert res.shape == (3, 2, 1)
 
+    # resest these
+    sys.coordinates['theta'] = 0.2  # rad
+    sys.speeds['omega'] = 0.0  # rad/s
+    sys._time['t'] = 0
     traj = sys.free_response(2.0)
 
     # NOTE : See https://github.com/moorepants/resonance/issues/128
@@ -222,24 +231,47 @@ def test_multi_dof_nonlinear_system():
     res = sys._ode_eval_func(x, t)
     assert res.shape == (1, 4)
     np.testing.assert_allclose(res, x * t)
+    sys.coordinates['x2'] = 0.2
+    sys.coordinates['x1'] = 0.1
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
     # should work with shape(1, 2n, 1)
     x = np.random.random(4).reshape(1, 4, 1)
     t = 0.1
     res = sys._ode_eval_func(x, t)
     assert res.shape == (1, 4, 1)
     np.testing.assert_allclose(res, x * t)
+    sys.coordinates['x2'] = 0.2
+    sys.coordinates['x1'] = 0.1
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
     # should work with shape(m, 2n)
     x = np.random.random(10 * 4).reshape(10, 4)
     t = np.random.random(10)
     res = sys._ode_eval_func(x, t)
     assert res.shape == (10, 4)
     np.testing.assert_allclose(res, x * t[:, np.newaxis])
+    sys.coordinates['x2'] = 0.2
+    sys.coordinates['x1'] = 0.1
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
     # should work with shape(m, 2n, 1)
     x = np.random.random(10 * 4).reshape(10, 4, 1)
     t = np.random.random(10)
     res = sys._ode_eval_func(x, t)
     assert res.shape == (10, 4, 1)
     np.testing.assert_allclose(res, x * t[:, np.newaxis, np.newaxis])
+    sys.coordinates['x2'] = 0.2
+    sys.coordinates['x1'] = 0.1
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
 
     # NOTE : Order of args does not matter here in the function signature.
     def rhs(x1, x2, v1, v2, m, k, Fo, w, time):
@@ -262,5 +294,49 @@ def test_multi_dof_nonlinear_system():
 
     # TODO : Failing
     #traj2 = sys.free_response(5.0, integrator='lsoda')
-#
     #assert_frame_equal(traj, traj2, check_less_precise=True)
+
+
+def test_measurements_in_diff_eq_func():
+    # NOTE : Tests issue 127
+    # https://github.com/moorepants/resonance/issues/127
+
+    sys1 = SingleDoFNonLinearSystem()
+
+    sys1.constants['m'] = 1
+    sys1.constants['k'] = 100
+    sys1.coordinates['x'] = 1
+    sys1.speeds['v'] = 0
+
+    def f(x, k):
+        return k * x
+
+    sys1.add_measurement('spring_force', f)
+
+    def rhs(x, v, m, spring_force):
+        xdot = v
+        vdot = -spring_force / m
+        return xdot, vdot
+
+    sys1.diff_eq_func = rhs
+
+    traj1 = sys1.free_response(2)
+    del traj1['spring_force']
+
+    sys2 = SingleDoFNonLinearSystem()
+
+    sys2.constants['m'] = 1
+    sys2.constants['k'] = 100
+    sys2.coordinates['x'] = 1
+    sys2.speeds['v'] = 0
+
+    def rhs(x, v, m, k):
+        xdot = v
+        vdot = -k * x / m
+        return xdot, vdot
+
+    sys2.diff_eq_func = rhs
+
+    traj2 = sys2.free_response(2)
+
+    assert_frame_equal(traj1, traj2)
