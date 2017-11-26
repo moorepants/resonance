@@ -95,6 +95,7 @@ class MultiDoFNonLinearSystem(_System):
         msg = ('Your diff_eq_func does not return the correct number of '
                'state derivatives. Make sure the number and order of the '
                'states match the derivatives of the states you return.')
+
         res = self.diff_eq_func(*arg_vals)
         try:
             len(res)
@@ -107,36 +108,34 @@ class MultiDoFNonLinearSystem(_System):
     def _generate_array_rhs_eval_func(self):
 
         arg_names = getargspec(self.diff_eq_func).args
-        arg_vals = [self._get_par_vals(k) for k in arg_names]
 
         coord_names = list(self.coordinates.keys())
         speed_names = list(self.speeds.keys())
 
-        coord_idxs = [arg_names.index(n) for n in coord_names]
-        speed_idxs = [arg_names.index(n) for n in speed_names]
-
-        if 'time' in arg_names:
-            time_idx = arg_names.index('time')
-        else:
-            time_idx = None
+        n = len(speed_names)
 
         def eval_rhs(x, t):
             # x is either shape(1, 2n), shape(m, 2n), shape(1, 2n, 1) or shape(m, 2n, 1)
             # t is either float or shape(m,)
             # TODO : This could be slow for large # coords/speeds.
-            for i in range(len(coord_names)):
-                arg_vals[coord_idxs[i]] = x[:, i, ...]
-            for i in range(len(speed_names)):
-                arg_vals[speed_idxs[i]] = x[:, i + len(speed_names), ...]
-            if time_idx is not None:
-                if len(x.shape) == 3 and x.shape[-1] == 1:
-                    arg_vals[time_idx] = np.atleast_2d(t).T
-                else:
-                    arg_vals[time_idx] = np.asarray(t)
+            for i, cname in enumerate(coord_names):
+                self.coordinates[cname] = x[:, i, ...]
+            for i, sname in enumerate(speed_names):
+                self.speeds[sname] = x[:, i + n, ...]
+
+            if len(x.shape) == 3 and x.shape[-1] == 1:
+                self._time['t'] = np.atleast_2d(t).T
+            else:
+                self._time['t'] = np.asarray(t)
+
+            # this calculates the measurements
+            arg_vals = [self._get_par_vals(k) for k in arg_names]
+
             # TODO : Would be nice not to have to create this every eval.
             x_dot = np.zeros_like(x)
             for i, dot in enumerate(self.diff_eq_func(*arg_vals)):
                 x_dot[:, i, ...] = dot
+
             return x_dot
 
         return eval_rhs
@@ -149,6 +148,11 @@ class MultiDoFNonLinearSystem(_System):
         x0 = list(self.coordinates.values())
         v0 = list(self.speeds.values())
 
+        if len(x0) != len(v0):
+            msg = ('There is not and equal number of coordinates and speeds. '
+                   'Make sure you have added one speed for each coordinate.')
+            raise ValueError(msg)
+
         initial_conditions = np.hstack((x0, v0))
 
         method_name = '_integrate_with_{}'.format(integrator)
@@ -157,7 +161,12 @@ class MultiDoFNonLinearSystem(_System):
         # make sure rhs is up-to-date
         self._ode_eval_func = self._generate_array_rhs_eval_func()
 
-        return integrator_method(initial_conditions, times)
+        try:
+            traj = integrator_method(initial_conditions, times)
+        except:
+            raise
+        else:  # integration succeeds
+            return traj
 
     def _integrate_with_lsoda(self, initial_conditions, times):
         """This method should return the integration results in the form of
@@ -177,11 +186,6 @@ class MultiDoFNonLinearSystem(_System):
     def _integrate_with_rungakutta4(self, initial_conditions, times):
         """4th-order Runge-Kutta integration.
 
-        Parameters
-        ----------
-        initial_conditions : array_like, shape(n,)
-            Initial values of the state variables.
-        times : array, shape(m,)
             Array of time values at which to solve.
 
         Returns
@@ -223,15 +227,36 @@ class MultiDoFNonLinearSystem(_System):
         # m : num time samples
         # n : num coordinates/speeds
 
-        # rows correspond to time, columns to states (m x 2n x 1)
-        int_res = self._integrate_equations_of_motion(times,
-                                                      integrator=integrator)
+        # store values before integration
+        coords = self.coordinates.copy()
+        speeds = self.speeds.copy()
+        time = self._time['t']
 
-        assert int_res.shape == (len(times), len(self.states), 1)
+        try:
+            # rows correspond to time, columns to states (m x 2n x 1)
+            int_res = self._integrate_equations_of_motion(
+                times, integrator=integrator)
 
-        res = self._ode_eval_func(int_res, times)
+            if int_res.shape != (len(times), len(self.states), 1):
+                msg = ('Shape of trajectory from integration does not have '
+                       'the correct shape.')
+                raise ValueError(msg)
 
-        assert res.shape == (len(times), len(self.states), 1)
+            # calculate the accelerations
+            res = self._ode_eval_func(int_res, times)
+
+            if res.shape != (len(times), len(self.states), 1):
+                msg = ('Shape of derivatives does not have the correct shape.')
+                raise ValueError(msg)
+        except:
+            raise
+        finally:  # make sure to reset coords, speeds, time if anything fails
+            # reset to values before integration
+            for k, v in coords.items():
+                self.coordinates[k] = v
+            for k, v in speeds.items():
+                self.speeds[k] = v
+            self._time['t'] = time
 
         num_coords = len(self.coordinates)
         num_speeds = len(self.speeds)
