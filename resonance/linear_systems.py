@@ -874,17 +874,21 @@ class MultiDoFLinearSystem(_MDNLS):
 
         return A, B
 
-    def _eval_forcing(self):
+    def _eval_forcing(self, t):
         # shape(2n, 1)
         u = np.zeros((len(self.states), 1))
         if self._compute_forcing:
             arg_names = getargspec(self.forcing_func).args
+            if 'time' in arg_names:
+                self._time['t'] = t
             arg_vals = [self._get_par_vals(k) for k in arg_names]
             f = self.forcing_func(*arg_vals)
             if len(f.shape) == 1:
-                u[len(self.coordinates):, 0] = f
+                for i, fi in enumerate(f):
+                    u[:, len(self.coordinates) + i, 0] = fi
             else:
-                u[len(self.coordinates):] = f
+                for i, fi in enumerate(f):
+                    u[:, len(self.coordinates)+ i] = fi
             return u
         else:
             return u
@@ -894,9 +898,9 @@ class MultiDoFLinearSystem(_MDNLS):
         A, B = self._form_A_B()
 
         def eval_rhs(x, t):
-            u = self._eval_forcing()
-            # (2n x 2n) * (2n x 1) + (2n x 2n) * (2n x 1)
-            return A @ x + B @ u
+            #u = self._eval_forcing()
+            # (2n x 2n) * (m x 2n x 1) + (2n x 2n) * (m x 2n x 1)
+            return A @ x #+ B @ u
 
         return eval_rhs
 
@@ -937,6 +941,7 @@ class MultiDoFLinearSystem(_MDNLS):
         traj = self.free_response(final_time, initial_time=initial_time,
                                   sample_rate=sample_rate, **kwargs)
         self._compute_forcing = False
+        self._time['t'] = 0.0
         return traj
 
 
@@ -1705,5 +1710,99 @@ class BallChannelPendulumSystem(MultiDoFLinearSystem):
             trough.set_theta1(180 + np.rad2deg(theta))
             trough.set_theta2(360 + np.rad2deg(theta))
             trough.set_center((trough_x, trough_y))
+
+        self.config_plot_update_func = update
+
+
+class FourStoryBuildingSystem(MultiDoFLinearSystem):
+
+    def __init__(self):
+
+        super(FourStoryBuildingSystem, self).__init__()
+
+        self.constants['m1'] = 4000  # kg
+        self.constants['m2'] = 4000  # kg
+        self.constants['m3'] = 4000  # kg
+        self.constants['m4'] = 4000  # kg
+        self.constants['k1'] = 5000  # N/m
+        self.constants['k2'] = 5000  # N/m
+        self.constants['k3'] = 5000  # N/m
+        self.constants['k4'] = 5000  # N/m
+
+        self.coordinates['x1'] = 0.001  # m
+        self.coordinates['x2'] = 0.010  # m
+        self.coordinates['x3'] = 0.020  # m
+        self.coordinates['x4'] = 0.025  # m
+
+        self.speeds['v1'] = 0.0  # m/s
+        self.speeds['v2'] = 0.0  # m/s
+        self.speeds['v3'] = 0.0  # m/s
+        self.speeds['v4'] = 0.0  # m/s
+
+        def can_coeffs_matrices(m1, m2, m3, m4, k1, k2, k3, k4):
+            M = np.diag([m1, m2, m3, m4])
+            C = np.zeros((4, 4))
+            K = np.array([[k1 + k2, -k2, 0, 0],
+                          [-k2, k2 + k3, -k3, 0],
+                          [0, -k3, k3 + k4, -k4],
+                          [0, 0, -k4, k4]])
+            return M, C, K
+
+        self.canonical_coeffs_func = can_coeffs_matrices
+
+        width = 3  # meters
+        height = 0.5  # meters
+        scale = 20.0  # magnify the motion
+
+        def plot_config(x1, x2, x3, x4, time):
+
+            fig, ax = plt.subplots(1, 1)
+
+            xi = scale * np.array([x1, x2, x3, x4])
+
+            ax.set_ylim((0, 14))
+            ax.set_xlim((-5, 5))
+
+            # create a rectangle for each floor
+            rects = []
+            for i in range(4):
+                rect = Rectangle((-width / 2 + xi[i], 3 - height + i * 3),
+                                 width, height, fill=False)
+                rects.append(rect)
+                ax.add_patch(rect)
+
+            # make some vertical lines for the right and left walls
+            left_walls = ax.plot(-width / 2 * np.ones(5) + np.hstack((0, xi)),
+                                 [0, 3, 6, 9, 12], color='blue')[0]
+            right_walls = ax.plot(width / 2 * np.ones(5) + np.hstack((0, xi)),
+                                  [0, 3, 6, 9, 12], color='blue')[0]
+
+            text = ax.text(-4.0, 13.0, 'Time = {:0.3f} s'.format(time))
+
+            ax.set_aspect('equal')
+            ax.set_xlabel('Distance [m]')
+            ax.set_ylabel('Distance [m]')
+            ax.set_title('Lateral Motion Magnified by {:1.0f}X'.format(scale))
+
+            #xticks = ax.get_xticks()
+            #labels = ['{:1.2}'.format(v) for v in xticks / scale]
+            #ax.set_xticklabels(labels)
+
+            return fig, rects, left_walls, right_walls, text
+
+        self.config_plot_func = plot_config
+
+        def update(x1, x2, x3, x4, time, rects, left_walls, right_walls, text):
+            # grab the ith coordinate vector
+            xi = scale * np.array([x1, x2, x3, x4])
+
+            # move each rectangle laterally by the associated coordinate
+            for i, rect in enumerate(rects):
+                rect.set_xy([-width / 2 + xi[i], 3 - height + i * 3])
+
+            left_walls.set_xdata(-width / 2 * np.ones(5) + np.hstack((0, xi)))
+            right_walls.set_xdata(width / 2 * np.ones(5) + np.hstack((0, xi)))
+
+            text.set_text('Time = {:0.3f} s'.format(time))
 
         self.config_plot_update_func = update
