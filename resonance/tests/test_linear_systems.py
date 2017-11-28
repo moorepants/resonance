@@ -501,20 +501,38 @@ def test_multi_dof_linear_system():
     sys.constants['f1'] = 1.0  # N
     sys.constants['f2'] = 0.5  # N
 
+    sys.coordinates['x1'] = 0.0  # m
+    sys.coordinates['x2'] = 0.0  # m
+
+    # must return number of values equal to num coordinates
     def forcing_func(w1, w2, f1, f2, time):
-        # should this be shape (2,) or shape (2,1)? or both
-        return np.array([[f1 * np.cos(w1 * time)],
-                         [f2 * np.cos(w2 * time)]])
+        return f1
+
+    with pytest.raises(ValueError):
+        sys.forcing_func = forcing_func
+
+    def forcing_func(w1, w2, f1, f2, time):
+        return f1, f2, w1
+
+    with pytest.raises(ValueError):
+        sys.forcing_func = forcing_func
+
+    def forcing_func(w1, w2, f1, f2, time):
+        F1 = f1 * np.cos(w1 * time)
+        F2 = f2 * np.cos(w2 * time)
+        return F1, F2
 
     sys.forcing_func = forcing_func
 
-    sys.forced_response(2.0)
+    traj = sys.forced_response(2.0)
+
+    assert traj['x1'].sum() > 1E-10
 
     def forcing_func(w1, w2, f1, f2, time):
-        # should this be shape (2,) or shape (2,1)? or both
-        return np.array([f1 * np.cos(w1 * time),
-                         f2 * np.cos(w2 * time)])
+        return 0.0, f2 * np.cos(w2 * time)
 
     sys.forcing_func = forcing_func
 
-    sys.forced_response(2.0)
+    traj = sys.forced_response(2.0)
+
+    assert traj['x1'].sum() > 1E-10
