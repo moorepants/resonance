@@ -823,8 +823,9 @@ class MultiDoFLinearSystem(_MDNLS):
         >>> sys.constants['To'] = 1.0  # Nm
         >>> sys.constants['beta'] = 0.01  # rad/s
         >>> def forcing(To, beta, time):
-        ...     return np.array([[To * np.cos(beta * time)],
-        ...                      [To * np.sin(beta * time)]])
+        ...     T1 = To * np.cos(beta * time)
+        ...     T2 = To * np.sin(beta * time)
+        ...     return T1, T2
         ...
         >>> sys.forcing_func = forcing
 
@@ -833,6 +834,19 @@ class MultiDoFLinearSystem(_MDNLS):
 
     @forcing_func.setter
     def forcing_func(self, func):
+        args = [self._get_par_vals(k) for k in getargspec(func).args]
+        res = func(*args)
+        msg = ("Forcing function must return the same number of values as "
+               "the number of coordinates.")
+        try:
+            len(res)
+        except TypeError:  # returns a single value
+            if len(self.coordinates) != 1:
+                raise ValueError(msg)
+        else:
+            if len(res) != len(self.coordinates):
+                raise ValueError(msg)
+
         self._forcing_func = func
 
     def canonical_coefficients(self):
@@ -875,20 +889,26 @@ class MultiDoFLinearSystem(_MDNLS):
         return A, B
 
     def _eval_forcing(self, t):
+        # t is either:
         # shape(2n, 1)
-        u = np.zeros((len(self.states), 1))
+        # shape(m, 2n, 1)
+        if np.size(t) > 1:
+            u = np.zeros((len(t), len(self.states), 1))
+        else:
+            u = np.zeros((len(self.states), 1))
+
         if self._compute_forcing:
+            self._time['t'] = t
             arg_names = getargspec(self.forcing_func).args
-            if 'time' in arg_names:
-                self._time['t'] = t
             arg_vals = [self._get_par_vals(k) for k in arg_names]
             f = self.forcing_func(*arg_vals)
-            if len(f.shape) == 1:
-                for i, fi in enumerate(f):
+            for i, fi in enumerate(f):
+                if np.size(fi) == 1 and np.size(t) > 1:
+                    fi = np.repeat(fi, len(t))
+                if np.size(t) > 1:
                     u[:, len(self.coordinates) + i, 0] = fi
-            else:
-                for i, fi in enumerate(f):
-                    u[:, len(self.coordinates)+ i] = fi
+                else:
+                    u[len(self.coordinates) + i, 0] = fi
             return u
         else:
             return u
@@ -898,9 +918,11 @@ class MultiDoFLinearSystem(_MDNLS):
         A, B = self._form_A_B()
 
         def eval_rhs(x, t):
-            #u = self._eval_forcing()
+            u = self._eval_forcing(t)
+            # This matrix mul is one of two forms:
+            # (2n x 2n) * (2n x 1) + (2n x 2n) * (2n x 1)
             # (2n x 2n) * (m x 2n x 1) + (2n x 2n) * (m x 2n x 1)
-            return A @ x #+ B @ u
+            return A @ x + B @ u
 
         return eval_rhs
 
