@@ -848,6 +848,7 @@ class MultiDoFLinearSystem(_MDNLS):
                 raise ValueError(msg)
 
         self._forcing_func = func
+        self._forcing_func_arg_names = getargspec(func).args
 
     def canonical_coefficients(self):
         """Returns the mass, damping, and stiffness matrices in that order."""
@@ -892,20 +893,22 @@ class MultiDoFLinearSystem(_MDNLS):
         # t is either:
         # shape(2n, 1)
         # shape(m, 2n, 1)
-        if np.size(t) > 1:
-            u = np.zeros((len(t), len(self.states), 1))
+        size_t = np.size(t)
+        len_states = len(self.coordinates) + len(self.speeds)
+        if size_t > 1:
+            u = np.zeros((len(t), len_states, 1))
         else:
-            u = np.zeros((len(self.states), 1))
+            u = np.zeros((len_states, 1))
 
         if self._compute_forcing:
             self._time['t'] = t
-            arg_names = getargspec(self.forcing_func).args
-            arg_vals = [self._get_par_vals(k) for k in arg_names]
+            arg_vals = [self._get_par_vals(k) for k in
+                        self._forcing_func_arg_names]
             f = self.forcing_func(*arg_vals)
             for i, fi in enumerate(f):
-                if np.size(fi) == 1 and np.size(t) > 1:
+                if np.size(fi) == 1 and size_t > 1:
                     fi = np.repeat(fi, len(t))
-                if np.size(t) > 1:
+                if size_t > 1:
                     u[:, len(self.coordinates) + i, 0] = fi
                 else:
                     u[len(self.coordinates) + i, 0] = fi

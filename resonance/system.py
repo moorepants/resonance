@@ -134,6 +134,8 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
         return func(*args)
 
     def __getitem__(self, key):
+        # TODO : This call to _check_for_duplicate_keys() is a big CPU time
+        # hog.
         self._check_for_duplicate_keys()
         return self._compute_value(key)
 
@@ -377,6 +379,7 @@ class System(object):
     def _get_par_vals(self, par_name):
         """Returns the value of any variable stored in the parameters,
         coordinates, or measurements dictionaries."""
+        # TODO : This get for duplicates is slow and called way too often.
         self._measurements._check_for_duplicate_keys()
         # TODO : This is duplicate of similar code in
         # _MeasurementsDict._compute_value(). Shouldn't have this redundancy.
