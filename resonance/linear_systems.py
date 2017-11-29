@@ -9,6 +9,7 @@ import numpy as np
 from .system import System as _System
 from .system import _SingleDoFCoordinatesDict
 from .nonlinear_systems import MultiDoFNonLinearSystem as _MDNLS
+from .functions import benchmark_par_to_canonical
 
 
 class _LinearSystem(_System):
@@ -1831,3 +1832,53 @@ class FourStoryBuildingSystem(MultiDoFLinearSystem):
             text.set_text('Time = {:0.3f} s'.format(time))
 
         self.config_plot_update_func = update
+
+class BicycleSystem(MultiDoFLinearSystem):
+
+    def __init__(self):
+
+        super(BicycleSystem, self).__init__()
+
+        self.constants['v'] = 4.6
+        self.constants['w'] = 1.02
+        self.constants['c'] = 0.08
+        self.constants['lam'] = np.pi / 10.
+        self.constants['g'] = 9.81
+        self.constants['rR'] = 0.3
+        self.constants['mR'] = 2.0
+        self.constants['IRxx'] = 0.0603
+        self.constants['IRyy'] = 0.12
+        self.constants['xB'] = 0.3
+        self.constants['zB'] = -0.9
+        self.constants['mB'] = 85.0
+        self.constants['IBxx'] = 9.2
+        self.constants['IByy'] = 11.0
+        self.constants['IBzz'] = 2.8
+        self.constants['IBxz'] = 2.4
+        self.constants['xH'] = 0.9
+        self.constants['zH'] = -0.7
+        self.constants['mH'] = 4.0
+        self.constants['IHxx'] = 0.05892
+        self.constants['IHyy'] = 0.06
+        self.constants['IHzz'] = 0.00708
+        self.constants['IHxz'] = -0.00756
+        self.constants['rF'] = 0.35
+        self.constants['mF'] = 3.0
+        self.constants['IFxx'] = 0.1405
+        self.constants['IFyy'] = 0.28
+
+        self.coordinates['phi'] = 0.0
+        self.coordinates['delta'] = 0.0
+
+        self.speeds['phidot'] = 0.5
+        self.speeds['deltadot'] = 0.0
+
+        def can_coeff_matrices(v, w, c, lam, g, rR, mR, IRxx, IRyy, xB, zB, mB,
+                               IBxx, IByy, IBzz, IBxz, xH, zH, mH, IHxx, IHyy,
+                               IHzz, IHxz, rF, mF, IFxx, IFyy):
+
+            M, C1, K0, K2 = benchmark_par_to_canonical(self.constants)
+
+            return M, v * C1, g * K0 + v**2 * K2
+
+        self.canonical_coeffs_func = can_coeff_matrices
