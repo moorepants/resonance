@@ -764,7 +764,8 @@ class MultiDoFLinearSystem(_MDNLS):
     @canonical_coeffs_func.setter
     def canonical_coeffs_func(self, func):
         self._measurements._check_for_duplicate_keys()
-        for k in getargspec(func).args:
+        func_args = getargspec(func).args
+        for k in func_args:
             # NOTE : Measurements do not have to be time varying.
             if k not in (list(self.constants.keys()) +
                          list(self.measurements.keys())):
@@ -772,6 +773,25 @@ class MultiDoFLinearSystem(_MDNLS):
                        'measurements. Redefine your function in terms of '
                        'non-time varying parameters.')
                 raise ValueError(msg.format(k))
+        M, C, K = func(*np.random.random(len(func_args)))
+
+        self._check_system()
+
+        # TODO : Maybe this should belong in a overridden _check_system()?
+        num_states = len(self.states)
+        num_coords = len(self.coordinates)
+        num_speeds = len(self.speeds)
+
+        msg = ('The {} matrix should have a row and column for each '
+               'coordinate.')
+
+        if M.shape != (num_speeds, num_speeds):
+            raise ValueError(msg.format('mass'))
+        if C.shape != (num_speeds, num_speeds):
+            raise ValueError(msg.format('damping'))
+        if K.shape != (num_coords, num_coords):
+            raise ValueError(msg.format('stiffness'))
+
         self._canonical_coeffs_func = func
         self._ode_eval_func = self._generate_array_rhs_eval_func()
 
@@ -869,10 +889,6 @@ class MultiDoFLinearSystem(_MDNLS):
         num_states = len(self.states)
         num_coords = len(self.coordinates)
         num_speeds = len(self.speeds)
-
-        assert M.shape == (num_speeds, num_speeds)
-        assert C.shape == (num_speeds, num_speeds)
-        assert K.shape == (num_coords, num_coords)
 
         # A = [0         I     ] x = [coords]
         #     [-M^-1 K  -M^-1 C]     [speeds]
