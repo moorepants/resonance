@@ -83,6 +83,7 @@ class _LinearSystem(_System):
     def canonical_coefficients(self):
         """Returns the mass, damping, and stiffness coefficients in that
         order."""
+        self._check_system()
         if self.canonical_coeffs_func is None:
             msg = ('There is no function available to calculate the canonical'
                    ' coefficients.')

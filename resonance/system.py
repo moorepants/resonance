@@ -382,11 +382,11 @@ class System(object):
         num_speeds = len(self.speeds)
 
         msg = ('Check whether you have the correct number of coordinates and '
-               ' speeds defined. There are {} coordinates and {} speeds '
-               ' defined. There should be one speed for each coordinate.')
+               'speeds defined. There are {} coordinates and {} speeds '
+               'defined. There should be one speed for each coordinate.')
 
         if num_coords != num_speeds:
-            ValueError(msg.format(num_coords, num_speeds))
+            raise ValueError(msg.format(num_coords, num_speeds))
 
     def _get_par_vals(self, par_name):
         """Returns the value of any variable stored in the parameters,
