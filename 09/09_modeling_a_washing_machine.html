@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>index</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>09_modeling_a_washing_machine</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11775,22 +11775,1026 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Resonance:-Learning-Mechanical-Vibration-Engineering-Through-Computation">Resonance: Learning Mechanical Vibration Engineering Through Computation<a class="anchor-link" href="#Resonance:-Learning-Mechanical-Vibration-Engineering-Through-Computation">&#182;</a></h1><h2 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h2><ol>
-<li><a href="01/01_intro_jupyter.html">Introduction to Jupyter</a> [<a href="01.zip">Download</a>]</li>
-<li><a href="02/02_book_balancing_intro.html">Introducing Mechanical Vibrations By Investigating a Book Oscillating on a Cylindrical Cup</a> [<a href="(02.zip">Download</a>]</li>
-<li><a href="03/03_bicycle_wheel_inertia.html">Measuring a Bicycle Wheel's Inertia</a> [<a href="03.zip">Download</a>]</li>
-<li><a href="04/04_clock_pendulum_with_damping.html">Clock Pendulum with Air Drag Damping</a> [<a href="04.zip">Download</a>]</li>
-<li><a href="05/05_clock_pendulum_with_friction.html">Clock Pendulum with Joint Friction</a> [<a href="05.zip">Download</a>]</li>
-<li><a href="06/06_sinusoidal_forcing.html">Sinusoidal Forcing</a> [<a href="06.zip">Download</a>]</li>
-<li><a href="07/07_vertical_vibration_of_a_quarter_car.html">Vertical Vibration of a Quarter Car</a> [<a href="07.zip">Download</a>]</li>
-<li><a href="08/08_modeling_a_drone_trifilar_pendulum.html">Modeling a Drone Swinging From a Trifilar Pendulum</a> [<a href="08.zip">Download</a>]</li>
-<li><a href="09/09_modeling_a_washing_machine.html">Modeling a Washing Machine</a> [<a href="09.zip">Download</a>]</li>
-<li><a href="10/10_modeling_a_ball_channel_pendulum.html">Modeling a Ball Channel Pendulum</a> [<a href="10.zip">Download</a>]</li>
-<li><a href="11/11_modes_of_a_ball_channel_pendulum.html">Modes of a Ball Channel Pendulum</a> [<a href="11.zip">Download</a>]</li>
-<li><a href="12/12_vibrating_building.html">Modes of a Vibrating Building</a> [<a href="12.zip">Download</a>]</li>
-<li><a href="13/13_vibrating_building_forcing.html">Vibrating Building Under Forcing</a> [<a href="13.zip">Download</a>]</li>
-<li><a href="14/14_bicycle.html">Bicycle</a> [<a href="14.zip">Download</a>]</li>
+<h1 id="9-Modeling-a-Washing-Machine-Vibration">9 Modeling a Washing Machine Vibration<a class="anchor-link" href="#9-Modeling-a-Washing-Machine-Vibration">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As an example we will study a model of washing machine vibrating. A washing machine typically has a structure that sits on the ground, usually on padded feet that provide some damping and then there is a drum that spins relative to the machine's main housing structure. Inside the drum, clothes can end up clumped in ways that cause the mass center of the contents of the drum to lie somewhere other than the spin axis. See this video for an example of what can happen:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">YouTubeVideo</span>
+<span class="n">YouTubeVideo</span><span class="p">(</span><span class="s1">&#39;JqdAKPzdHDo&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[1]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe
+            width="400"
+            height="300"
+            src="https://www.youtube.com/embed/JqdAKPzdHDo"
+            frameborder="0"
+            allowfullscreen
+        ></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Process-for-using-Lagrange's-method-for-forming-equations-of-planar">Process for using Lagrange's method for forming equations of planar<a class="anchor-link" href="#Process-for-using-Lagrange's-method-for-forming-equations-of-planar">&#182;</a></h2><ol>
+<li>Decide on assumptions and simplifications that you should make about the real system. It's generally best to start with the simplest model possible and increase complexity if needed.</li>
+<li>Draw a free body diagram to help visualize the system and all forces acting on it.</li>
+<li>Pick generalized coordinates. These should be a minimal description to fully describe the configuration. (i.e. for a simple pendulum use the angle as the coordinate instead of the x and y position of the mass)</li>
+<li>Write out the expressions for kinetic energy, potential energy, and dissipative energy.</li>
+<li>Form the magnitudes of the velocities for each particle, magnitudes of velocities of each rigid body mass center, and the magnitude of the angular velocities of the rigid bodies.</li>
+<li>Form the Lagrangian.</li>
+<li>Form Lagrange's equation of the second kind.</li>
 </ol>
+<p>For nonlinear analysis:</p>
+<ol>
+<li>Introduce variables for generalized speeds and put nonlinear equations in first order form.</li>
+</ol>
+<p>For linear analysis:</p>
+<ol>
+<li>Determine the equilibrium point (set velocities and accelerations to zero and solve for generalized coordinates).</li>
+<li>Linearize the nonlinear equations about the equilibrium point by either assuming small angles or calculating the first two terms of a Taylor series expansion.</li>
+<li>Extract the mass, damping, and stiffness coefficients and the forcing vector.</li>
+</ol>
+<h2 id="Lagrange's-Equation-of-the-Second-Kind">Lagrange's Equation of the Second Kind<a class="anchor-link" href="#Lagrange's-Equation-of-the-Second-Kind">&#182;</a></h2><p>$$\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}_i}\right) - \frac{\partial L}{\partial q_i} = Q_i \quad \textrm{ for } i = 1, \ldots, n$$</p>
+<ul>
+<li>$n$: number of generalized coordinates</li>
+<li>$q_i$: ith generalized coordinate</li>
+<li>$\dot{q}_i$: time derivative of the ith generalized coordinate</li>
+<li>$L$: Lagrangian, $L = T - U$</li>
+<li>$T$: Kinetic energy of the system (sum of the translational energies of each particle and translational/rotational energies of each rigid body)</li>
+<li>$U$: Potential energy of the system (sum of potentials due to gravity, springs, etc)</li>
+<li>$Q$: Non-conservative generalized forces<ul>
+<li>For viscous damping elements in a system $Q_i = -\frac{\partial R}{\partial \dot{q}_i}$, where $R = \frac{1}{2}\sum_{j=1}^n c_j v_j^2$</li>
+</ul>
+</li>
+</ul>
+<h2 id="Extra-resources">Extra resources<a class="anchor-link" href="#Extra-resources">&#182;</a></h2><ul>
+<li>Free book chapters on modeling mechanical systems and Lagrange's equations: <a href="http://moodle.autolab.uni-pannon.hu/Mecha_tananyag/mechatronikai_modellezes_angol/ch11.html">http://moodle.autolab.uni-pannon.hu/Mecha_tananyag/mechatronikai_modellezes_angol/ch11.html</a></li>
+<li>Wikipedia article on Lagrangian mechanics: <a href="https://en.wikipedia.org/wiki/Lagrangian_mechanics">https://en.wikipedia.org/wiki/Lagrangian_mechanics</a></li>
+<li>MIT Opencourseware lecture notes on Lagrangian mechanics: <a href="https://ocw.mit.edu/courses/aeronautics-and-astronautics/16-07-dynamics-fall-2009/lecture-notes/MIT16_07F09_Lec20.pdf">https://ocw.mit.edu/courses/aeronautics-and-astronautics/16-07-dynamics-fall-2009/lecture-notes/MIT16_07F09_Lec20.pdf</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Imports-and-code-setup">Imports and code setup<a class="anchor-link" href="#Imports-and-code-setup">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sympy</span> <span class="k">as</span> <span class="nn">sm</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here is a hack that will let $\frac{d y}{dt}$ appear as $\dot{y}$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sympy.printing.latex</span> <span class="k">import</span> <span class="n">LatexPrinter</span>
+
+<span class="k">class</span> <span class="nc">TimeDerivativePrinter</span><span class="p">(</span><span class="n">LatexPrinter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_print_Derivative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">expr</span><span class="o">.</span><span class="n">variables</span> <span class="o">==</span> <span class="p">(</span><span class="n">t</span><span class="p">,):</span>
+            <span class="k">return</span> <span class="sa">r</span><span class="s2">&quot;\dot{{</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">expr</span><span class="o">.</span><span class="n">variables</span> <span class="o">==</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span> 
+            <span class="k">return</span> <span class="sa">r</span><span class="s2">&quot;\ddot{{</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+        
+<span class="k">def</span> <span class="nf">latex</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TimeDerivativePrinter</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span><span class="o">.</span><span class="n">doprint</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">init_printing</span><span class="p">(</span><span class="n">latex_printer</span><span class="o">=</span><span class="n">latex</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Modeling">Modeling<a class="anchor-link" href="#Modeling">&#182;</a></h1><p>I want to make the model (at least the first one) to be as simple as I can such that we can try to show the vibrations. Here are some assumptions:</p>
+<ul>
+<li>The washing can only move up and down relative to the ground.</li>
+<li>The "connection" of the washing machine to the ground may behave like a linear spring and damper.</li>
+<li>The washing machine can't leave the floor.</li>
+<li>The clothes can be represented by a point mass for now, just to cause the drum to be off balanced.</li>
+</ul>
+<p>With those in mind, here is a basic free body diagram of the system:</p>
+<p><img src="washing-machine-01.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Define-the-constants">Define the constants<a class="anchor-link" href="#Define-the-constants">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mw</span><span class="p">,</span> <span class="n">mc</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">Icd</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;m_w, m_c, m_d, I_cd, k, c, e, omega, g, y_0&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Define-the-generalized-coordinates">Define the generalized coordinates<a class="anchor-link" href="#Define-the-generalized-coordinates">&#182;</a></h1><p>All generalized coordinates should be functions of time.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)(</span><span class="n">t</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[8]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$y{\left (t \right )}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[9]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\dot{y{\left (t \right )}}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[10]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\ddot{y{\left (t \right )}}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Form-the-total-kinetic-energy-of-the-system">Form the total kinetic energy of the system<a class="anchor-link" href="#Form-the-total-kinetic-energy-of-the-system">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="p">(</span><span class="n">mw</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span>  <span class="c1"># vertical motion of washing machine</span>
+     <span class="n">md</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span>  <span class="c1"># vertical motion of the drum</span>
+     <span class="n">Icd</span> <span class="o">*</span> <span class="n">w</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span>  <span class="c1"># rotation of the drum</span>
+     <span class="n">mc</span> <span class="o">*</span> <span class="p">((</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span> <span class="o">+</span> <span class="n">w</span> <span class="o">*</span> <span class="n">e</span> <span class="o">*</span> <span class="n">sm</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">e</span> <span class="o">*</span> <span class="n">sm</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># motion of the clothes mass center</span>
+<span class="n">T</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[11]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\frac{I_{cd} \omega^{2}}{2} + \frac{m_{c}}{2} \left(e^{2} \omega^{2} \sin^{2}{\left (\omega t \right )} + \left(e \omega \cos{\left (\omega t \right )} + \dot{y{\left (t \right )}}\right)^{2}\right) + \frac{m_{d}}{2} \left(\dot{y{\left (t \right )}}\right)^{2} + \frac{m_{w}}{2} \left(\dot{y{\left (t \right )}}\right)^{2}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Form-the-total-potential-energy-of-the-system">Form the total potential energy of the system<a class="anchor-link" href="#Form-the-total-potential-energy-of-the-system">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">mw</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span>  <span class="c1"># due to raising height of washing machine</span>
+     <span class="n">md</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span>  <span class="c1"># due to raising height of drum</span>
+     <span class="n">mc</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">e</span> <span class="o">*</span> <span class="n">sm</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span> <span class="o">+</span>   <span class="c1"># due to raising height of clothes</span>
+     <span class="n">k</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># due to stretch away from free length of spring</span>
+<span class="n">U</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[12]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$g m_{c} \left(e \sin{\left (\omega t \right )} + y{\left (t \right )}\right) + g m_{d} y{\left (t \right )} + g m_{w} y{\left (t \right )} + \frac{k}{2} \left(- y_{0} + y{\left (t \right )}\right)^{2}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Form-the-total-dissipative-energy-of-the-system">Form the total dissipative energy of the system<a class="anchor-link" href="#Form-the-total-dissipative-energy-of-the-system">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">R</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># due to dashpot</span>
+<span class="n">R</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[13]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\frac{c}{2} \left(\dot{y{\left (t \right )}}\right)^{2}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Form-the-Lagrangian">Form the Lagrangian<a class="anchor-link" href="#Form-the-Lagrangian">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="n">T</span> <span class="o">-</span> <span class="n">U</span>
+<span class="n">L</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[14]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\frac{I_{cd} \omega^{2}}{2} - g m_{c} \left(e \sin{\left (\omega t \right )} + y{\left (t \right )}\right) - g m_{d} y{\left (t \right )} - g m_{w} y{\left (t \right )} - \frac{k}{2} \left(- y_{0} + y{\left (t \right )}\right)^{2} + \frac{m_{c}}{2} \left(e^{2} \omega^{2} \sin^{2}{\left (\omega t \right )} + \left(e \omega \cos{\left (\omega t \right )} + \dot{y{\left (t \right )}}\right)^{2}\right) + \frac{m_{d}}{2} \left(\dot{y{\left (t \right )}}\right)^{2} + \frac{m_{w}}{2} \left(\dot{y{\left (t \right )}}\right)^{2}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Form-Lagrange's-Equation-of-the-Second-Kind">Form Lagrange's Equation of the Second Kind<a class="anchor-link" href="#Form-Lagrange's-Equation-of-the-Second-Kind">&#182;</a></h2><p>There is only one generalized coordinate, $y$, so there will be one equation of motion for this single degree of freedom system.</p>
+<p>$$f(y, \dot{y}, \ddot{y}) = \frac{d}{dt}\left(\frac{\partial L}{\partial \dot{y}}\right) - \frac{\partial L}{\partial y} + \frac{\partial R}{\partial\dot{y}} = 0$$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">())</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">L</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">R</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">())</span>
+<span class="n">f</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[15]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$c \dot{y{\left (t \right )}} + g m_{c} + g m_{d} + g m_{w} + \frac{k}{2} \left(- 2 y_{0} + 2 y{\left (t \right )}\right) + \frac{m_{c}}{2} \left(- 2 e \omega^{2} \sin{\left (\omega t \right )} + 2 \ddot{y{\left (t \right )}}\right) + m_{d} \ddot{y{\left (t \right )}} + m_{w} \ddot{y{\left (t \right )}}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>.expand()</code> and <code>.collect()</code> can be used to show the equation in terms of each $y$ term.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">expand</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">((</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">f</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[16]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$c \dot{y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t \right )} + g m_{c} + g m_{d} + g m_{w} - k y_{0} + k y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{y{\left (t \right )}}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice that the rotational centroidal inertia of the drum plays no role in the dynamics because it can't affect the vertical motion of the machine. We could have ignored that from the beginning if we made that realization and further simplified the model description. Note also that the left hand side of this equation is linear in $y,\dot{y},\ddot{y}$. Lastly, note the constant term $$-m_T g + k y_0$$. This term has to do with the free length and the total weight.</p>
+<p>$$m_T \ddot{y} + c \dot{y} + k y = em_c\omega^2\sin(\omega t) - m_T g + k y_0$$</p>
+<p>where</p>
+<p>$$m_T = m_c + m_d + m_w$$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Equilibrium">Equilibrium<a class="anchor-link" href="#Equilibrium">&#182;</a></h1><p>The above equations are valid, but with linear systems, we are typically interested in vibration about the equilibrium. The value of $y$ for equilibrium should be the value of the free length of the spring minus the distance compressed under the static load of the machine, i.e.:</p>
+<p>$$y_{eq} = y_0 - \frac{m_T g}{k}$$</p>
+<p>If you set the velocities and accelerations to zero in the equation of motion, this leaves the static force balance and solve it for the generalized coordinate will give the equilibrium value.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">yeq</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">):</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span> <span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># note that solve returns a list, so [0] is needed</span>
+<span class="n">yeq</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[17]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\frac{1}{k} \left(- g m_{c} - g m_{d} - g m_{w} + k y_{0}\right)$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we know the value of $y$ the system is at a equilibrium, we can write the equation of motion in terms it's motion with respect to the motion $\Delta y$ about the equilibrium, i.e. $y = y_{eq} + \Delta y$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dely</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s1">&#39;\Delta y&#39;</span><span class="p">)(</span><span class="n">t</span><span class="p">)</span>
+<span class="n">dely</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[18]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$\Delta y{\left (t \right )}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">f_eq</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)})</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">):</span> <span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)})</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">y</span><span class="p">:</span> <span class="n">yeq</span> <span class="o">+</span> <span class="n">dely</span><span class="p">})</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+<span class="n">f_eq</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[19]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$c \dot{\Delta y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t \right )} + k \Delta y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{\Delta y{\left (t \right )}}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Linear-equations-in-canonical-form">Linear equations in canonical form<a class="anchor-link" href="#Linear-equations-in-canonical-form">&#182;</a></h1><p>Notice how the gravity related force terms and the need for the spring's free length were eliminated.</p>
+<p>The equation above also is linear wrt $\Delta y$, $\Delta\dot{y}$, and $\Delta\ddot{y}$. The $m$, $c$, and $k$ coefficients can be extracted:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">m_coeff</span> <span class="o">=</span> <span class="n">f_eq</span><span class="o">.</span><span class="n">coeff</span><span class="p">(</span><span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">m_coeff</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[20]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$m_{c} + m_{d} + m_{w}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">c_coeff</span> <span class="o">=</span> <span class="n">f_eq</span><span class="o">.</span><span class="n">coeff</span><span class="p">(</span><span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="n">c_coeff</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[21]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$c$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">k_coeff</span> <span class="o">=</span> <span class="n">f_eq</span><span class="o">.</span><span class="n">coeff</span><span class="p">(</span><span class="n">dely</span><span class="p">)</span>
+<span class="n">k_coeff</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[22]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$k$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The remaining term is the right hand side forcing term:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">forcing</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">f_eq</span> <span class="o">-</span> <span class="n">m_coeff</span> <span class="o">*</span> <span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">c_coeff</span> <span class="o">*</span> <span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">k_coeff</span> <span class="o">*</span> <span class="n">dely</span><span class="p">)</span>
+<span class="n">forcing</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[23]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$e m_{c} \omega^{2} \sin{\left (\omega t \right )}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we have a linear single degree of freedom system with a sinusoidal forcing term that takes this form:</p>
+<p>$$ m \Delta\ddot{y}(t) + c \Delta\dot{y}(t) + k \Delta y(t) = f_0 \sin(\omega t) $$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">m_coeff</span> <span class="o">*</span> <span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">c_coeff</span> <span class="o">*</span> <span class="n">dely</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_coeff</span> <span class="o">*</span> <span class="n">dely</span><span class="p">,</span> <span class="n">forcing</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[24]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$c \dot{\Delta y{\left (t \right )}} + k \Delta y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{\Delta y{\left (t \right )}} = e m_{c} \omega^{2} \sin{\left (\omega t \right )}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="The-free-length-and-equlibrium">The free length and equlibrium<a class="anchor-link" href="#The-free-length-and-equlibrium">&#182;</a></h1><p>Notice that the equation of motion of vibration about the equilibrium does not involve the free length or the weight of the machine. If you originally define your origin with respect to the static equilibrium you can write $U$ without the gravity potential energy terms related to the total weight because the energy stored in the compressed spring always equates to the energy gained from raising or lowering the mass. The free body diagram would look more like:</p>
+<p><img src="washing-machine-02.png" alt=""></p>
+<p>So the equation of motion can be formed more easily like:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">mc</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">e</span> <span class="o">*</span> <span class="n">sm</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span>  <span class="c1"># potential from height raise of mass of the clothes only</span>
+     <span class="n">k</span> <span class="o">*</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># potential due to stretch of spring away from equilibrium</span>
+<span class="n">U</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[25]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$e g m_{c} \sin{\left (\omega t \right )} + \frac{k}{2} y^{2}{\left (t \right )}$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="n">T</span> <span class="o">-</span> <span class="n">U</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">())</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">L</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">R</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">())</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">expand</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[26]:</div>
+
+
+
+
+<div class="output_latex output_subarea output_execute_result">
+$$c \dot{y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t \right )} + k y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{y{\left (t \right )}} = 0$$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Same equation of motion as above, but with fewer steps!</p>
 
 </div>
 </div>

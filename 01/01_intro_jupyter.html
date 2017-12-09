@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>index</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>01_intro_jupyter</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11775,22 +11775,233 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Resonance:-Learning-Mechanical-Vibration-Engineering-Through-Computation">Resonance: Learning Mechanical Vibration Engineering Through Computation<a class="anchor-link" href="#Resonance:-Learning-Mechanical-Vibration-Engineering-Through-Computation">&#182;</a></h1><h2 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h2><ol>
-<li><a href="01/01_intro_jupyter.html">Introduction to Jupyter</a> [<a href="01.zip">Download</a>]</li>
-<li><a href="02/02_book_balancing_intro.html">Introducing Mechanical Vibrations By Investigating a Book Oscillating on a Cylindrical Cup</a> [<a href="(02.zip">Download</a>]</li>
-<li><a href="03/03_bicycle_wheel_inertia.html">Measuring a Bicycle Wheel's Inertia</a> [<a href="03.zip">Download</a>]</li>
-<li><a href="04/04_clock_pendulum_with_damping.html">Clock Pendulum with Air Drag Damping</a> [<a href="04.zip">Download</a>]</li>
-<li><a href="05/05_clock_pendulum_with_friction.html">Clock Pendulum with Joint Friction</a> [<a href="05.zip">Download</a>]</li>
-<li><a href="06/06_sinusoidal_forcing.html">Sinusoidal Forcing</a> [<a href="06.zip">Download</a>]</li>
-<li><a href="07/07_vertical_vibration_of_a_quarter_car.html">Vertical Vibration of a Quarter Car</a> [<a href="07.zip">Download</a>]</li>
-<li><a href="08/08_modeling_a_drone_trifilar_pendulum.html">Modeling a Drone Swinging From a Trifilar Pendulum</a> [<a href="08.zip">Download</a>]</li>
-<li><a href="09/09_modeling_a_washing_machine.html">Modeling a Washing Machine</a> [<a href="09.zip">Download</a>]</li>
-<li><a href="10/10_modeling_a_ball_channel_pendulum.html">Modeling a Ball Channel Pendulum</a> [<a href="10.zip">Download</a>]</li>
-<li><a href="11/11_modes_of_a_ball_channel_pendulum.html">Modes of a Ball Channel Pendulum</a> [<a href="11.zip">Download</a>]</li>
-<li><a href="12/12_vibrating_building.html">Modes of a Vibrating Building</a> [<a href="12.zip">Download</a>]</li>
-<li><a href="13/13_vibrating_building_forcing.html">Vibrating Building Under Forcing</a> [<a href="13.zip">Download</a>]</li>
-<li><a href="14/14_bicycle.html">Bicycle</a> [<a href="14.zip">Download</a>]</li>
+<h1 id="1.-Introduction-to-Jupyter">1. Introduction to Jupyter<a class="anchor-link" href="#1.-Introduction-to-Jupyter">&#182;</a></h1><h2 id="Welcome">Welcome<a class="anchor-link" href="#Welcome">&#182;</a></h2><p>Welcome to ENG 122. In this course, we'll be using Jupyter notebooks to experiment with and analyze mechanical systems that vibrate using computation. This first notebook serves as an introduction to the JupyterHub service set up for this class and covers some of the basics of Jupyter notebooks.</p>
+<p>After working through this notebook, you will be able to:</p>
+<ul>
+<li>navigate to <a href="https://bicycle.ucdavis.edu">bicycle.ucdavis.edu</a> to start a JupyterHub notebook server</li>
+<li>open Jupyter notebooks on the JupyterHub and operate the notebook interface</li>
+<li>fetch, validate, and submit assignments</li>
+<li>create well-formatted, fully operational notebooks</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Tour-de-JupyterHub">Tour de JupyterHub<a class="anchor-link" href="#Tour-de-JupyterHub">&#182;</a></h2><p>Our computational home for the quarter can be found at <a href="https://bicycle.ucdavis.edu">bicycle.ucdavis.edu</a>. If you are enrolled in the course, you should be able to log in. Start by clicking the button that says "Sign in with UC Davis".</p>
+<p><img src="sign-in-with-ucd.png" alt="image" width="200"/></p>
+<p>This should direct you to a Google page in which you should enter your <strong>UC Davis email</strong>.</p>
+<p><img src="sign-in-with-google.png" alt="image" width="250"/></p>
+<p>This will in turn direct you to the UC Davis Central Authentication System (CAS). Here, you can enter your UCD username and password.</p>
+<p><img src="sign-in-with-cas.png" alt="image" width="300"/></p>
+<p>You're now presented with the Jupyter interface. This is the screen from which you will create notebooks, launch existing notebooks, and work with assignments.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Fetching-Notebooks">Fetching Notebooks<a class="anchor-link" href="#Fetching-Notebooks">&#182;</a></h2><p>Let's start by getting ahold of this very notebook so you can open it, modify it, and submit it during class.</p>
+<ol>
+<li>Go to the "Assignments" tab near the top of the Jupyter interface.</li>
+<li>Under the "Released assignments" section, you should see <code>eng122_cw01</code>. Go ahead and fetch this assignment.</li>
+<li>Now there are two ways to open the notebooks in this assignment.  <ol>
+<li>If you go back to the "Files" tab of the Jupyter interface, you should see a folder named <code>eng122_cw01</code> which contains the fetched notebooks.</li>
+<li>Alternatively, you can see the notebooks from the "Assignments" tab in the "Downloaded assignments" section.</li>
 </ol>
+</li>
+<li>Go ahead and open up the notebook <code>eng122_cw01/01-intro-jupyter.ipynb</code> and navigate to this point.</li>
+</ol>
+<hr>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Notebook-Basics">Notebook Basics<a class="anchor-link" href="#Notebook-Basics">&#182;</a></h2><h3 id="Working-with-Cells">Working with Cells<a class="anchor-link" href="#Working-with-Cells">&#182;</a></h3><p>Throughout the course, we will be using Jupyter notebooks to perform, demonstrate, and explain computational analyses of vibrational systems. These notebooks are a nice medium for this kind of work because they display and run the analysis code, allow for rich text formatting including nicely typeset equations, and enable interactive plotting. Let's walk through some of the main features of the notebook to get started.</p>
+<p>Notebooks are made up of <em>cells</em>, of which there are a couple different types. <em>Markdown cells</em> handle text, equations, and images. <em>Code cells</em> handle Python code. These four elements--text, equations, images, and code--are the four ingredients that constitute a notebook.</p>
+<p>What you're reading now is a Markdown cell. You can select a Markdown cell by clicking on it once--you should see a blue border around the cell indicating it is selected.</p>
+<p>With a cell selected (blue border), you can insert a new cell below by clicking the plus icon (<i class="fa fa-plus"></i>) at the top of the notebook interface or by pressing the "b" key. Go ahead and try it. You can also delete a cell by selecting it and clicking the scissors icon (<i class="fa fa-scissors"></i>) or pressing the "x" key.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>By default, the type of cell that's added is a code cell, which we'll talk about a bit more later. You can change the type of a cell by selecting it and then selecting "Markdown" in the dropdown box near the top of the notebook interface. A nifty keyboard shortcut for changing a cell to Markdown is to press "m".</p>
+<p><em>Note</em>: You can view all of the keyboard shortcuts available by clicking the keyboard icon (<i class="fa fa-keyboard-o"></i>) at the top of the notebook interface.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can rearrange the order of cells using the arrow buttons (<i class="fa fa-arrow-up"></i> and <i class="fa fa-arrow-down"></i>).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Notebook-Ingredient-1:-Text">Notebook Ingredient 1: Text<a class="anchor-link" href="#Notebook-Ingredient-1:-Text">&#182;</a></h3><p>All of the cells you've seen so far have been <em>Markdown cells</em>. What you're looking at now is the Markdown cell after it has been <em>run</em> by clicking the "run cell" button (<i class="fa fa-step-forward"></i>) or using a keyboard shortcut like <code>Ctrl-Enter</code>. To see the <em>source</em> of this cell and to edit its contents, double-click on it or select it and hit <code>Enter</code>. Now you should see that to make <strong>bold text</strong>, you surround it with two asterisks <code>**</code>.</p>
+<p>Here are a few other things you might want to do in a Markdown cell. Remember you can edit a cell to see how these things are achieved.</p>
+<p>Bulleted lists:</p>
+<ul>
+<li>bulleted lists can use several different characters to denote an item</li>
+<li>hyphens <code>-</code></li>
+<li>asterisks <code>*</code></li>
+<li>plus signs <code>+</code></li>
+</ul>
+<p>Enumerated lists:</p>
+<ol>
+<li>enumerated lists</li>
+<li>use numbers</li>
+</ol>
+<p>Headings are denoted with one or more <code>#</code> symbols. Using these headings is helpful for structuring a notebook and making it clear that sections are nested within one another.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Math">Math<a class="anchor-link" href="#Math">&#182;</a></h3><p>Another nice feature of Markdown cells is that you can typeset mathematical expressions. The syntax for writing equations is based on LaTeX (pronounced "LAH-tek" or "LAY-tek"). You can write LaTeX in the middle of a sentence (inline) by surrounding it with single dollar signs, for example the text <code>"$Ax = \lambda x$"</code> produces $Ax = \lambda x$. You can also place an equation on its own line (displayed) by putting it on a new line and surrounding it with double dollar signs.</p>
+<p>$$e^{i\pi} + 1 = 0$$</p>
+<p>A few LaTeX tips:</p>
+<ul>
+<li>Greek letters start with a backslash and are spelled out, e.g. $\delta$</li>
+<li>capital Greek leters are the same but capitalized, e.g. $\Delta$</li>
+<li>fractions use a syntax like <code>\frac{numerator}{denominator}</code>, e.g. $\frac{1}{n}$</li>
+<li>use <code>\cos{}</code>, <code>\sin{}</code>, etc. for $\sin{\theta}$, otherwise it looks like $sin(\theta)$</li>
+<li>integrals $\int x^2 dx$, and with limits $\int_0^\infty e^{-x} dx$</li>
+<li>surround exponents and subscripts with curly brackets <code>{}</code> or only the first character will be raised/lowered, e.g. $e^{ax}$ vs. $e^ax$</li>
+</ul>
+<p>Some additional resources:</p>
+<ul>
+<li><a href="https://en.wikibooks.org/wiki/LaTeX/Mathematics">https://en.wikibooks.org/wiki/LaTeX/Mathematics</a></li>
+<li><a href="https://meta.wikimedia.org/wiki/Help:Displaying_a_formula">https://meta.wikimedia.org/wiki/Help:Displaying_a_formula</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Images">Images<a class="anchor-link" href="#Images">&#182;</a></h3><p>As shown above with the screenshots of logging in to the JupyterHub server, you can display images in a notebook using the syntax</p>
+
+<pre><code>markdown
+![alt text here](path/to/image_file.ext)</code></pre>
+<p>or using HTML directly, like</p>
+<div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;path/to/image_file.ext&quot;</span> <span class="na">alt</span><span class="o">=</span><span class="s">&quot;alt text here&quot;</span><span class="p">/&gt;</span>
+</pre></div>
+<p>If you want to include any hand-written content in your notebooks to help illustrate your analysis in an assignment, you can upload the image file to the JupyterHub server and include it in your notebook as above.</p>
+<p>If you have a tablet or touch screen, the simplest option is to use freehand drawing software like <a href="https://krita.org">Krita</a> to create an image file.</p>
+<p>If you would like to put some extra effort in, you can use a vector graphics program like <a href="https://inkscape.org">Inkscape</a> to create professional-quality figures. The best way to include these types of graphics is to save in SVG format and include them directly. You can also save it as a rastered format (PNG preferred).</p>
+<p>A third option is to draw neatly on paper and take a good photo or scan. By "good," a couple things are implied about the end result (i.e. what you see in the notebook): it is <em>legible</em> and it is <em>understandable</em>. When taking a photo of a drawing, take into account the angle you take the photo from, the lighting, and the image resolution.</p>
+<p>To upload an image to the server, you can go into the assignment folder, click the "Upload" button, locate the file on your computer, click the blue "Upload" button, and then include the file in your notebook.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Code">Code<a class="anchor-link" href="#Code">&#182;</a></h3><p>The other type of cell we'll be using extensively is the <em>code cell</em>. This is the default cell type that is added when you click the plus icon near the top of the notebook interface to insert a new cell. Here's an example:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>hello
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Click somewhere on the above cell so that it is outlined in green and then run it (use the run cell button <i class="fa fa-step-forward"></i> or hit <code>Ctrl+Enter</code>). Notice that:</p>
+<ul>
+<li>Some output has been generated and displayed below the cell. This is great because the results of your code are now contained in the notebook and when you save the notebook, the output is saved as well.</li>
+<li>The text to the left of the cell used to be <code>In [ ]:</code>, and now there's a number between the square brackets. This indicates that the cell has been run and the number indicates the order of code cell execution in the notebook.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Wrapping-Up">Wrapping Up<a class="anchor-link" href="#Wrapping-Up">&#182;</a></h3><p>The key to creating a notebook that efficiently conveys your thoughts about an engineering problem is to leverage each of these four ingredients for their strengths. For example, a detailed paragraph describing a system with complicated geometry is not nearly as efficient as an image of the system annotated with angles and measurements. In addition, numerical code may not be a great way to demonstrate all of your modeling assumptions for a system.</p>
+<p>In general, you should consider how well someone else (or maybe future you) could understand your notebook without the benefit of being in your head.</p>
+<p>That's about all we need to know about working with notebooks for now. There are quite a few additional features and tricks that may be shown throughout the course, but the best way to become familiar with notebooks is to use them!</p>
+<p>For a bit more comprehensive introduction, see the <a href="https://jupyter-notebook.readthedocs.io/en/latest/notebook.html">Jupyter notebook documentation</a> and these <a href="https://nbviewer.jupyter.org/github/ipython/ipython/blob/3.x/examples/Notebook/Index.ipynb">introductory examples</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="A-Few-Last-Tips">A Few Last Tips<a class="anchor-link" href="#A-Few-Last-Tips">&#182;</a></h2><p>You'll see near the title of your notebook some text that indicates whether or not your notebook contains unsaved changes or if it has autosaved your progress. Even though Jupyter notebooks have autosave functionality, make it a habit to save your notebooks periodically by pressing the save button (<i class="fa fa-save"></i>) or pressing <code>Ctrl+s</code>.</p>
+<p>Let's go back to the main Jupyter interface for a minute. If you go to the "Files" tab and navigate to the folder containing this notebook, you'll see that this notebook has a green icon next to it (<i class="fa fa-book" style="color:green"></i>). If you switch to the "Running" tab, you'll see the full list of notebooks you have running. Even if you close the web browser tab holding a notebook. the notebook remains running in the background.</p>
+<p>If you notice that your notebooks are running slowly, check to see how many notebooks you have running in the background and shut down ones you don't need to be running. It may also be a good habit to start closing your notebooks by going to File -&gt; Close and Halt instead of just closing the web browser tab.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Submitting-Notebooks">Submitting Notebooks<a class="anchor-link" href="#Submitting-Notebooks">&#182;</a></h2><p>We're done with this notebook, so it's time to submit it. Click the "Kernel" menu and then click "Restart &amp; Run All". <strong>It is very important that you do this every time you're finished with a notebook and you're ready to submit it.</strong> This will rerun your entire notebook from top to bottom. Once that is finished, make sure all of the outputs look correct. Sometimes, you may find that in interactively working back and forth between cells you introduce some bugs that cause the notebook to fail when it is run from scratch.</p>
+<p>To submit the notebook, go to the tab in your browser that you launched this notebook from and get to the "Assignments" tab in the Jupyter interface. Now you can click the "Submit" button next to the assignment called <code>eng122_cw01</code>.</p>
 
 </div>
 </div>
