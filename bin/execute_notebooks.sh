@@ -7,6 +7,12 @@ then
 	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' {} \;
 fi
 
+cd notebooks
+for dir in */ ; do
+	zip -r ${dir:0:-1}.zip $dir
+done
+cd -
+
 for dir in notebooks/*/ notebooks/ ; do
 	if [ $dir != "notebooks/scratch/" ]; then
 		echo "Converting in directory $dir."
@@ -21,6 +27,5 @@ for dir in notebooks/*/ notebooks/ ; do
 			rm -r .ipynb_checkpoints
 		fi
 		cd -
-		zip -r $dir.zip $dir
 	fi
 done
