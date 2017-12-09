@@ -17,7 +17,9 @@ for dir in notebooks/*/ notebooks/ ; do
 			echo "==============="
 			jupyter nbconvert --debug --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$nb"
 		done
-		rm -r *.ipynb_checkpoints/
+		if [ -d ".ipynb_checkpoints" ] ; then
+			rm -r .ipynb_checkpoints
+		fi
 		cd -
 		zip -r $dir.zip $dir
 	fi
