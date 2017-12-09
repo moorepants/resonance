@@ -4,9 +4,15 @@
 if [ "$TRAVIS" = "true" ]
 then
 	echo "hello"
-	sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' notebooks/*.ipynb
+	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' {} \;
 fi
 
-for f in notebooks/*.ipynb; do
-  jupyter nbconvert --debug --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$f"
+for dir in notebooks/ notebooks/*/ ; do
+	if [ $dir != "notebooks/scratch/" ]; then
+		cd $dir
+		for nb in *.ipynb ; do
+			jupyter nbconvert --debug --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$nb"
+		done
+		cd -
+	fi
 done
