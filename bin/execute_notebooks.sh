@@ -9,8 +9,12 @@ fi
 
 for dir in notebooks/ notebooks/*/ ; do
 	if [ $dir != "notebooks/scratch/" ]; then
+		echo "Converting in directory $dir."
+		echo "============================="
 		cd $dir
 		for nb in *.ipynb ; do
+			echo "Converting $nb."
+			echo "==============="
 			jupyter nbconvert --debug --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$nb"
 		done
 		cd -
