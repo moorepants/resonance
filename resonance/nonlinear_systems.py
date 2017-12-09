@@ -85,6 +85,7 @@ class MultiDoFNonLinearSystem(_System):
         [self._get_par_vals(k) for k in getargspec(func).args]
         self._diff_eq_func = func
         self._check_diff_eq()
+        self._check_system()
         self._ode_eval_func = self._generate_array_rhs_eval_func()
 
     def _check_diff_eq(self):

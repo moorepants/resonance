@@ -376,6 +376,18 @@ class System(object):
     def config_plot_update_func(self, func):
         self._config_plot_update_func = func
 
+    def _check_system(self):
+
+        num_coords = len(self.coordinates)
+        num_speeds = len(self.speeds)
+
+        msg = ('Check whether you have the correct number of coordinates and '
+               'speeds defined. There are {} coordinates and {} speeds '
+               'defined. There should be one speed for each coordinate.')
+
+        if num_coords != num_speeds:
+            raise ValueError(msg.format(num_coords, num_speeds))
+
     def _get_par_vals(self, par_name):
         """Returns the value of any variable stored in the parameters,
         coordinates, or measurements dictionaries."""

@@ -89,3 +89,8 @@ def test_system():
     sys.config_plot_update_func = update
     with pytest.raises(AttributeError):
         sys.animate_configuration()
+
+    # no speed is set
+    sys.coordinates['x'] = 1.0
+    with pytest.raises(ValueError):
+        sys._check_system()
