@@ -419,27 +419,61 @@ class System(object):
             This must be a valid Python variable name and it should not clash
             with any names in the constants or coordinates dictionary.
         func : function
-            This function must only have existing parameter, coordinate, or
-            measurement names in the function signature. These can be a subset
-            of the available choices and any order is permitted. The function
-            must be able to operate on arrays, i.e. use NumPy vectorized
-            functions inside. It should return a single variable, scalar or
-            array, that gives the values of the measurement.
+            This function must only have existing parameter, coordinate,
+            measurement names, or the special name "time" in the function
+            signature. These can be a subset of the available choices and any
+            order is permitted. The function must be able to operate on both
+            inputs that are a collection of floats or a collection of equal
+            length 1d NumPy arrays and floats, i.e. the function must be
+            vectorized. So be sure to use NumPy vectorized functions inside
+            your function, i.e. ``numpy.sin()`` instead of ``math.sin()``. The
+            measurement function you create should return a single variable,
+            scalar or array, that gives the values of the measurement.
 
 
         Examples
         ========
 
         >>> import numpy as np
-        >>> def f(par2, meas4, par1, coord5):
-                  return par2 + meas4 + par1 + np.abs(coord5)
-        >>> f(1.0, 2.0, 3.0, -4.0):
-        10.0
-        >>> f(1.0, 2.0, 3.0, np.array([1.0, 2.0, -4.0]))
-        array([  7.,   8.,  10.])
-        >>> sys.add_measurement('meas5', f)
-        >>> sys.measurements['meas5']
-        10.0
+        >>> from resonance.linear_systems import SingleDoFLinearSystem
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['m'] = 1.0  # kg
+        >>> sys.constants['c'] = 0.2  # kg*s
+        >>> sys.constants['k'] = 10.0  # N/m
+        >>> sys.coordinates['x'] = 1.0  # m
+        >>> sys.speeds['v'] = 0.25  # m/s
+        >>> def can_coeffs(m, c, k):
+        ...     return m, c, k
+        ...
+        >>> sys.canonical_coeffs_func = can_coeffs
+        >>> def force(x, v, c, k):
+        ...    return -k * x - c * v
+        ...
+        >>> # The measurement function you create must be vectorized, such
+        >>> # that it works with both floats and 1D arrays.
+        >>> force(1.0, 0.5, 0.2, 10.0)
+        -10.05
+        >>> force(np.array([1.0, 1.0]), np.array([0.25, 0.25]),
+        ...       np.array([0.2, 0.2]), np.array([10.0, 10.0]))
+        array([-10.05, -10.05])
+        >>> sys.add_measurement('force', force)
+        >>> sys.measurements['f']
+        -10.05
+        >>> sys.constants['k'] = 20.0  # N/m
+        >>> sys.measurements['f']
+        -20.05
+        >>> # Note that you should use NumPy functions to ensure your
+        >>> # measurement is vectorized.
+        >>> def force_mag(force):
+        ...     return np.abs(force)
+        ...
+        >>> force_mag(-10.05)
+        10.050000000000001
+        >>> force_mag(np.array([-10.05, -20.05]))
+        array([ 10.05,  20.05])
+        >>> sys.add_measurement('fmag', force_mag)
+        >>> sys.measurements['fmag']
+        20.05
 
         """
         if name.lower() == 'time':
