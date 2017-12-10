@@ -428,25 +428,40 @@ class System(object):
         if not isinstance(res, float):
             raise TypeError(msg.format(type(res)))
 
-        # constants always get a single random float and any coordinates,
-        # speeds, or time get replaced by a 1D array
-        args = [random.random() if a in self.constants else np.random.random(5)
-                for a in func_args]
+        # the function may only be a function of constants, so only do the test
+        # if the measurement function has coordinates, speeds, or time.
+        # TODO : Not sure if this also checks for arrays for measurements in
+        # the func sig, maybe.
+        has_arrays = False
+        for a in func_args:
+            if a in self.states or a == 'time':
+                has_arrays = True
 
-        try:
-            res = func(*args)
-        except Exception as e:
-            msg = ("Measurement function failed to compute when given equal "
-                   "length 1D NumPy arrays as arguments for the coordinates, "
-                   "speeds, measurements, and/or time and floats for the "
-                   "constants with this error: ")
-            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
-        msg = ("Your function does not return a 1D NumPy array when "
-               "passed 1D arrays of equal lengths for the coordinates, "
-               "speeds, measurements, and/or time. It returns a {}. Adjust "
-               "your function so that it returns a 1D array in this case.")
-        if not isinstance(res, np.ndarray) and res.shape != (5, ):
-            raise TypeError(msg.format(type(res)))
+        if has_arrays:
+
+            # constants always get a single random float and any coordinates,
+            # speeds, or time get replaced by a 1D array
+            arr_len = 5
+            args = [random.random() if a in self.constants else
+                    np.random.random(arr_len) for a in func_args]
+
+            msg1 = ("Measurement function failed to compute when given equal "
+                    "length 1D NumPy arrays as arguments for the coordinates, "
+                    "speeds, measurements, and/or time and floats for the "
+                    "constants with this error: ")
+            msg2 = ("Your function does not return a 1D NumPy array when "
+                    "passed 1D arrays of equal lengths for the coordinates, "
+                    "speeds, measurements, and/or time. It returns a {}. "
+                    "Adjust your function so that it returns a 1D array in "
+                    "this case.")
+            try:
+                res = func(*args)
+            except Exception as e:
+                raise type(e)(msg1 + str(e)).with_traceback(sys.exc_info()[2])
+            if not isinstance(res, np.ndarray):
+                raise TypeError(msg2.format(type(res)))
+            if res.shape != (arr_len, ):
+                raise TypeError(msg2.format(type(res)))
 
     def add_measurement(self, name, func):
         """Creates a new measurement entry in the measurements attribute that
