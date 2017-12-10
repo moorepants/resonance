@@ -1,3 +1,4 @@
+import sys
 import collections as _collections
 from inspect import getargspec
 
@@ -409,11 +410,16 @@ class System(object):
         else:
             raise KeyError(msg.format(par_name))
 
-    def _check_user_func(self, func):
+    def _check_meas_func(self, func):
 
         func_args = getargspec(func).args
 
-        res = func(*np.random.random(len(func_args)))
+        try:
+            res = func(*np.random.random(len(func_args)))
+        except Exception as e:
+            msg = ("Measurement function failed to compute when given floats "
+                   "as arguments with: ")
+            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
         msg = ("Your function does not return a single float when"
                " passed floats as arguments. It returns something with type:"
                " {}. Adjust your function so that it returns a float when all"
@@ -421,7 +427,12 @@ class System(object):
         if not isinstance(res, float):
             raise TypeError(msg.format(type(res)))
 
-        res = func(*np.random.random((len(func_args), 5)))
+        try:
+            res = func(*np.random.random((len(func_args), 5)))
+        except Exception as e:
+            msg = ("Measurement function failed to compute when given 1D "
+                   "arrays as arguments with: ")
+            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
         msg = ("Your function does not return a 1D NumPy array when"
                " passed 1D arrays of equal lengths as arguments. It returns"
                " something with type: {}. Adjust your function so that it"
@@ -433,7 +444,13 @@ class System(object):
                " passed a mix of 1D arrays of equal lengths and floats as"
                " arguments. It returns something with type: {}. Adjust your"
                " function so that it" " returns a 1D array.")
-        res = func(np.array([1.0, 2.0]), *np.random.random(len(func_args) - 1))
+        try:
+            res = func(np.array([1.0, 2.0]),
+                       *np.random.random(len(func_args) - 1))
+        except Exception as e:
+            msg = ("Measurement function failed to compute when given a mix of "
+                   "floats and 1D arrays as arguments with: ")
+            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
         if not isinstance(res, np.ndarray) and res.shape != (2, ):
             raise TypeError(msg.format(type(res)))
 
@@ -519,7 +536,7 @@ class System(object):
                    'Choose something different.')
             raise ValueError(msg.format(name))
 
-        self._check_user_func(func)
+        self._check_meas_func(func)
 
         self.measurements._funcs[name] = func
         dict.__setitem__(self.measurements, name,

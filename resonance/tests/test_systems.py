@@ -123,3 +123,9 @@ def test_add_measurement():
 
     with pytest.raises(TypeError):
         sys.add_measurement('meas3', meas3)
+
+    def meas4(a, b):
+        return str(a) + int(b)
+
+    with pytest.raises(TypeError):
+        sys.add_measurement('meas4', meas4)
