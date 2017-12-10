@@ -11984,35 +11984,73 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |  
  |  add_measurement(self, name, func)
  |      Creates a new measurement entry in the measurements attribute that
- |      uses the provided function to compute the measurement.
+ |      uses the provided function to compute the measurement given a subset of
+ |      the constants, coordinates, speeds, other measurements, and time.
  |      
  |      Parameters
  |      ==========
  |      name : string
  |          This must be a valid Python variable name and it should not clash
- |          with any names in the constants or coordinates dictionary.
+ |          with any names in the constants, coordinates, or speeds dictionary.
+ |          This string can be different that the function name.
  |      func : function
- |          This function must only have existing parameter, coordinate, or
- |          measurement names in the function signature. These can be a subset
- |          of the available choices and any order is permitted. The function
- |          must be able to operate on arrays, i.e. use NumPy vectorized
- |          functions inside. It should return a single variable, scalar or
- |          array, that gives the values of the measurement.
- |      
+ |          This function must only have existing constant, coordinate, speed,
+ |          or measurement names, and/or the special name &#34;time&#34; in the function
+ |          signature. These can be a subset of the available choices in
+ |          constants, coordinates, speeds, measurements and any order in the
+ |          signature is permitted. The function must be able to operate on
+ |          both inputs that are a collection of floats or a collection of
+ |          equal length 1D NumPy arrays and floats, i.e. the function must be
+ |          vectorized. So be sure to use NumPy vectorized functions inside
+ |          your function, i.e.  ``numpy.sin()`` instead of ``math.sin()``. The
+ |          measurement function you create should return a item, either a
+ |          scalar or array, that gives the values of the measurement.
  |      
  |      Examples
  |      ========
  |      
  |      &gt;&gt;&gt; import numpy as np
- |      &gt;&gt;&gt; def f(par2, meas4, par1, coord5):
- |                return par2 + meas4 + par1 + np.abs(coord5)
- |      &gt;&gt;&gt; f(1.0, 2.0, 3.0, -4.0):
- |      10.0
- |      &gt;&gt;&gt; f(1.0, 2.0, 3.0, np.array([1.0, 2.0, -4.0]))
- |      array([  7.,   8.,  10.])
- |      &gt;&gt;&gt; sys.add_measurement(&#39;meas5&#39;, f)
- |      &gt;&gt;&gt; sys.measurements[&#39;meas5&#39;]
- |      10.0
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
+ |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
+ |      &gt;&gt;&gt; sys.constants[&#39;m&#39;] = 1.0  # kg
+ |      &gt;&gt;&gt; sys.constants[&#39;c&#39;] = 0.2  # kg*s
+ |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 10.0  # N/m
+ |      &gt;&gt;&gt; sys.coordinates[&#39;x&#39;] = 1.0  # m
+ |      &gt;&gt;&gt; sys.speeds[&#39;v&#39;] = 0.25  # m/s
+ |      &gt;&gt;&gt; def can_coeffs(m, c, k):
+ |      ...     return m, c, k
+ |      ...
+ |      &gt;&gt;&gt; sys.canonical_coeffs_func = can_coeffs
+ |      &gt;&gt;&gt; def force(x, v, c, k, time):
+ |      ...    return -k * x - c * v + 5.0 * time
+ |      ...
+ |      &gt;&gt;&gt; # The measurement function you create must be vectorized, such
+ |      &gt;&gt;&gt; # that it works with both floats and 1D arrays. For example with
+ |      &gt;&gt;&gt; # floats:
+ |      &gt;&gt;&gt; force(1.0, 0.5, 0.2, 10.0, 0.1)
+ |      -9.6
+ |      &gt;&gt;&gt; # And with 1D arrays:
+ |      &gt;&gt;&gt; force(np.array([1.0, 1.0]), np.array([0.25, 0.25]), 0.2, 10.0,
+ |      ...       np.array([0.1, 0.2]))
+ |      array([-9.55, -9.05])
+ |      &gt;&gt;&gt; sys.add_measurement(&#39;f&#39;, force)
+ |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]  # time is 0.0 by default
+ |      -10.05
+ |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 20.0  # N/m
+ |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]
+ |      -20.05
+ |      &gt;&gt;&gt; # Note that you should use NumPy functions to ensure your
+ |      &gt;&gt;&gt; # measurement is vectorized.
+ |      &gt;&gt;&gt; def force_mag(force):
+ |      ...     return np.abs(force)
+ |      ...
+ |      &gt;&gt;&gt; force_mag(-10.05)
+ |      10.050000000000001
+ |      &gt;&gt;&gt; force_mag(np.array([-10.05, -20.05]))
+ |      array([ 10.05,  20.05])
+ |      &gt;&gt;&gt; sys.add_measurement(&#39;fmag&#39;, force_mag)
+ |      &gt;&gt;&gt; sys.measurements[&#39;fmag&#39;]
+ |      20.05
  |  
  |  animate_configuration(self, fps=30, **kwargs)
  |      Returns a matplotlib animation function based on the configuration
@@ -12514,35 +12552,73 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |  
  |  add_measurement(self, name, func)
  |      Creates a new measurement entry in the measurements attribute that
- |      uses the provided function to compute the measurement.
+ |      uses the provided function to compute the measurement given a subset of
+ |      the constants, coordinates, speeds, other measurements, and time.
  |      
  |      Parameters
  |      ==========
  |      name : string
  |          This must be a valid Python variable name and it should not clash
- |          with any names in the constants or coordinates dictionary.
+ |          with any names in the constants, coordinates, or speeds dictionary.
+ |          This string can be different that the function name.
  |      func : function
- |          This function must only have existing parameter, coordinate, or
- |          measurement names in the function signature. These can be a subset
- |          of the available choices and any order is permitted. The function
- |          must be able to operate on arrays, i.e. use NumPy vectorized
- |          functions inside. It should return a single variable, scalar or
- |          array, that gives the values of the measurement.
- |      
+ |          This function must only have existing constant, coordinate, speed,
+ |          or measurement names, and/or the special name &#34;time&#34; in the function
+ |          signature. These can be a subset of the available choices in
+ |          constants, coordinates, speeds, measurements and any order in the
+ |          signature is permitted. The function must be able to operate on
+ |          both inputs that are a collection of floats or a collection of
+ |          equal length 1D NumPy arrays and floats, i.e. the function must be
+ |          vectorized. So be sure to use NumPy vectorized functions inside
+ |          your function, i.e.  ``numpy.sin()`` instead of ``math.sin()``. The
+ |          measurement function you create should return a item, either a
+ |          scalar or array, that gives the values of the measurement.
  |      
  |      Examples
  |      ========
  |      
  |      &gt;&gt;&gt; import numpy as np
- |      &gt;&gt;&gt; def f(par2, meas4, par1, coord5):
- |                return par2 + meas4 + par1 + np.abs(coord5)
- |      &gt;&gt;&gt; f(1.0, 2.0, 3.0, -4.0):
- |      10.0
- |      &gt;&gt;&gt; f(1.0, 2.0, 3.0, np.array([1.0, 2.0, -4.0]))
- |      array([  7.,   8.,  10.])
- |      &gt;&gt;&gt; sys.add_measurement(&#39;meas5&#39;, f)
- |      &gt;&gt;&gt; sys.measurements[&#39;meas5&#39;]
- |      10.0
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
+ |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
+ |      &gt;&gt;&gt; sys.constants[&#39;m&#39;] = 1.0  # kg
+ |      &gt;&gt;&gt; sys.constants[&#39;c&#39;] = 0.2  # kg*s
+ |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 10.0  # N/m
+ |      &gt;&gt;&gt; sys.coordinates[&#39;x&#39;] = 1.0  # m
+ |      &gt;&gt;&gt; sys.speeds[&#39;v&#39;] = 0.25  # m/s
+ |      &gt;&gt;&gt; def can_coeffs(m, c, k):
+ |      ...     return m, c, k
+ |      ...
+ |      &gt;&gt;&gt; sys.canonical_coeffs_func = can_coeffs
+ |      &gt;&gt;&gt; def force(x, v, c, k, time):
+ |      ...    return -k * x - c * v + 5.0 * time
+ |      ...
+ |      &gt;&gt;&gt; # The measurement function you create must be vectorized, such
+ |      &gt;&gt;&gt; # that it works with both floats and 1D arrays. For example with
+ |      &gt;&gt;&gt; # floats:
+ |      &gt;&gt;&gt; force(1.0, 0.5, 0.2, 10.0, 0.1)
+ |      -9.6
+ |      &gt;&gt;&gt; # And with 1D arrays:
+ |      &gt;&gt;&gt; force(np.array([1.0, 1.0]), np.array([0.25, 0.25]), 0.2, 10.0,
+ |      ...       np.array([0.1, 0.2]))
+ |      array([-9.55, -9.05])
+ |      &gt;&gt;&gt; sys.add_measurement(&#39;f&#39;, force)
+ |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]  # time is 0.0 by default
+ |      -10.05
+ |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 20.0  # N/m
+ |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]
+ |      -20.05
+ |      &gt;&gt;&gt; # Note that you should use NumPy functions to ensure your
+ |      &gt;&gt;&gt; # measurement is vectorized.
+ |      &gt;&gt;&gt; def force_mag(force):
+ |      ...     return np.abs(force)
+ |      ...
+ |      &gt;&gt;&gt; force_mag(-10.05)
+ |      10.050000000000001
+ |      &gt;&gt;&gt; force_mag(np.array([-10.05, -20.05]))
+ |      array([ 10.05,  20.05])
+ |      &gt;&gt;&gt; sys.add_measurement(&#39;fmag&#39;, force_mag)
+ |      &gt;&gt;&gt; sys.measurements[&#39;fmag&#39;]
+ |      20.05
  |  
  |  animate_configuration(self, fps=30, **kwargs)
  |      Returns a matplotlib animation function based on the configuration
@@ -13980,29 +14056,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_imgdccca9a24bed4c2ebe36643ceae6cda6">
+    <img id="_anim_img97776e262b404dfa8daef494e9d2ccee">
     <br>
-    <input id="_anim_sliderdccca9a24bed4c2ebe36643ceae6cda6" type="range" style="width:350px"
+    <input id="_anim_slider97776e262b404dfa8daef494e9d2ccee" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="animdccca9a24bed4c2ebe36643ceae6cda6.set_frame(parseInt(this.value));"></input>
+           onchange="anim97776e262b404dfa8daef494e9d2ccee.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.previous_frame()">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.reverse_animation()">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.pause_animation()"><i class="fa fa-pause">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="animdccca9a24bed4c2ebe36643ceae6cda6.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_selectdccca9a24bed4c2ebe36643ceae6cda6" class="anim_control">
+    <button onclick="anim97776e262b404dfa8daef494e9d2ccee.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_select97776e262b404dfa8daef494e9d2ccee" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -14017,9 +14093,9 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imgdccca9a24bed4c2ebe36643ceae6cda6";
-    var slider_id = "_anim_sliderdccca9a24bed4c2ebe36643ceae6cda6";
-    var loop_select_id = "_anim_loop_selectdccca9a24bed4c2ebe36643ceae6cda6";
+    var img_id = "_anim_img97776e262b404dfa8daef494e9d2ccee";
+    var slider_id = "_anim_slider97776e262b404dfa8daef494e9d2ccee";
+    var loop_select_id = "_anim_loop_select97776e262b404dfa8daef494e9d2ccee";
     var frames = new Array(0);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38578,7 +38654,7 @@ GADAlggwAIAtEWAAAFsiwAAAtkSAAQBs6f8B9fg3pZjkBc4AAAAASUVORK5CYII=\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        animdccca9a24bed4c2ebe36643ceae6cda6 = new Animation(frames, img_id, slider_id, 16.0,
+        anim97776e262b404dfa8daef494e9d2ccee = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
