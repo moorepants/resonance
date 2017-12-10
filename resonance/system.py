@@ -1,6 +1,7 @@
 import sys
 import collections as _collections
 from inspect import getargspec
+import random
 
 import numpy as np
 import matplotlib.animation as animation
@@ -418,7 +419,7 @@ class System(object):
             res = func(*np.random.random(len(func_args)))
         except Exception as e:
             msg = ("Measurement function failed to compute when given floats "
-                   "as arguments with: ")
+                   "as all of the arguments with: ")
             raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
         msg = ("Your function does not return a single float when"
                " passed floats as arguments. It returns something with type:"
@@ -427,31 +428,24 @@ class System(object):
         if not isinstance(res, float):
             raise TypeError(msg.format(type(res)))
 
-        try:
-            res = func(*np.random.random((len(func_args), 5)))
-        except Exception as e:
-            msg = ("Measurement function failed to compute when given 1D "
-                   "arrays as arguments with: ")
-            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
-        msg = ("Your function does not return a 1D NumPy array when"
-               " passed 1D arrays of equal lengths as arguments. It returns"
-               " something with type: {}. Adjust your function so that it"
-               " returns a 1D array when all arguments are 1D arrays.")
-        if not isinstance(res, np.ndarray) and res.shape != (5, ):
-            raise TypeError(msg.format(type(res)))
+        # constants always get a single random float and any coordinates,
+        # speeds, or time get replaced by a 1D array
+        args = [random.random() if a in self.constants else np.random.random(5)
+                for a in func_args]
 
-        msg = ("Your function does not return a 1D NumPy array when"
-               " passed a mix of 1D arrays of equal lengths and floats as"
-               " arguments. It returns something with type: {}. Adjust your"
-               " function so that it" " returns a 1D array.")
         try:
-            res = func(np.array([1.0, 2.0]),
-                       *np.random.random(len(func_args) - 1))
+            res = func(*args)
         except Exception as e:
-            msg = ("Measurement function failed to compute when given a mix of "
-                   "floats and 1D arrays as arguments with: ")
+            msg = ("Measurement function failed to compute when given equal "
+                   "length 1D NumPy arrays as arguments for the coordinates, "
+                   "speeds, measurements, and/or time and floats for the "
+                   "constants with this error: ")
             raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
-        if not isinstance(res, np.ndarray) and res.shape != (2, ):
+        msg = ("Your function does not return a 1D NumPy array when "
+               "passed 1D arrays of equal lengths for the coordinates, "
+               "speeds, measurements, and/or time. It returns a {}. Adjust "
+               "your function so that it returns a 1D array in this case.")
+        if not isinstance(res, np.ndarray) and res.shape != (5, ):
             raise TypeError(msg.format(type(res)))
 
     def add_measurement(self, name, func):
