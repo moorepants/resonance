@@ -1,5 +1,6 @@
 from math import isclose
 
+import numpy as np
 import matplotlib.pyplot as plt
 import pytest
 
@@ -94,3 +95,31 @@ def test_system():
     sys.coordinates['x'] = 1.0
     with pytest.raises(ValueError):
         sys._check_system()
+
+
+def test_add_measurement():
+    sys = System()
+    sys.constants['a'] = 1.0
+    sys.constants['b'] = 2.0
+
+    def meas1(a, b):
+        return np.array([a + b])
+
+    with pytest.raises(TypeError):
+        sys.add_measurement('meas1', meas1)
+
+    def meas2(a, b):
+        return np.sum([a, b])
+
+    with pytest.raises(TypeError):
+        sys.add_measurement('meas2', meas2)
+
+    def meas3(a, b):
+        if isinstance(b, np.ndarray):
+            a = 5.2324 * np.ones_like(b)
+        else:
+            a = 1.23
+        return a + b
+
+    with pytest.raises(TypeError):
+        sys.add_measurement('meas3', meas3)

@@ -409,6 +409,34 @@ class System(object):
         else:
             raise KeyError(msg.format(par_name))
 
+    def _check_user_func(self, func):
+
+        func_args = getargspec(func).args
+
+        res = func(*np.random.random(len(func_args)))
+        msg = ("Your function does not return a single float when"
+               " passed floats as arguments. It returns something with type:"
+               " {}. Adjust your function so that it returns a float when all"
+               " arguments are floats.")
+        if not isinstance(res, float):
+            raise TypeError(msg.format(type(res)))
+
+        res = func(*np.random.random((len(func_args), 5)))
+        msg = ("Your function does not return a 1D NumPy array when"
+               " passed 1D arrays of equal lengths as arguments. It returns"
+               " something with type: {}. Adjust your function so that it"
+               " returns a 1D array when all arguments are 1D arrays.")
+        if not isinstance(res, np.ndarray) and res.shape != (5, ):
+            raise TypeError(msg.format(type(res)))
+
+        msg = ("Your function does not return a 1D NumPy array when"
+               " passed a mix of 1D arrays of equal lengths and floats as"
+               " arguments. It returns something with type: {}. Adjust your"
+               " function so that it" " returns a 1D array.")
+        res = func(np.array([1.0, 2.0]), *np.random.random(len(func_args) - 1))
+        if not isinstance(res, np.ndarray) and res.shape != (2, ):
+            raise TypeError(msg.format(type(res)))
+
     def add_measurement(self, name, func):
         """Creates a new measurement entry in the measurements attribute that
         uses the provided function to compute the measurement.
@@ -490,6 +518,8 @@ class System(object):
             msg = ('{} is already used as a constant or coordinate name. '
                    'Choose something different.')
             raise ValueError(msg.format(name))
+
+        self._check_user_func(func)
 
         self.measurements._funcs[name] = func
         dict.__setitem__(self.measurements, name,
