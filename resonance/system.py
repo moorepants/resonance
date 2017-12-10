@@ -450,25 +450,27 @@ class System(object):
 
     def add_measurement(self, name, func):
         """Creates a new measurement entry in the measurements attribute that
-        uses the provided function to compute the measurement.
+        uses the provided function to compute the measurement given a subset of
+        the constants, coordinates, speeds, other measurements, and time.
 
         Parameters
         ==========
         name : string
             This must be a valid Python variable name and it should not clash
-            with any names in the constants or coordinates dictionary.
+            with any names in the constants, coordinates, or speeds dictionary.
+            This string can be different that the function name.
         func : function
-            This function must only have existing parameter, coordinate,
-            measurement names, or the special name "time" in the function
-            signature. These can be a subset of the available choices and any
-            order is permitted. The function must be able to operate on both
-            inputs that are a collection of floats or a collection of equal
-            length 1d NumPy arrays and floats, i.e. the function must be
+            This function must only have existing constant, coordinate, speed,
+            or measurement names, and/or the special name "time" in the function
+            signature. These can be a subset of the available choices in
+            constants, coordinates, speeds, measurements and any order in the
+            signature is permitted. The function must be able to operate on
+            both inputs that are a collection of floats or a collection of
+            equal length 1D NumPy arrays and floats, i.e. the function must be
             vectorized. So be sure to use NumPy vectorized functions inside
-            your function, i.e. ``numpy.sin()`` instead of ``math.sin()``. The
-            measurement function you create should return a single variable,
+            your function, i.e.  ``numpy.sin()`` instead of ``math.sin()``. The
+            measurement function you create should return a item, either a
             scalar or array, that gives the values of the measurement.
-
 
         Examples
         ========
@@ -485,18 +487,20 @@ class System(object):
         ...     return m, c, k
         ...
         >>> sys.canonical_coeffs_func = can_coeffs
-        >>> def force(x, v, c, k):
-        ...    return -k * x - c * v
+        >>> def force(x, v, c, k, time):
+        ...    return -k * x - c * v + 5.0 * time
         ...
         >>> # The measurement function you create must be vectorized, such
-        >>> # that it works with both floats and 1D arrays.
-        >>> force(1.0, 0.5, 0.2, 10.0)
-        -10.05
-        >>> force(np.array([1.0, 1.0]), np.array([0.25, 0.25]),
-        ...       np.array([0.2, 0.2]), np.array([10.0, 10.0]))
-        array([-10.05, -10.05])
-        >>> sys.add_measurement('force', force)
-        >>> sys.measurements['f']
+        >>> # that it works with both floats and 1D arrays. For example with
+        >>> # floats:
+        >>> force(1.0, 0.5, 0.2, 10.0, 0.1)
+        -9.6
+        >>> # And with 1D arrays:
+        >>> force(np.array([1.0, 1.0]), np.array([0.25, 0.25]), 0.2, 10.0,
+        ...       np.array([0.1, 0.2]))
+        array([-9.55, -9.05])
+        >>> sys.add_measurement('f', force)
+        >>> sys.measurements['f']  # time is 0.0 by default
         -10.05
         >>> sys.constants['k'] = 20.0  # N/m
         >>> sys.measurements['f']
