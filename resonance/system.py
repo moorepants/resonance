@@ -1,5 +1,7 @@
+import sys
 import collections as _collections
 from inspect import getargspec
+import random
 
 import numpy as np
 import matplotlib.animation as animation
@@ -409,37 +411,112 @@ class System(object):
         else:
             raise KeyError(msg.format(par_name))
 
+    def _check_meas_func(self, func):
+
+        func_args = getargspec(func).args
+
+        try:
+            res = func(*np.random.random(len(func_args)))
+        except Exception as e:
+            msg = ("Measurement function failed to compute when given floats "
+                   "as all of the arguments with: ")
+            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
+        msg = ("Your function does not return a single float when"
+               " passed floats as arguments. It returns something with type:"
+               " {}. Adjust your function so that it returns a float when all"
+               " arguments are floats.")
+        if not isinstance(res, float):
+            raise TypeError(msg.format(type(res)))
+
+        # constants always get a single random float and any coordinates,
+        # speeds, or time get replaced by a 1D array
+        args = [random.random() if a in self.constants else np.random.random(5)
+                for a in func_args]
+
+        try:
+            res = func(*args)
+        except Exception as e:
+            msg = ("Measurement function failed to compute when given equal "
+                   "length 1D NumPy arrays as arguments for the coordinates, "
+                   "speeds, measurements, and/or time and floats for the "
+                   "constants with this error: ")
+            raise type(e)(msg + str(e)).with_traceback(sys.exc_info()[2])
+        msg = ("Your function does not return a 1D NumPy array when "
+               "passed 1D arrays of equal lengths for the coordinates, "
+               "speeds, measurements, and/or time. It returns a {}. Adjust "
+               "your function so that it returns a 1D array in this case.")
+        if not isinstance(res, np.ndarray) and res.shape != (5, ):
+            raise TypeError(msg.format(type(res)))
+
     def add_measurement(self, name, func):
         """Creates a new measurement entry in the measurements attribute that
-        uses the provided function to compute the measurement.
+        uses the provided function to compute the measurement given a subset of
+        the constants, coordinates, speeds, other measurements, and time.
 
         Parameters
         ==========
         name : string
             This must be a valid Python variable name and it should not clash
-            with any names in the constants or coordinates dictionary.
+            with any names in the constants, coordinates, or speeds dictionary.
+            This string can be different that the function name.
         func : function
-            This function must only have existing parameter, coordinate, or
-            measurement names in the function signature. These can be a subset
-            of the available choices and any order is permitted. The function
-            must be able to operate on arrays, i.e. use NumPy vectorized
-            functions inside. It should return a single variable, scalar or
-            array, that gives the values of the measurement.
-
+            This function must only have existing constant, coordinate, speed,
+            or measurement names, and/or the special name "time" in the function
+            signature. These can be a subset of the available choices in
+            constants, coordinates, speeds, measurements and any order in the
+            signature is permitted. The function must be able to operate on
+            both inputs that are a collection of floats or a collection of
+            equal length 1D NumPy arrays and floats, i.e. the function must be
+            vectorized. So be sure to use NumPy vectorized functions inside
+            your function, i.e.  ``numpy.sin()`` instead of ``math.sin()``. The
+            measurement function you create should return a item, either a
+            scalar or array, that gives the values of the measurement.
 
         Examples
         ========
 
         >>> import numpy as np
-        >>> def f(par2, meas4, par1, coord5):
-                  return par2 + meas4 + par1 + np.abs(coord5)
-        >>> f(1.0, 2.0, 3.0, -4.0):
-        10.0
-        >>> f(1.0, 2.0, 3.0, np.array([1.0, 2.0, -4.0]))
-        array([  7.,   8.,  10.])
-        >>> sys.add_measurement('meas5', f)
-        >>> sys.measurements['meas5']
-        10.0
+        >>> from resonance.linear_systems import SingleDoFLinearSystem
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['m'] = 1.0  # kg
+        >>> sys.constants['c'] = 0.2  # kg*s
+        >>> sys.constants['k'] = 10.0  # N/m
+        >>> sys.coordinates['x'] = 1.0  # m
+        >>> sys.speeds['v'] = 0.25  # m/s
+        >>> def can_coeffs(m, c, k):
+        ...     return m, c, k
+        ...
+        >>> sys.canonical_coeffs_func = can_coeffs
+        >>> def force(x, v, c, k, time):
+        ...    return -k * x - c * v + 5.0 * time
+        ...
+        >>> # The measurement function you create must be vectorized, such
+        >>> # that it works with both floats and 1D arrays. For example with
+        >>> # floats:
+        >>> force(1.0, 0.5, 0.2, 10.0, 0.1)
+        -9.6
+        >>> # And with 1D arrays:
+        >>> force(np.array([1.0, 1.0]), np.array([0.25, 0.25]), 0.2, 10.0,
+        ...       np.array([0.1, 0.2]))
+        array([-9.55, -9.05])
+        >>> sys.add_measurement('f', force)
+        >>> sys.measurements['f']  # time is 0.0 by default
+        -10.05
+        >>> sys.constants['k'] = 20.0  # N/m
+        >>> sys.measurements['f']
+        -20.05
+        >>> # Note that you should use NumPy functions to ensure your
+        >>> # measurement is vectorized.
+        >>> def force_mag(force):
+        ...     return np.abs(force)
+        ...
+        >>> force_mag(-10.05)
+        10.050000000000001
+        >>> force_mag(np.array([-10.05, -20.05]))
+        array([ 10.05,  20.05])
+        >>> sys.add_measurement('fmag', force_mag)
+        >>> sys.measurements['fmag']
+        20.05
 
         """
         if name.lower() == 'time':
@@ -456,6 +533,8 @@ class System(object):
             msg = ('{} is already used as a constant or coordinate name. '
                    'Choose something different.')
             raise ValueError(msg.format(name))
+
+        self._check_meas_func(func)
 
         self.measurements._funcs[name] = func
         dict.__setitem__(self.measurements, name,
