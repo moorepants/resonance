@@ -135,3 +135,12 @@ def test_add_measurement():
 
     with pytest.raises(TypeError):
         sys.add_measurement('meas5', meas5)
+
+    del sys.measurements['meas4']
+
+    # should be able to add only a function of constants too (and array check
+    # doesn't happen)
+    def meas6(a, b):
+        return a + b
+
+    sys.add_measurement('meas6', meas6)
