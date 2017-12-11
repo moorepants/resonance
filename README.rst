@@ -15,6 +15,9 @@ Resonance: Learning Mechanical Vibration Engineering Through Computation
 .. image:: https://travis-ci.org/moorepants/resonance.svg?branch=master
    :target: https://travis-ci.org/moorepants/resonance
 
+.. image:: https://mybinder.org/badge.svg
+   :target: https://mybinder.org/v2/gh/moorepants/resonance/master
+
 Introduction
 ============
 
@@ -102,10 +105,10 @@ Installation
 ============
 
 For users, you can create a conda environment called ``resonance`` by
-downloading the ``user-environment.yml`` file and typing the following at the
+downloading the ``environment.yml`` file and typing the following at the
 command line::
 
-   $ conda env create -f user-environment.yml
+   $ conda env create -f environment.yml
 
 This environment can be activated with::
 
