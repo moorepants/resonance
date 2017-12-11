@@ -3,8 +3,8 @@
 # %matplotlib notebook will not cause plots to render in html output, so swap it.
 if [ "$TRAVIS" = "true" ]
 then
-	echo "hello"
 	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' {} \;
+	sed -i 's/.ipynb/.html/g' notebooks/index.ipynb
 fi
 
 cd notebooks
