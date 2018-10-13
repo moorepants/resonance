@@ -1323,7 +1323,7 @@ class MassSpringDamperSystem(SingleDoFLinearSystem):
         self.constants['damping'] = 0.0  # kg/s
         self.constants['stiffness'] = 100  # N/m
 
-        self.coordinates['position'] = 10.0
+        self.coordinates['position'] = 0.0
         self.speeds['velocity'] = 0.0
 
         def coeffs(mass, damping, stiffness):
