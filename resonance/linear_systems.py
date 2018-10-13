@@ -9,7 +9,7 @@ import numpy as np
 from .system import System as _System
 from .system import _SingleDoFCoordinatesDict
 from .nonlinear_systems import MultiDoFNonLinearSystem as _MDNLS
-from .functions import benchmark_par_to_canonical
+from .functions import benchmark_par_to_canonical, spring, centered_rectangle
 
 
 class _LinearSystem(_System):
@@ -1323,13 +1323,37 @@ class MassSpringDamperSystem(SingleDoFLinearSystem):
         self.constants['damping'] = 0.0  # kg/s
         self.constants['stiffness'] = 100  # N/m
 
-        self.coordinates['position'] = 0.0
+        self.coordinates['position'] = 10.0
         self.speeds['velocity'] = 0.0
 
         def coeffs(mass, damping, stiffness):
             return mass, damping, stiffness
 
         self.canonical_coeffs_func = coeffs
+
+        block_size = 1.0
+
+        def plot_config(position):
+            fig, ax = plt.subplots(1, 1)
+
+            block = Rectangle(*centered_rectangle(position, 0.0, block_size,
+                                                  block_size))
+            ax.add_patch(block)
+            spring_line = ax.plot(*spring(0.0, position, 0.0, 0.0, 0.25, n=10), 'k')[0]
+
+            ax.set_xlim((-position - block_size / 2, position + block_size / 2))
+            ax.set_aspect('equal')
+
+            return fig, block, spring_line
+
+        self.config_plot_func = plot_config
+
+        def update(position, block, spring_line):
+            block.set_xy(centered_rectangle(position, 0.0, block_size,
+                                            block_size)[0])
+            spring_line.set_data(*spring(0.0, position, 0.0, 0.0, 0.25, n=10))
+
+        self.config_plot_update_func = update
 
 
 class BaseExcitationSystem(SingleDoFLinearSystem):
@@ -1625,9 +1649,9 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
             # results available
             road = ax.plot(lat, np.zeros_like(lat), color='black')[0]
 
-            suspension = ax.plot([lat_pos, lat_pos],
-                                 [0.0, xeq + car_vertical_position],
-                                 linewidth='4', marker='o', color='yellow')[0]
+            suspension = ax.plot(*spring(lat_pos, lat_pos,
+                                 0.0, xeq + car_vertical_position, 0.1, n=2),
+                                 linewidth='2', marker='o', color='yellow')[0]
             #force_vec = ax.plot([lat_pos, lat_pos],
                                 #[xeq + car_vertical_position + rect_height / 2,
                                  #xeq + car_vertical_position + rect_height / 2 + 0.2],
@@ -1657,8 +1681,8 @@ class SimpleQuarterCarSystem(BaseExcitationSystem):
             road.set_xdata(lat)
             road.set_ydata(np.hstack((road_height__hist, road_height__futr)))
 
-            suspension.set_xdata([lat_pos, lat_pos])
-            suspension.set_ydata([road_height, xeq + car_vertical_position])
+            suspension.set_data(*spring(lat_pos, lat_pos, road_height,
+                                        xeq + car_vertical_position, 0.1, n=2))
 
             #force_vec.set_xdata([lat_pos, lat_pos])
             #force_vec.set_ydata([xeq + x[i] + rect_height / 2,

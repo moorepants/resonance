@@ -3,6 +3,99 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
 import matplotlib.animation as animation
+from matplotlib.patches import Rectangle
+
+
+def centered_rectangle(xy, width, height, angle=0.0):
+    """Returns the arguments for Rectangle given the x and y coordinates of the
+    cetner of the rectangle."""
+    xc, yc = xy
+    theta = np.deg2rad(angle)
+    x_ll = xc - width/2 * np.cos(theta) + height/2 * np.sin(theta)
+    y_ll = yc - width/2 * np.sin(theta) - height/2 * np.cos(theta)
+    return (x_ll, y_ll), width, height, angle
+
+
+def spring(xA, xB, yA, yB, w, n=1, x=None, y=None):
+    """Returns the x and y coordinates of the points that define a spring
+    diagram between points (xA, yB) and (yA, yB).
+
+    Parameters
+    ==========
+    xA : float
+        x coordinate of the beginning of the spring.
+    xB : float
+        x coordinate of the end of the spring.
+    yA : float
+        y coordinate of the beginning of the spring.
+    yB : float
+        y coordinate of the end of the spring.
+    w : float
+        The width of the spring.
+    n : integer, optional
+        Number of coils.
+    x : ndarray, shape(2*n + 2), optional
+        Preallocated array for the results.
+    y : ndarray, shape(2*n + 2), optional
+        Preallocated array for the results.
+
+    Returns
+    =======
+    x : ndarray, shape(2*n + 2)
+        x coordinates of the points that define the ends of each line in the
+        spring.
+    y : ndarray, shape(2*n + 2)
+        y coordinates of the points that define the ends of each line in the
+        spring.
+
+    Examples
+    ========
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from resonance.functions import spring
+    >>> plt.axes().set_aspect('equal')
+    >>> for angle in np.arange(0, 2*np.pi, np.pi/4):
+    ...     plt.plot(*spring(0.0, np.cos(angle), 0.0, np.sin(angle), 0.1, n=4))
+    ...
+    >>> plt.show()
+
+    """
+
+    if xB < xA:
+        xA, yA, xB, yB = xB, yB, xA, yA
+
+    # NOTE : Epsilon is needed to prevent divide by zero for vertically
+    # oriented springs.
+    theta = np.arctan((yB-yA) / (xB - xA + np.finfo(float).eps))
+    d = np.sqrt((xB-xA)**2 + (yB-yA)**2)
+
+    s_th = np.sin(theta)
+    c_th = np.cos(theta)
+
+    xst = xA - w/2*s_th
+    yst = yA + w/2*c_th
+    xsb = xA + w/2*s_th
+    ysb = yA - w/2*c_th
+
+    if x is None:
+        x = xA * np.ones(2*n + 2)
+    if y is None:
+        y = yA * np.ones(2*n + 2)
+
+    x[1] = xsb + 1/4*d/n*c_th
+    y[1] = ysb + 1/4*d/n*s_th
+
+    x[2] = xst + 3/4*d/n*c_th
+    y[2] = yst + 3/4*d/n*s_th
+
+    x[-1] = xB
+    y[-1] = yB
+
+    for i in range(3, 2*n + 1):
+        x[i] = x[i-2] + d/n*c_th
+        y[i] = y[i-2] + d/n*s_th
+
+    return x, y
 
 
 def estimate_period(time, signal):
