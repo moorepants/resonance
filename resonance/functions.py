@@ -3,17 +3,41 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
 import matplotlib.animation as animation
-from matplotlib.patches import Rectangle
 
 
 def centered_rectangle(xy, width, height, angle=0.0):
     """Returns the arguments for Rectangle given the x and y coordinates of the
-    cetner of the rectangle."""
+    center of the rectangle.
+
+    Parameters
+    ==========
+    xy : tuple of floats
+        The x and y coordinates of the center of the rectangle.
+    width : float
+        Width of the rectangle. When angle=0.0 this is along the x axis.
+    height : float
+        Height of the rectangle. When angle=0.0 this is along the y axis.
+    angle : float
+        Angle of rotation about the z axis in degrees.
+
+    Returns
+    =======
+    xy_ll : tuple of floats
+        The x and y coordinates of the lower left hand corner of the rectangle.
+    width : float
+        Width of the rectangle. When angle=0.0 this is along the x axis.
+    height : float
+        Height of the rectangle. When angle=0.0 this is along the y axis.
+    angle : float
+        Angle of rotation about the z axis in degrees.
+
+    """
     xc, yc = xy
     theta = np.deg2rad(angle)
     x_ll = xc - width/2 * np.cos(theta) + height/2 * np.sin(theta)
     y_ll = yc - width/2 * np.sin(theta) - height/2 * np.cos(theta)
-    return (x_ll, y_ll), width, height, angle
+    xy_ll = (x_ll, y_ll)
+    return xy_ll, width, height, angle
 
 
 def spring(xA, xB, yA, yB, w, n=1, x=None, y=None):
