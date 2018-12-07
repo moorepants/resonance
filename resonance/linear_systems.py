@@ -987,27 +987,6 @@ class MultiDoFLinearSystem(_MDNLS):
         self._time['t'] = 0.0
         return traj
 
-    #def impulse_response(self, final_time, initial_time=0.0, sample_rate=100,
-                         #states='all', **kwargs):
-        #def forcing_func(time):
-            #if isinstance(time, np.array):
-                #inputs = np.zeros((time, len(self.states)))
-                #inputs[0, :] = np.inf
-                #return inputs
-            #else:
-                #if time == initial_time:
-                    #return np.inf
-                #else:
-                    #return 0.0
-#
-        #self.forcing_func = forcing_func
-        #self._compute_forcing = True
-        #traj = self.free_response(final_time, initial_time=initial_time,
-                                  #sample_rate=sample_rate, **kwargs)
-        #self._compute_forcing = False
-        #self._time['t'] = 0.0
-        #self.forcing_func = None
-        #return traj
 
 class BookOnCupSystem(SingleDoFLinearSystem):
     """This system represents dynamics of a typical engineering textbook set
