@@ -1952,20 +1952,34 @@ class AutomobileSystem(MultiDoFLinearSystem):
 
         super(AutomobileSystem, self).__init__()
 
-        car_width = 1.54
-        car_length = 2.7
-        tire_width = 0.22
-        tire_diameter = 0.65
+        speed = 20.0  # m/s
 
-        self.constants['U'] = 20.0  # m/s
-        self.constants['m'] = 2760 * 4.54 / 9.81 # kg
-        self.constants['a'] = 3 / 4 * car_length
-        self.constants['b'] = 1 / 4 * car_length
-        car_length = self.constants['a'] + self.constants['b']
-        self.constants['I'] = self.constants['m'] / 12 * (car_length**2 +
-                                                          car_width**2)
-        self.constants['Cf'] = (0.6 * self.constants['m'] * 9.81) / np.deg2rad(5.0)
-        self.constants['Cr'] = (0.6 * self.constants['m'] * 9.81) / np.deg2rad(5.0)
+        car_width = 1.54  # meters
+        car_length = 2.7  # meters
+
+        tire_width = 0.22 # meters
+        tire_diameter = 0.65  # meters
+
+        mass = 2760 * 4.44 / 9.81  # kg (2760 lbs converted to kg)
+        inertia = mass / 12 * (car_length**2 + car_width**2)  # kg m**2
+
+        com_ratio = 0.2  # < 0.5 closer to front, > 0.5 closer to rear
+        front_end = com_ratio * car_length  # meters
+        rear_end = (1 - com_ratio) * car_length  # meters
+
+        dmux_dalpha = 0.6 / np.deg2rad(5.0)  # (N/N) / rad
+        Fz = mass * 9.81  # [N] weight of vehicle
+
+        front_corner_coef = 0.6 * dmux_dalpha * Fz  # N/rad
+        rear_corner_coef = 0.4 * dmux_dalpha * Fz  # N/rad
+
+        self.constants['U'] = speed
+        self.constants['m'] = mass
+        self.constants['a'] = front_end
+        self.constants['b'] = rear_end
+        self.constants['I'] = inertia
+        self.constants['Cf'] = front_corner_coef
+        self.constants['Cr'] = rear_corner_coef
 
         self.coordinates['y'] = 0.0
         self.coordinates['psi'] = 0.0
@@ -1988,14 +2002,12 @@ class AutomobileSystem(MultiDoFLinearSystem):
         self.canonical_coeffs_func = can_coeffs_func
 
         def front_steer(time):
-            return np.deg2rad(1.0) * np.ones_like(time)
-            #return np.deg2rad(2.0) * np.sin(2 * np.pi * time)
+            return np.deg2rad(8.0) * np.cos(np.deg2rad(180/8) * time)
 
         self.add_measurement('deltaf', front_steer)
 
-        def rear_steer(time):
-            # TODO : Should be able to return 0.0.
-            return 0.0 * time
+        def rear_steer(deltaf):
+            return 0.0 * deltaf
 
         self.add_measurement('deltar', rear_steer)
 
@@ -2004,13 +2016,8 @@ class AutomobileSystem(MultiDoFLinearSystem):
 
         self.forcing_func = forcing_func
 
-        def calc_understeer_coeff(m, a, b, Cf, Cr):
-            return m*(b*Cr-a*Cr) / (a+b) / Cf / Cr
-
-        self.add_measurement('K', calc_understeer_coeff)
-
-
-        def plot_config(y, psi, a, b, U, deltaf, deltar, time):
+        def plot_config(y, psi, a, b, U, deltaf, deltar, time, time__hist,
+                        y__hist):
 
             fig, ax = plt.subplots(1, 1)
 
@@ -2023,23 +2030,32 @@ class AutomobileSystem(MultiDoFLinearSystem):
             car_center_y = car_com_y - ((a + b) / 2 - a) * np.sin(psi)
 
             car = Rectangle(*centered_rectangle((car_center_x, car_center_y),
-                                                a + b, car_width, np.rad2deg(psi)))
+                                                a + b,
+                                                car_width,
+                                                angle=np.rad2deg(psi)))
+
             flwheel = Rectangle(*centered_rectangle(
-                (car_center_x + a, car_center_y + car_width / 2),
-                0.65, 0.22, angle=np.rad2deg(psi) + deltaf), color='red')
+                (car_com_x + a*np.cos(psi) + car_width / 2 * np.sin(psi),
+                car_com_y + a*np.sin(psi) - car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltaf)),
+                color='green')
             frwheel = Rectangle(*centered_rectangle(
-                (car_center_x + a, car_center_y - car_width / 2),
-                0.65, 0.22, angle=np.rad2deg(psi) + deltaf), color='red')
-
+                (car_com_x + a*np.cos(psi) - car_width / 2 * np.sin(psi),
+                car_com_y + a*np.sin(psi) + car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltaf)),
+                color='red')
             rlwheel = Rectangle(*centered_rectangle(
-                (car_center_x - a * np.cos(psi) + car_width / 2 * np.sin(psi),
-                 car_center_y - a*np.sin(psi) - car_width / 2 * np.cos(psi)),
-                0.65, 0.22, angle=np.rad2deg(psi + deltar)), color='orange')
-
+                (car_com_x - b*np.cos(psi) + car_width / 2 * np.sin(psi),
+                car_com_y - b*np.sin(psi) - car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltar)),
+                color='orange')
             rrwheel = Rectangle(*centered_rectangle(
-                (car_center_x - a * np.cos(psi) - car_width / 2 * np.sin(psi),
-                 car_center_y - a*np.sin(psi) + car_width / 2 * np.cos(psi)),
-                0.65, 0.22, angle=np.rad2deg(psi + deltar)), color='orange')
+                (car_com_x - b*np.cos(psi) - car_width / 2 * np.sin(psi),
+                car_com_y - b*np.sin(psi) + car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltar)),
+                color='purple')
+
+            path = ax.plot(U * time__hist, y__hist, color='black')[0]
 
             ax.add_patch(car)
             ax.add_patch(com)
@@ -2048,22 +2064,26 @@ class AutomobileSystem(MultiDoFLinearSystem):
             ax.add_patch(rlwheel)
             ax.add_patch(rrwheel)
 
-            text = ax.text(-4.0, 13.0, 'Time = {:0.3f} s'.format(time))
+            text = ax.text(U * time - 3*car_length, y + 3*car_width,
+                           'Time = {:0.3f} s'.format(time))
 
-            ax.set_xlim((U * time - 2*b, U * time + 2 * a))
-            ax.set_ylim((y + 2, y - 2))
+            ax.set_xlim((U * time - 4*(a+b), U * time + 4*(a+b)))
+            ax.set_ylim((y + 4*car_width, y - 4*car_width))
 
             ax.set_aspect('equal')
             ax.grid(b=True)
             ax.set_xlabel('Distance [m]')
             ax.set_ylabel('Distance [m]')
 
-            return fig, ax, car, com, flwheel, frwheel, rlwheel, rrwheel, text
+            return (fig, ax, car, com, flwheel, frwheel, rlwheel, rrwheel,
+                    path, text)
+
 
         self.config_plot_func = plot_config
 
-        def update(y, psi, a, b, U, deltaf, deltar, time,
-                   ax, car, com, flwheel, frwheel, rlwheel, rrwheel, text):
+        def update(y, psi, a, b, U, deltaf, deltar, time, time__hist, y__hist,
+                   ax, car, com, flwheel, frwheel, rlwheel, rrwheel, path,
+                   text):
 
             car_com_x = U * time
             car_com_y = y
@@ -2075,45 +2095,50 @@ class AutomobileSystem(MultiDoFLinearSystem):
             car_center = (car_center_x, car_center_y)
 
             xy, _, _, angle = centered_rectangle(car_center, car_length,
-                                                 car_width, np.rad2deg(psi))
+                                                car_width, np.rad2deg(psi))
             car.set_xy(xy)
             car.angle = angle
 
             res = centered_rectangle(
-                (car_center_x + car_length / 2 * np.cos(psi) + car_width / 2 * np.sin(psi),
-                 car_center_y + car_length / 2 * np.sin(psi) - car_width / 2 * np.cos(psi)),
-                0.65, 0.22, angle=np.rad2deg(psi + deltaf))
+                (car_com_x + a*np.cos(psi) + car_width / 2 * np.sin(psi),
+                car_com_y + a*np.sin(psi) - car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltaf))
 
             flwheel.set_xy(res[0])
             flwheel.angle = res[-1]
 
             res = centered_rectangle(
-                (car_center_x + car_length / 2 * np.cos(psi) - car_width / 2 * np.sin(psi),
-                 car_center_y + car_length / 2 * np.sin(psi) + car_width / 2 * np.cos(psi)),
-                0.65, 0.22, angle=np.rad2deg(psi + deltaf))
+                (car_com_x + a*np.cos(psi) - car_width / 2 * np.sin(psi),
+                car_com_y + a*np.sin(psi) + car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltaf))
 
             frwheel.set_xy(res[0])
             frwheel.angle = res[-1]
 
             res = centered_rectangle(
-                (car_center_x - car_length / 2 * np.cos(psi) + car_width / 2 * np.sin(psi),
-                 car_center_y - car_length / 2 * np.sin(psi) - car_width / 2 * np.cos(psi)),
-                0.65, 0.22, angle=np.rad2deg(psi + deltar))
+                (car_com_x - b*np.cos(psi) + car_width / 2 * np.sin(psi),
+                car_com_y - b*np.sin(psi) - car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltar))
 
             rlwheel.set_xy(res[0])
             rlwheel.angle = res[-1]
 
             res = centered_rectangle(
-                (car_center_x - car_length / 2 * np.cos(psi) - car_width / 2 * np.sin(psi),
-                 car_center_y - car_length / 2 * np.sin(psi) + car_width / 2 * np.cos(psi)),
-                0.65, 0.22, angle=np.rad2deg(psi + deltar))
+                (car_com_x - b*np.cos(psi) - car_width / 2 * np.sin(psi),
+                car_com_y - b*np.sin(psi) + car_width / 2 * np.cos(psi)),
+                tire_diameter, tire_width, angle=np.rad2deg(psi + deltar))
 
             rrwheel.set_xy(res[0])
             rrwheel.angle = res[-1]
 
-            text.set_text('Time = {:0.3f} s'.format(time))
+            path.set_data(U * time__hist, y__hist)
 
-            ax.set_xlim((U * time - 2*b, U * time + 2 * a))
-            ax.set_ylim((y + 2, y - 2))
+            text.set_text('Time = {:0.3f} s'.format(time))
+            text.set_position((U * time - 3*car_length, y + 3*car_width))
+
+            ax.set_xlim((U * time - 4*(a+b), U * time + 4*(a+b)))
+            ax.set_ylim((y + 4*car_width, y - 4*car_width))
+
+            ax.set_aspect('equal')
 
         self.config_plot_update_func = update
