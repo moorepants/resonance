@@ -21,7 +21,7 @@ for dir in notebooks/*/ notebooks/ ; do
 		for nb in *.ipynb ; do
 			echo "Converting $nb."
 			echo "==============="
-			jupyter nbconvert --debug --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$nb"
+			jupyter nbconvert --ExecutePreprocessor.enabled=True --ExecutePreprocessor.timeout=300 --to=html "$nb"
 		done
 		if [ -d ".ipynb_checkpoints" ] ; then
 			rm -r .ipynb_checkpoints
