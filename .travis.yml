@@ -42,7 +42,7 @@ script:
       git reset --hard;
       git clean -Xdf notebooks/;
       git clean -xdf notebooks/;
-      pip install doctr;
+      pip install "doctr<1.8.0";
       doctr deploy --built-docs=deploy/ .;
     fi
   # try building the documentation
