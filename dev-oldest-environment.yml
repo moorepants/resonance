@@ -4,12 +4,12 @@ channels:
   - defaults
 dependencies:
   - python =3.6.*
-  - setuptools =39.0.*
-  - pip =9.0.*
-  - pytest =3.3.*
+  - setuptools
+  - pip
+  - pytest
   - pytest-cov
-  - coverage =4.5.*
-  - sphinx =1.6.*
+  - coverage
+  - sphinx
   - numpy =1.13.*
   - scipy =0.19.*
   - matplotlib =2.1.*
