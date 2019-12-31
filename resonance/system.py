@@ -1,6 +1,6 @@
 import sys
 import collections as _collections
-from inspect import getargspec
+from inspect import getfullargspec
 import random
 
 import numpy as np
@@ -129,10 +129,10 @@ class _MeasurementsDict(_collections.MutableMapping, dict):
                 raise KeyError(msg.format(k))
             return v
 
-        # TODO : getargspec is deprecated, supposedly signature can do the same
+        # TODO : getfullargspec is deprecated, supposedly signature can do the same
         # thing but the args are in a dictionary and it isn't clear to me they
         # are ordered.
-        args = [get_par(k) for k in getargspec(func).args]
+        args = [get_par(k) for k in getfullargspec(func).args]
         return func(*args)
 
     def __getitem__(self, key):
@@ -413,7 +413,7 @@ class System(object):
 
     def _check_meas_func(self, func):
 
-        func_args = getargspec(func).args
+        func_args = getfullargspec(func).args
 
         try:
             res = func(*np.random.random(len(func_args)))
@@ -672,7 +672,7 @@ class System(object):
             raise ValueError(msg)
         else:
             args = []
-            for k in getargspec(self.config_plot_func).args:
+            for k in getfullargspec(self.config_plot_func).args:
                 if k == 'time':
                     args.append(self._time['t'])
                 elif k == 'time__hist':
@@ -771,7 +771,7 @@ class System(object):
             # Don't mutate the orginal list.
             pop_list = pop_list.copy()
             args = []
-            for k in getargspec(self.config_plot_update_func).args:
+            for k in getfullargspec(self.config_plot_update_func).args:
                 if k == 'time':
                     args.append(time)
                 elif k == 'time__hist':
