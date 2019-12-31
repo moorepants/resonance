@@ -3,19 +3,19 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python =3.5.*
-  - setuptools =20.7.*
-  - pip =8.1.*
-  - pytest
+  - python =3.6.*
+  - setuptools =39.0.*
+  - pip =9.0.*
+  - pytest =3.3.*
   - pytest-cov
-  - coverage
-  - sphinx
-  - numpy =1.11.*
-  - scipy =0.17.*
-  - matplotlib =1.5.*
+  - coverage =4.5.*
+  - sphinx =1.6.*
+  - numpy =1.13.*
+  - scipy =0.19.*
+  - matplotlib =2.1.*
   - pandas =0.17.*
-  - sympy =0.7.6.*
-  - notebook
+  - sympy =1.1.*
+  - notebook =5.2.*
   - ipywidgets
   - nbconvert
   - jupyter_contrib_nbextensions
