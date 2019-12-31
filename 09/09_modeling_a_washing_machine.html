@@ -13017,45 +13017,6 @@ ul.typeahead-list  > li > a.pull-right {
 .highlight .vm { color: #19177C } /* Name.Variable.Magic */
 .highlight .il { color: #666666 } /* Literal.Number.Integer.Long */
     </style>
-<style type="text/css">
-    
-/* Temporary definitions which will become obsolete with Notebook release 5.0 */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-bold { font-weight: bold; }
-
-    </style>
 
 
 <style type="text/css">
@@ -13089,7 +13050,7 @@ div#notebook {
 
 <!-- Loading mathjax macro -->
 <!-- Load mathjax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML"></script>
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -13133,7 +13094,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">YouTubeVideo</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">YouTubeVideo</span>
 <span class="n">YouTubeVideo</span><span class="p">(</span><span class="s1">&#39;JqdAKPzdHDo&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -13245,7 +13206,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sympy.printing.latex</span> <span class="k">import</span> <span class="n">LatexPrinter</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sympy.printing.latex</span> <span class="kn">import</span> <span class="n">LatexPrinter</span>
 
 <span class="k">class</span> <span class="nc">TimeDerivativePrinter</span><span class="p">(</span><span class="n">LatexPrinter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_print_Derivative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
@@ -13374,7 +13335,7 @@ div#notebook {
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$y{\left (t \right )}$$
+$\displaystyle y{\left(t \right)}$
 </div>
 
 </div>
@@ -13407,7 +13368,7 @@ $$y{\left (t \right )}$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\dot{y{\left (t \right )}}$$
+$\displaystyle \dot{y{\left(t \right)}}$
 </div>
 
 </div>
@@ -13440,7 +13401,7 @@ $$\dot{y{\left (t \right )}}$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\ddot{y{\left (t \right )}}$$
+$\displaystyle \ddot{y{\left(t \right)}}$
 </div>
 
 </div>
@@ -13484,7 +13445,7 @@ $$\ddot{y{\left (t \right )}}$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\frac{I_{cd} \omega^{2}}{2} + \frac{m_{c} \left(e^{2} \omega^{2} \sin^{2}{\left (\omega t \right )} + \left(e \omega \cos{\left (\omega t \right )} + \dot{y{\left (t \right )}}\right)^{2}\right)}{2} + \frac{m_{d} \dot{y{\left (t \right )}}^{2}}{2} + \frac{m_{w} \dot{y{\left (t \right )}}^{2}}{2}$$
+$\displaystyle \frac{I_{cd} \omega^{2}}{2} + \frac{m_{c} \left(e^{2} \omega^{2} \sin^{2}{\left(\omega t \right)} + \left(e \omega \cos{\left(\omega t \right)} + \dot{y{\left(t \right)}}\right)^{2}\right)}{2} + \frac{m_{d} \dot{y{\left(t \right)}}^{2}}{2} + \frac{m_{w} \dot{y{\left(t \right)}}^{2}}{2}$
 </div>
 
 </div>
@@ -13528,7 +13489,7 @@ $$\frac{I_{cd} \omega^{2}}{2} + \frac{m_{c} \left(e^{2} \omega^{2} \sin^{2}{\lef
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$g m_{c} \left(e \sin{\left (\omega t \right )} + y{\left (t \right )}\right) + g m_{d} y{\left (t \right )} + g m_{w} y{\left (t \right )} + \frac{k \left(- y_{0} + y{\left (t \right )}\right)^{2}}{2}$$
+$\displaystyle g m_{c} \left(e \sin{\left(\omega t \right)} + y{\left(t \right)}\right) + g m_{d} y{\left(t \right)} + g m_{w} y{\left(t \right)} + \frac{k \left(- y_{0} + y{\left(t \right)}\right)^{2}}{2}$
 </div>
 
 </div>
@@ -13569,7 +13530,7 @@ $$g m_{c} \left(e \sin{\left (\omega t \right )} + y{\left (t \right )}\right) +
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\frac{c \dot{y{\left (t \right )}}^{2}}{2}$$
+$\displaystyle \frac{c \dot{y{\left(t \right)}}^{2}}{2}$
 </div>
 
 </div>
@@ -13610,7 +13571,7 @@ $$\frac{c \dot{y{\left (t \right )}}^{2}}{2}$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\frac{I_{cd} \omega^{2}}{2} - g m_{c} \left(e \sin{\left (\omega t \right )} + y{\left (t \right )}\right) - g m_{d} y{\left (t \right )} - g m_{w} y{\left (t \right )} - \frac{k \left(- y_{0} + y{\left (t \right )}\right)^{2}}{2} + \frac{m_{c} \left(e^{2} \omega^{2} \sin^{2}{\left (\omega t \right )} + \left(e \omega \cos{\left (\omega t \right )} + \dot{y{\left (t \right )}}\right)^{2}\right)}{2} + \frac{m_{d} \dot{y{\left (t \right )}}^{2}}{2} + \frac{m_{w} \dot{y{\left (t \right )}}^{2}}{2}$$
+$\displaystyle \frac{I_{cd} \omega^{2}}{2} - g m_{c} \left(e \sin{\left(\omega t \right)} + y{\left(t \right)}\right) - g m_{d} y{\left(t \right)} - g m_{w} y{\left(t \right)} - \frac{k \left(- y_{0} + y{\left(t \right)}\right)^{2}}{2} + \frac{m_{c} \left(e^{2} \omega^{2} \sin^{2}{\left(\omega t \right)} + \left(e \omega \cos{\left(\omega t \right)} + \dot{y{\left(t \right)}}\right)^{2}\right)}{2} + \frac{m_{d} \dot{y{\left(t \right)}}^{2}}{2} + \frac{m_{w} \dot{y{\left(t \right)}}^{2}}{2}$
 </div>
 
 </div>
@@ -13652,7 +13613,7 @@ $$f(y, \dot{y}, \ddot{y}) = \frac{d}{dt}\left(\frac{\partial L}{\partial \dot{y}
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$c \dot{y{\left (t \right )}} + g m_{c} + g m_{d} + g m_{w} + \frac{k \left(- 2 y_{0} + 2 y{\left (t \right )}\right)}{2} + \frac{m_{c} \left(- 2 e \omega^{2} \sin{\left (\omega t \right )} + 2 \ddot{y{\left (t \right )}}\right)}{2} + m_{d} \ddot{y{\left (t \right )}} + m_{w} \ddot{y{\left (t \right )}}$$
+$\displaystyle c \dot{y{\left(t \right)}} + g m_{c} + g m_{d} + g m_{w} + \frac{k \left(- 2 y_{0} + 2 y{\left(t \right)}\right)}{2} + \frac{m_{c} \left(- 2 e \omega^{2} \sin{\left(\omega t \right)} + 2 \ddot{y{\left(t \right)}}\right)}{2} + m_{d} \ddot{y{\left(t \right)}} + m_{w} \ddot{y{\left(t \right)}}$
 </div>
 
 </div>
@@ -13694,7 +13655,7 @@ $$c \dot{y{\left (t \right )}} + g m_{c} + g m_{d} + g m_{w} + \frac{k \left(- 2
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$c \dot{y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t \right )} + g m_{c} + g m_{d} + g m_{w} - k y_{0} + k y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{y{\left (t \right )}}$$
+$\displaystyle c \dot{y{\left(t \right)}} - e m_{c} \omega^{2} \sin{\left(\omega t \right)} + g m_{c} + g m_{d} + g m_{w} - k y_{0} + k y{\left(t \right)} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{y{\left(t \right)}}$
 </div>
 
 </div>
@@ -13746,7 +13707,7 @@ $$y_{eq} = y_0 - \frac{m_T g}{k}$$<p>If you set the velocities and accelerations
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\frac{- g m_{c} - g m_{d} - g m_{w} + k y_{0} - m_{c} \dot{0} - m_{d} \dot{0} - m_{w} \dot{0}}{k}$$
+$\displaystyle \frac{- g m_{c} - g m_{d} - g m_{w} + k y_{0}}{k}$
 </div>
 
 </div>
@@ -13788,7 +13749,7 @@ $$\frac{- g m_{c} - g m_{d} - g m_{w} + k y_{0} - m_{c} \dot{0} - m_{d} \dot{0} 
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$\Delta y{\left (t \right )}$$
+$\displaystyle \Delta y{\left(t \right)}$
 </div>
 
 </div>
@@ -13822,7 +13783,7 @@ $$\Delta y{\left (t \right )}$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$c \dot{\Delta y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t \right )} + k \Delta y{\left (t \right )} - m_{c} \dot{0} - m_{d} \dot{0} - m_{w} \dot{0} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{\Delta y{\left (t \right )}}$$
+$\displaystyle c \dot{\Delta y{\left(t \right)}} - e m_{c} \omega^{2} \sin{\left(\omega t \right)} + k \Delta y{\left(t \right)} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{\Delta y{\left(t \right)}}$
 </div>
 
 </div>
@@ -13865,7 +13826,7 @@ $$c \dot{\Delta y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t 
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$m_{c} + m_{d} + m_{w}$$
+$\displaystyle m_{c} + m_{d} + m_{w}$
 </div>
 
 </div>
@@ -13899,7 +13860,7 @@ $$m_{c} + m_{d} + m_{w}$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$c$$
+$\displaystyle c$
 </div>
 
 </div>
@@ -13933,7 +13894,7 @@ $$c$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$k$$
+$\displaystyle k$
 </div>
 
 </div>
@@ -13975,7 +13936,7 @@ $$k$$
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$e m_{c} \omega^{2} \sin{\left (\omega t \right )} + m_{c} \dot{0} + m_{d} \dot{0} + m_{w} \dot{0}$$
+$\displaystyle e m_{c} \omega^{2} \sin{\left(\omega t \right)}$
 </div>
 
 </div>
@@ -14016,7 +13977,7 @@ $$ m \Delta\ddot{y}(t) + c \Delta\dot{y}(t) + k \Delta y(t) = f_0 \sin(\omega t)
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$c \dot{\Delta y{\left (t \right )}} + k \Delta y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{\Delta y{\left (t \right )}} = e m_{c} \omega^{2} \sin{\left (\omega t \right )} + m_{c} \dot{0} + m_{d} \dot{0} + m_{w} \dot{0}$$
+$\displaystyle c \dot{\Delta y{\left(t \right)}} + k \Delta y{\left(t \right)} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{\Delta y{\left(t \right)}} = e m_{c} \omega^{2} \sin{\left(\omega t \right)}$
 </div>
 
 </div>
@@ -14061,7 +14022,7 @@ $$c \dot{\Delta y{\left (t \right )}} + k \Delta y{\left (t \right )} + \left(m_
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$e g m_{c} \sin{\left (\omega t \right )} + \frac{k y^{2}{\left (t \right )}}{2}$$
+$\displaystyle e g m_{c} \sin{\left(\omega t \right)} + \frac{k y^{2}{\left(t \right)}}{2}$
 </div>
 
 </div>
@@ -14096,7 +14057,7 @@ $$e g m_{c} \sin{\left (\omega t \right )} + \frac{k y^{2}{\left (t \right )}}{2
 
 
 <div class="output_latex output_subarea output_execute_result">
-$$c \dot{y{\left (t \right )}} - e m_{c} \omega^{2} \sin{\left (\omega t \right )} + k y{\left (t \right )} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{y{\left (t \right )}} = 0$$
+$\displaystyle c \dot{y{\left(t \right)}} - e m_{c} \omega^{2} \sin{\left(\omega t \right)} + k y{\left(t \right)} + \left(m_{c} + m_{d} + m_{w}\right) \ddot{y{\left(t \right)}} = 0$
 </div>
 
 </div>
