@@ -1,5 +1,6 @@
 import sys
 import collections as _collections
+from collections import abc as _abc
 from inspect import getfullargspec
 import random
 
@@ -10,7 +11,7 @@ import pandas as pd
 _FORBIDDEN_SUFFIXES = ['_acc', '__hist', '__futr']
 
 
-class _ConstantsDict(_collections.MutableMapping, dict):
+class _ConstantsDict(_abc.MutableMapping, dict):
     """A custom dictionary for storing constants."""
 
     def __getitem__(self, key):
@@ -90,7 +91,7 @@ class _SingleDoFCoordinatesDict(_CoordinatesDict):
             super(_SingleDoFCoordinatesDict, self).__setitem__(key, value)
 
 
-class _MeasurementsDict(_collections.MutableMapping, dict):
+class _MeasurementsDict(_abc.MutableMapping, dict):
 
     def _check_for_duplicate_keys(self):
         c_keys = list(self._constants.keys())
