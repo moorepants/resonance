@@ -27,11 +27,7 @@ install:
 before_script:
   - conda info
   - conda list
-  # from https://stackoverflow.com/questions/35403127/testing-matplotlib-based-plots-in-travis-ci
-  # configure a headless display to test plot generation
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+  - export MPLBACKEND=Agg
 script:
   - set -e
   # run tests on resonance lib
