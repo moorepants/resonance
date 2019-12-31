@@ -15,7 +15,3 @@ dependencies:
   - matplotlib =2.1.*
   - pandas =0.17.*
   - sympy =1.1.*
-  - notebook
-  - ipywidgets
-  - nbconvert
-  - jupyter_contrib_nbextensions
