@@ -1,5 +1,5 @@
 import math
-from inspect import getargspec
+from inspect import getfullargspec
 import warnings
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Wedge
@@ -70,7 +70,7 @@ class _LinearSystem(_System):
     @canonical_coeffs_func.setter
     def canonical_coeffs_func(self, func):
         self._measurements._check_for_duplicate_keys()
-        for k in getargspec(func).args:
+        for k in getfullargspec(func).args:
             # NOTE : Measurements do not have to be time varying.
             if k not in (list(self.constants.keys()) +
                          list(self.measurements.keys())):
@@ -90,7 +90,7 @@ class _LinearSystem(_System):
             raise ValueError(msg)
         else:
             f = self.canonical_coeffs_func
-            args = [self._get_par_vals(k) for k in getargspec(f).args]
+            args = [self._get_par_vals(k) for k in getfullargspec(f).args]
             return f(*args)
 
 
@@ -765,7 +765,7 @@ class MultiDoFLinearSystem(_MDNLS):
     @canonical_coeffs_func.setter
     def canonical_coeffs_func(self, func):
         self._measurements._check_for_duplicate_keys()
-        func_args = getargspec(func).args
+        func_args = getfullargspec(func).args
         for k in func_args:
             # NOTE : Measurements do not have to be time varying.
             if k not in (list(self.constants.keys()) +
@@ -856,7 +856,7 @@ class MultiDoFLinearSystem(_MDNLS):
 
     @forcing_func.setter
     def forcing_func(self, func):
-        args = [self._get_par_vals(k) for k in getargspec(func).args]
+        args = [self._get_par_vals(k) for k in getfullargspec(func).args]
         res = func(*args)
         msg = ("Forcing function must return the same number of values as "
                "the number of coordinates.")
@@ -870,7 +870,7 @@ class MultiDoFLinearSystem(_MDNLS):
                 raise ValueError(msg)
 
         self._forcing_func = func
-        self._forcing_func_arg_names = getargspec(func).args
+        self._forcing_func_arg_names = getfullargspec(func).args
 
     def canonical_coefficients(self):
         """Returns the mass, damping, and stiffness matrices in that order."""
@@ -880,7 +880,7 @@ class MultiDoFLinearSystem(_MDNLS):
             raise ValueError(msg)
         else:
             f = self.canonical_coeffs_func
-            args = [self._get_par_vals(k) for k in getargspec(f).args]
+            args = [self._get_par_vals(k) for k in getfullargspec(f).args]
             return f(*args)
 
     def _form_A_B(self):

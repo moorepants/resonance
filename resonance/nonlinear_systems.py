@@ -1,4 +1,4 @@
-from inspect import getargspec
+from inspect import getfullargspec
 
 import numpy as np
 import scipy as sp
@@ -82,7 +82,7 @@ class MultiDoFNonLinearSystem(_System):
         self._measurements._check_for_duplicate_keys()
         # NOTE : This will throw an error if the function's args are not in the
         # system.
-        [self._get_par_vals(k) for k in getargspec(func).args]
+        [self._get_par_vals(k) for k in getfullargspec(func).args]
         self._diff_eq_func = func
         self._check_diff_eq()
         self._check_system()
@@ -90,7 +90,7 @@ class MultiDoFNonLinearSystem(_System):
 
     def _check_diff_eq(self):
 
-        arg_names = getargspec(self.diff_eq_func).args
+        arg_names = getfullargspec(self.diff_eq_func).args
         arg_vals = [self._get_par_vals(k) for k in arg_names]
 
         msg = ('Your diff_eq_func does not return the correct number of '
@@ -108,7 +108,7 @@ class MultiDoFNonLinearSystem(_System):
 
     def _generate_array_rhs_eval_func(self):
 
-        arg_names = getargspec(self.diff_eq_func).args
+        arg_names = getfullargspec(self.diff_eq_func).args
 
         coord_names = list(self.coordinates.keys())
         speed_names = list(self.speeds.keys())
