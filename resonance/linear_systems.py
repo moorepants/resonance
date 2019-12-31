@@ -697,7 +697,7 @@ class SingleDoFLinearSystem(_LinearSystem):
         axes[1].axvline(wn, color='black')
         axes[1].plot(w, np.rad2deg(phase_curve))
         axes[1].set_ylabel('Phase Shift [deg]')
-        axes[1].set_xlabel('Forcing Frequency, $\omega$, [rad/s]')
+        axes[1].set_xlabel(r'Forcing Frequency, $\omega$, [rad/s]')
 
         return axes
 
