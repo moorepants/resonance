@@ -1925,11 +1925,11 @@ class BicycleSystem(MultiDoFLinearSystem):
         self.canonical_coeffs_func = can_coeff_matrices
 
 
-class AutomobileSystem(MultiDoFLinearSystem):
+class AutomobileLateralSystem(MultiDoFLinearSystem):
 
     def __init__(self):
 
-        super(AutomobileSystem, self).__init__()
+        super(AutomobileLateralSystem, self).__init__()
 
         speed = 20.0  # m/s
 
