@@ -3,16 +3,10 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python >=3.5
-  - setuptools >=20.7
-  - pip >=8.1
-  - numpy >=1.11
-  - scipy >=0.17
-  - matplotlib >=2.1  # required for Rectangle.angle and .to_jshtml()
+  - matplotlib >=2.1
+  - numpy >=1.13
   - pandas >=0.17
-  - sympy >=0.7.6
-  - notebook
-  - ipywidgets
-  - jupyter_contrib_nbextensions
-  - pip:
-    - resonance
+  - python >=3.6
+  - resonance
+  - scipy >=0.19
+  - sympy >=1.1
