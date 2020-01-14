@@ -4,6 +4,7 @@
 if [ "$TRAVIS" = "true" ]
 then
 	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' {} \;
+	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib widget/%matplotlib inline/g' {} \;
 	sed -i 's/.ipynb/.html/g' notebooks/index.ipynb
 fi
 
