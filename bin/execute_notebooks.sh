@@ -1,9 +1,10 @@
 #!/bin/bash -xe
 
-# %matplotlib notebook will not cause plots to render in html output, so swap it.
+# %matplotlib notebook and widget will not cause plots to render in html output, so swap it.
 if [ "$TRAVIS" = "true" ]
 then
 	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib notebook/%matplotlib inline/g' {} \;
+	find notebooks/ -name "*.ipynb" -exec sed -i -- 's/%matplotlib widget/%matplotlib inline/g' {} \;
 	sed -i 's/.ipynb/.html/g' notebooks/index.ipynb
 fi
 
