@@ -30,6 +30,10 @@
 ./03/bicycle-wheel-axial-inertia-rate-gyro-measurement.csv
 ./03/bicycle-wheel-radial-inertia-measurement-fbd.png
 ./03/bicycle-wheel-radial-inertia-rate-gyro-measurement.csv
+./04-2020.zip
+./04-2020/clock-pendulum.png
+./04-2020/clock_pendulum_with_damping.html
+./04-2020/clock_pendulum_with_damping.ipynb
 ./04.zip
 ./04/04_clock_pendulum_with_damping.html
 ./04/04_clock_pendulum_with_damping.ipynb
