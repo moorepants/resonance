@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>05_clock_pendulum_with_friction</title>
+<title>clock_pendulum_with_friction</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13077,7 +13077,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="5.-Clock-Pendulum-with-Air-Drag-and-Joint-Friction">5. Clock Pendulum with Air Drag and Joint Friction<a class="anchor-link" href="#5.-Clock-Pendulum-with-Air-Drag-and-Joint-Friction">&#182;</a></h1><p>This notebook builds on the previous one by introducing both a nonlinear pendulum and a nonlinear damping effect through <a href="https://en.wikipedia.org/wiki/Friction#Dry_friction">Coulomb friction</a>. Students will be able to work with both a linear and nonlinear version of the same system (a clock pendulum) in order to compare the free response in both cases.</p>
+<h1 id="Clock-Pendulum-with-Air-Drag-and-Joint-Friction">Clock Pendulum with Air Drag and Joint Friction<a class="anchor-link" href="#Clock-Pendulum-with-Air-Drag-and-Joint-Friction">&#182;</a></h1><p>This notebook builds on the previous one by introducing both a nonlinear pendulum and a nonlinear damping effect through <a href="https://en.wikipedia.org/wiki/Friction#Dry_friction">Coulomb friction</a>. Students will be able to work with both a linear and nonlinear version of the same system (a clock pendulum) in order to compare the free response in both cases.</p>
 <p>After the completion of this assignment students will be able to:</p>
 <ul>
 <li>compute the free response of a non-linear compound pendulum</li>
@@ -13152,400 +13152,10 @@ $$ T_f = -\frac{2}{3}\mu R F_n \text{sgn}\left( \dot{\theta} \right)$$<p>To star
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">NonLinPendulum</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span>NonLinPendulum<span class="o">?</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Help on class ClockPendulumSystem in module resonance.nonlinear_systems:
-
-class ClockPendulumSystem(SingleDoFNonLinearSystem)
- |  This system represents dynamics of a compound pendulum representing a
- |  clock pendulum. It is made up of a thin long cylindrical rod with a thin
- |  disc bob on the end. Gravity acts on the pendulum to bring it to an
- |  equilibrium state and there is option Coulomb friction in the joint. It is
- |  described by:
- |  
- |  Attributes
- |  ==========
- |  constants
- |      bob_mass, m_b [kg]
- |          The mass of the bob (a thin disc) on the end of the pendulum.
- |      bob_radius, r [m]
- |          The radius of the bob (a thin disc) on the end of the pendulum.
- |      rod_mass, m_r [kg]
- |          The mass of the then cylindrical rod.
- |      rod_length, l [m]
- |          The length of the rod which connects the pivot joint to the center
- |          of the bob.
- |      coeff_of_friction, mu [unitless]
- |          The Coulomb coefficient of friction between the materials of the
- |          pivot joint.
- |      joint_friction_radius, R [m]
- |          The radius of the contact disc at the pivot joint. The joint is
- |          assumed to be two flat discs pressed together.
- |      joint_clamp_force, F_N [N]
- |          The clamping force pressing the two flat discs together at the
- |          pivot joint.
- |      acc_due_to_gravity, g [m/s**2]
- |          The acceleration due to gravity.
- |  coordinates
- |      angle, theta [rad]
- |          The angle of the pendulum relative to the direction of gravity.
- |          When theta is zero the pendulum is hanging down in it&#39;s equilibrium
- |          state.
- |  speeds
- |      angle_vel, theta_dot [rad / s]
- |          The angular velocity of the pendulum about the revolute joint axis.
- |  
- |  Method resolution order:
- |      ClockPendulumSystem
- |      SingleDoFNonLinearSystem
- |      MultiDoFNonLinearSystem
- |      resonance.system.System
- |      builtins.object
- |  
- |  Methods defined here:
- |  
- |  __init__(self)
- |      Initialize self.  See help(type(self)) for accurate signature.
- |  
- |  ----------------------------------------------------------------------
- |  Data descriptors inherited from MultiDoFNonLinearSystem:
- |  
- |  diff_eq_func
- |      A function that returns the time derivatives of the coordinates and
- |      speeds, i.e. computes the right hand side of the explicit first order
- |      differential equations. This equation looks like the following for
- |      linear motion::
- |      
- |          dx
- |          -- = f(t, q1, ..., qn, u1, ..., un, p1, p2, ..., pO)
- |          dt
- |      
- |      where:
- |      
- |      - x: [q1, ..., qn, u1, ..., un], the &#34;state vector&#34;
- |      - t: a time value
- |      - q: the coordinates
- |      - u: the speeds
- |      - p: any number of constants, O is the number of constants
- |      
- |      Your function should be able to operate on 1d arrays as inputs, i.e.
- |      use numpy math functions in your function, e.g. ``numpy.sin`` instead
- |      of ``math.sin``. Besides the constants, coordinates, and speeds, there
- |      is a special variable ``time`` that you can use to give the current
- |      value of time inside your function.
- |      
- |      .. note:: The function has to return the derivatives of the states in
- |         the order of the ``state`` attribute.
- |      
- |      .. warning:: Do not use measurements as a function argument. This may
- |         cause causality issues and is not yet supported. You are unlikely to
- |         get a correct answer if you use a measurement in this function.
- |      
- |      Example
- |      =======
- |      &gt;&gt;&gt; sys = SingleDoFNonLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;gravity&#39;] = 9.8  # m/s**2
- |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 1.0  # m
- |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 0.5  # kg
- |      &gt;&gt;&gt; sys.constants[&#39;omega_b&#39;] = 0.1  # rad/s
- |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
- |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
- |      &gt;&gt;&gt; sys.states
- |      {&#39;theta&#39;: 0.3, &#39;omega&#39;: 0.0}  # note the order!
- |      &gt;&gt;&gt; def rhs(theta, omega, gravity, length, mass, omega_b, time):
- |      ...     # Represents a linear model of a simple pendulum under
- |      ...     # sinusoidal torquing.
- |      ...     #  m * l**2 ω&#39; + m * g * l * sin(θ) = sin(ω_b * t)
- |      ...     thetad = omega
- |      ...     omegad = (np.sin(omega_b * time) -
- |      ...               m*g*l*np.sin(theta)) / m / l**2
- |      ...     return thetad, omegad  # in order of sys.states
- |      &gt;&gt;&gt; sys.diff_eq_func = rhs
- |  
- |  ----------------------------------------------------------------------
- |  Methods inherited from resonance.system.System:
- |  
- |  add_measurement(self, name, func)
- |      Creates a new measurement entry in the measurements attribute that
- |      uses the provided function to compute the measurement given a subset of
- |      the constants, coordinates, speeds, other measurements, and time.
- |      
- |      Parameters
- |      ==========
- |      name : string
- |          This must be a valid Python variable name and it should not clash
- |          with any names in the constants, coordinates, or speeds dictionary.
- |          This string can be different that the function name.
- |      func : function
- |          This function must only have existing constant, coordinate, speed,
- |          or measurement names, and/or the special name &#34;time&#34; in the function
- |          signature. These can be a subset of the available choices in
- |          constants, coordinates, speeds, measurements and any order in the
- |          signature is permitted. The function must be able to operate on
- |          both inputs that are a collection of floats or a collection of
- |          equal length 1D NumPy arrays and floats, i.e. the function must be
- |          vectorized. So be sure to use NumPy vectorized functions inside
- |          your function, i.e.  ``numpy.sin()`` instead of ``math.sin()``. The
- |          measurement function you create should return a item, either a
- |          scalar or array, that gives the values of the measurement.
- |      
- |      Examples
- |      ========
- |      
- |      &gt;&gt;&gt; import numpy as np
- |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;m&#39;] = 1.0  # kg
- |      &gt;&gt;&gt; sys.constants[&#39;c&#39;] = 0.2  # kg*s
- |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 10.0  # N/m
- |      &gt;&gt;&gt; sys.coordinates[&#39;x&#39;] = 1.0  # m
- |      &gt;&gt;&gt; sys.speeds[&#39;v&#39;] = 0.25  # m/s
- |      &gt;&gt;&gt; def can_coeffs(m, c, k):
- |      ...     return m, c, k
- |      ...
- |      &gt;&gt;&gt; sys.canonical_coeffs_func = can_coeffs
- |      &gt;&gt;&gt; def force(x, v, c, k, time):
- |      ...    return -k * x - c * v + 5.0 * time
- |      ...
- |      &gt;&gt;&gt; # The measurement function you create must be vectorized, such
- |      &gt;&gt;&gt; # that it works with both floats and 1D arrays. For example with
- |      &gt;&gt;&gt; # floats:
- |      &gt;&gt;&gt; force(1.0, 0.5, 0.2, 10.0, 0.1)
- |      -9.6
- |      &gt;&gt;&gt; # And with 1D arrays:
- |      &gt;&gt;&gt; force(np.array([1.0, 1.0]), np.array([0.25, 0.25]), 0.2, 10.0,
- |      ...       np.array([0.1, 0.2]))
- |      array([-9.55, -9.05])
- |      &gt;&gt;&gt; sys.add_measurement(&#39;f&#39;, force)
- |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]  # time is 0.0 by default
- |      -10.05
- |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 20.0  # N/m
- |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]
- |      -20.05
- |      &gt;&gt;&gt; # Note that you should use NumPy functions to ensure your
- |      &gt;&gt;&gt; # measurement is vectorized.
- |      &gt;&gt;&gt; def force_mag(force):
- |      ...     return np.abs(force)
- |      ...
- |      &gt;&gt;&gt; force_mag(-10.05)
- |      10.050000000000001
- |      &gt;&gt;&gt; force_mag(np.array([-10.05, -20.05]))
- |      array([ 10.05,  20.05])
- |      &gt;&gt;&gt; sys.add_measurement(&#39;fmag&#39;, force_mag)
- |      &gt;&gt;&gt; sys.measurements[&#39;fmag&#39;]
- |      20.05
- |  
- |  animate_configuration(self, fps=30, **kwargs)
- |      Returns a matplotlib animation function based on the configuration
- |      plot and the configuration plot update function.
- |      
- |      Parameters
- |      ==========
- |      fps : integer
- |          The frames per second that should be displayed in the animation.
- |          The latest trajectory will be resampled via linear interpolation to
- |          create the correct number of frames. Note that the frame rate will
- |          depend on the CPU speed of the computer. You&#39;ll likely have to
- |          adjust this by trial and error to get something that matches well
- |          for your computer if you want the animation to run in real time.
- |      **kwargs
- |          Any extra keyword arguments will be passed to
- |          ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
- |          argument will be ignored.
- |  
- |  free_response(self, final_time, initial_time=0.0, sample_rate=100, **kwargs)
- |      Returns a data frame with monotonic time values as the index and
- |      columns for each coordinate and measurement at the time value for that
- |      row. Note that this data frame is stored on the system as the variable
- |      ``result`` until this method is called again, which will overwrite it.
- |      
- |      Parameters
- |      ==========
- |      final_time : float
- |          A value of time in seconds corresponding to the end of the
- |          simulation.
- |      initial_time : float, optional
- |          A value of time in seconds corresponding to the start of the
- |          simulation.
- |      sample_rate : integer, optional
- |          The sample rate of the simulation in Hertz (samples per second).
- |          The time values will be reported at the initial time and final
- |          time, i.e. inclusive, along with times space equally based on the
- |          sample rate.
- |      
- |      Returns
- |      =======
- |      df : pandas.DataFrame
- |          A data frame indexed by time with all of the coordinates and
- |          measurements as columns.
- |  
- |  plot_configuration(self)
- |      Returns a matplotlib figure generated by the function assigned to
- |      the ``config_plot_func`` attribute. You may need to call
- |      ``matplotlib.pyplot.show()`` to display the figure.
- |      
- |      Returns
- |      =======
- |      fig : matplotlib.figure.Figure
- |          The first returned object is always a figure.
- |      *args : matplotlib objects
- |          Any matplotlib objects can be returned after the figure.
- |  
- |  ----------------------------------------------------------------------
- |  Readonly properties inherited from resonance.system.System:
- |  
- |  states
- |      An ordered dictionary containing the system&#39;s state variables and
- |      values. The coordinates are always ordered before the speeds and the
- |      individual order of the values depends on the order they were added to
- |      coordinates and speeds.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.coordinates[&#39;angle&#39;] = 0.2
- |      &gt;&gt;&gt; sys.speeds[&#39;angle_vel&#39;] = 0.1
- |      &gt;&gt;&gt; sys.states
- |      {&#39;angle&#39;: 0.2, &#39;angle_vel&#39;: 0.1}
- |      &gt;&gt;&gt; list(sys.states.keys())
- |      [&#39;angle&#39;, &#39;angle_vel&#39;]
- |      &gt;&gt;&gt; list(sys.states.values())
- |      [0.2, 0.1]
- |  
- |  ----------------------------------------------------------------------
- |  Data descriptors inherited from resonance.system.System:
- |  
- |  __dict__
- |      dictionary for instance variables (if defined)
- |  
- |  __weakref__
- |      list of weak references to the object (if defined)
- |  
- |  config_plot_func
- |      The configuration plot function arguments should be any of the
- |      system&#39;s constants, coordinates, measurements, or &#39;time&#39;. No other
- |      arguments are valid. The function has to return the matplotlib figure
- |      as the first item but can be followed by any number of mutable
- |      matplotlib objects that you may want to change during an animation.
- |      Refer to the matplotlib documentation for tips on creating figures.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
- |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
- |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
- |      ...     fig, ax = plt.subplots(1, 1)
- |      ...     circle = Circle((center_x, center_y), radius=radius)
- |      ...     ax.add_patch(circle)
- |      ...     ax.set_title(time)
- |      ...     return fig, circle, ax
- |      ...
- |      &gt;&gt;&gt; sys.config_plot_function = plot
- |      &gt;&gt;&gt; sys.plot_configuration()
- |  
- |  config_plot_update_func
- |      The configuration plot update function arguments should be any of
- |      the system&#39;s constants, coordinates, measurements, or &#39;time&#39; in any
- |      order with the returned values from the ``config_plot_func`` as the
- |      last arguments in the exact order as in the configuration plot return
- |      statement. No other arguments are valid. Nothing need be returned from
- |      the function. See the matplotlib animation documentation for tips on
- |      creating these update functions.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
- |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
- |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
- |      ...     fig, ax = plt.subplots(1, 1)
- |      ...     circle = Circle((center_x, center_y), radius=radius)
- |      ...     ax.add_patch(circle)
- |      ...     ax.set_title(time)
- |      ...     return fig, circle, ax
- |      ...
- |      &gt;&gt;&gt; sys.config_plot_function = plot
- |      &gt;&gt;&gt; def update(center_y, center_x, time, circle, ax):
- |      ...     # NOTE : that circle and ax have to be the last arguments and be
- |      ...     # in the same order as returned from plot()
- |      ...     circle.set_xy((center_x, center_y))
- |      ...     ax.set_title(time)
- |      ...     fig.canvas.draw()
- |      ...
- |      &gt;&gt;&gt; sys.config_plot_update_func = update
- |      &gt;&gt;&gt; sys.animate_configuration()
- |  
- |  constants
- |      A dictionary containing the all of the system&#39;s constants, i.e.
- |      parameters that do not vary with time.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.constants
- |      {}
- |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants
- |      {&#39;mass&#39;: 5.0}
- |      &gt;&gt;&gt; del sys.constants[&#39;mass&#39;]
- |      &gt;&gt;&gt; sys.constants
- |      {}
- |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 10.0
- |      &gt;&gt;&gt; sys.constants
- |      {&#39;mass&#39;: 5.0, &#39;length&#39;: 10.0}
- |  
- |  coordinates
- |      A dictionary containing the system&#39;s generalized coordinates, i.e.
- |      coordinate parameters that vary with time. These values will be used as
- |      initial conditions in simulations.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.coordinates[&#39;angle&#39;] = 0.0
- |      &gt;&gt;&gt; sys.coordinates
- |      {&#39;angle&#39;: 0.0}
- |  
- |  measurements
- |      A dictionary containing the all of the system&#39;s measurements, i.e.
- |      parameters that are functions of the constants, coordinates, speeds,
- |      and other measurements.
- |  
- |  speeds
- |      A dictionary containing the system&#39;s generalized speeds, i.e. speed
- |      parameters that vary with time. These values will be used as initial
- |      conditions in simulations.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.speeds[&#39;angle_vel&#39;] = 0.0
- |      &gt;&gt;&gt; sys.speeds
- |      {&#39;angle_vel&#39;: 0.0}
-
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -13608,515 +13218,10 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">LinPendulum</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span>LinPendulum<span class="o">?</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Help on class ClockPendulumSystem in module resonance.linear_systems:
-
-class ClockPendulumSystem(SingleDoFLinearSystem)
- |  This system represents dynamics of a simple compound pendulum in which a
- |  rigid body is attached via a revolute joint to a fixed point. Gravity acts
- |  on the pendulum to bring it to an equilibrium state and there is no
- |  friction in the joint. It is described by:
- |  
- |  Attributes
- |  ==========
- |  constants
- |      pendulum_mass, m [kg]
- |          The mass of the compound pendulum.
- |      inertia_about_joint, i [kg m**2]
- |          The moment of inertia of the compound pendulum about the revolute
- |          joint.
- |      joint_to_mass_center, l [m]
- |          The distance from the revolute joint to the mass center of the
- |          compound pendulum.
- |      acc_due_to_gravity, g [m/s**2]
- |          The acceleration due to gravity.
- |  coordinates
- |      angle, theta [rad]
- |          The angle of the pendulum relative to the direction of gravity.
- |          When theta is zero the pendulum is hanging down in it&#39;s equilibrium
- |          state.
- |  speeds
- |      angle_vel, theta_dot [rad / s]
- |          The angular velocity of the pendulum about the revolute joint axis.
- |  
- |  Method resolution order:
- |      ClockPendulumSystem
- |      SingleDoFLinearSystem
- |      _LinearSystem
- |      resonance.system.System
- |      builtins.object
- |  
- |  Methods defined here:
- |  
- |  __init__(self)
- |      Initialize self.  See help(type(self)) for accurate signature.
- |  
- |  ----------------------------------------------------------------------
- |  Methods inherited from SingleDoFLinearSystem:
- |  
- |  frequency_response(self, frequencies, amplitude)
- |      Returns the amplitude and phase shift for simple sinusoidal forcing
- |      of the system. The first holds the plot of the coordinate&#39;s amplitude
- |      as a function of forcing frequency and the second holds a plot of the
- |      coordinate&#39;s phase shift with respect to the forcing function.
- |      
- |      Parameters
- |      ==========
- |      frequencies : array_like, shape(n,)
- |      amplitude : float
- |          The value of the forcing amplitude.
- |      
- |      Returns
- |      =======
- |      amp_curve : ndarray, shape(n,)
- |          The amplitude values of the coordinate at different frequencies.
- |      phase_curve : ndarray, shape(n,)
- |          The phase shift values in radians of the coordinate relative to the
- |          forcing.
- |  
- |  frequency_response_plot(self, amplitude, log=False, axes=None)
- |      Returns an array of two matplotlib axes. The first holds the plot of
- |      the coordinate&#39;s amplitude as a function of forcing frequency and the
- |      second holds a plot of the coordinate&#39;s phase shift with respect to the
- |      forcing function.
- |      
- |      Parameters
- |      ==========
- |      amplitude : float
- |          The value of the forcing amplitude.
- |      log : boolean, optional
- |          If True, the amplitude will be plotted on a semi-log Y plot.
- |  
- |  period(self)
- |      Returns the (damped) period of oscillation of the coordinate in
- |      seconds.
- |  
- |  periodic_forcing_response(self, twice_avg, cos_coeffs, sin_coeffs, frequency, final_time, initial_time=0.0, sample_rate=100, col_name=&#39;forcing_function&#39;)
- |      Returns the trajectory of the system&#39;s coordinates, speeds,
- |      accelerations, and measurements if a periodic forcing function defined
- |      by a Fourier series is applied as a force or torque in the same
- |      direction as the system&#39;s coordinate. The forcing function is defined
- |      as::
- |      
- |                                  N
- |          F(t) or T(t) = a0 / 2 + ∑ (an * cos(n*ω*t) + bn * sin(n*ω*t))
- |                                 n=1
- |      
- |      Where a0, a1...an, and b1...bn are the Fourier coefficients. If N=∞
- |      then the Fourier series can describe any periodic function with a
- |      period (2*π)/ω.
- |      
- |      Parameters
- |      ==========
- |      twice_avg : float
- |          Twice the average value over one cycle, a0.
- |      cos_coeffs : float or sequence of floats
- |          The N cosine Fourier coefficients: a1, ..., aN.
- |      sin_coeffs : float or sequence of floats
- |          The N sine Fourier coefficients: b1, ..., bN.
- |      frequency : float
- |          The frequency, ω, in radians per second corresponding to one full
- |          cycle of the function.
- |      final_time : float
- |          A value of time in seconds corresponding to the end of the
- |          simulation.
- |      initial_time : float, optional
- |          A value of time in seconds corresponding to the start of the
- |          simulation.
- |      sample_rate : integer, optional
- |          The sample rate of the simulation in Hertz (samples per second).
- |          The time values will be reported at the initial time and final
- |          time, i.e. inclusive, along with times space equally based on the
- |          sample rate.
- |      col_name : string, optional
- |          A valid Python identifier that will be used as the column name for
- |          the forcing function trajectory in the returned data frame.
- |      
- |      Returns
- |      =======
- |      pandas.DataFrame
- |          A data frame indexed by time with all of the coordinates and
- |          measurements as columns.
- |  
- |  sinusoidal_forcing_response(self, amplitude, frequency, final_time, initial_time=0.0, sample_rate=100, col_name=&#39;forcing_function&#39;)
- |      Returns the trajectory of the system&#39;s coordinates, speeds,
- |      accelerations, and measurements if a sinusoidal forcing (or torquing)
- |      function defined by:
- |      
- |      F(t) = Fo * cos(ω * t)
- |      
- |      or
- |      
- |      T(t) = To * cos(ω * t)
- |      
- |      is applied to the moving body in the direction of the system&#39;s
- |      coordinate.
- |      
- |      Parameters
- |      ==========
- |      amplitude : float
- |          The amplitude of the forcing/torquing function, Fo or To, in
- |          Newtons or Newton-Meters.
- |      frequency : float
- |          The frequency, ω, in radians per second of the sinusoidal forcing.
- |      final_time : float
- |          A value of time in seconds corresponding to the end of the
- |          simulation.
- |      initial_time : float, optional
- |          A value of time in seconds corresponding to the start of the
- |          simulation.
- |      sample_rate : integer, optional
- |          The sample rate of the simulation in Hertz (samples per second).
- |          The time values will be reported at the initial time and final
- |          time, i.e. inclusive, along with times space equally based on the
- |          sample rate.
- |      col_name : string, optional
- |          A valid Python identifier that will be used as the column name for
- |          the forcing function trajectory in the returned data frame.
- |      
- |      Returns
- |      =======
- |      pandas.DataFrame
- |          A data frame indexed by time with all of the coordinates and
- |          measurements as columns.
- |  
- |  ----------------------------------------------------------------------
- |  Methods inherited from _LinearSystem:
- |  
- |  canonical_coefficients(self)
- |      Returns the mass, damping, and stiffness coefficients in that
- |      order.
- |  
- |  ----------------------------------------------------------------------
- |  Data descriptors inherited from _LinearSystem:
- |  
- |  canonical_coeffs_func
- |      A function that returns the three linear coefficients of the left
- |      hand side of a canonical second order ordinary differential equation.
- |      This equation looks like the following for linear motion:
- |      
- |          mv&#39; + cv + kx = F(t)
- |      
- |      and like the following for angular motion:
- |      
- |          Iω&#39; + cω + kθ = T(t)
- |      
- |      where:
- |      
- |          - m: mass of the moving particle
- |          - I: moment of inertia of a rigid body
- |          - c: viscous damping coefficient (linear or angular)
- |          - k: spring stiffness (linear or angular)
- |          - x: the positional coordinate of the mass
- |          - v: the positional speed of the mass
- |          - θ: the angular coordinate of the body
- |          - ω: the angular speed of the body
- |      
- |      The coefficients (m, c, k, I) must be defined in terms of the system&#39;s
- |      constants.
- |      
- |      Example
- |      =======
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;gravity&#39;] = 9.8  # m/s**2
- |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 1.0  # m
- |      &gt;&gt;&gt; sys.constnats[&#39;mass&#39;] = 0.5  # kg
- |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
- |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
- |      &gt;&gt;&gt; def coeffs(gravity, length, mass):
- |      &gt;&gt;&gt;     # Represents a linear model of a simple pendulum:
- |      ...     #  m * l**2 ω&#39; + m * g * l * θ = 0
- |      ...     I = mass * length**2
- |      ...     c = 0.0
- |      ...     k = mass * gravity * length
- |      ...     return I, c, k
- |      &gt;&gt;&gt; sys.canonical_coeffs_func = coeffs
- |  
- |  ----------------------------------------------------------------------
- |  Methods inherited from resonance.system.System:
- |  
- |  add_measurement(self, name, func)
- |      Creates a new measurement entry in the measurements attribute that
- |      uses the provided function to compute the measurement given a subset of
- |      the constants, coordinates, speeds, other measurements, and time.
- |      
- |      Parameters
- |      ==========
- |      name : string
- |          This must be a valid Python variable name and it should not clash
- |          with any names in the constants, coordinates, or speeds dictionary.
- |          This string can be different that the function name.
- |      func : function
- |          This function must only have existing constant, coordinate, speed,
- |          or measurement names, and/or the special name &#34;time&#34; in the function
- |          signature. These can be a subset of the available choices in
- |          constants, coordinates, speeds, measurements and any order in the
- |          signature is permitted. The function must be able to operate on
- |          both inputs that are a collection of floats or a collection of
- |          equal length 1D NumPy arrays and floats, i.e. the function must be
- |          vectorized. So be sure to use NumPy vectorized functions inside
- |          your function, i.e.  ``numpy.sin()`` instead of ``math.sin()``. The
- |          measurement function you create should return a item, either a
- |          scalar or array, that gives the values of the measurement.
- |      
- |      Examples
- |      ========
- |      
- |      &gt;&gt;&gt; import numpy as np
- |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;m&#39;] = 1.0  # kg
- |      &gt;&gt;&gt; sys.constants[&#39;c&#39;] = 0.2  # kg*s
- |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 10.0  # N/m
- |      &gt;&gt;&gt; sys.coordinates[&#39;x&#39;] = 1.0  # m
- |      &gt;&gt;&gt; sys.speeds[&#39;v&#39;] = 0.25  # m/s
- |      &gt;&gt;&gt; def can_coeffs(m, c, k):
- |      ...     return m, c, k
- |      ...
- |      &gt;&gt;&gt; sys.canonical_coeffs_func = can_coeffs
- |      &gt;&gt;&gt; def force(x, v, c, k, time):
- |      ...    return -k * x - c * v + 5.0 * time
- |      ...
- |      &gt;&gt;&gt; # The measurement function you create must be vectorized, such
- |      &gt;&gt;&gt; # that it works with both floats and 1D arrays. For example with
- |      &gt;&gt;&gt; # floats:
- |      &gt;&gt;&gt; force(1.0, 0.5, 0.2, 10.0, 0.1)
- |      -9.6
- |      &gt;&gt;&gt; # And with 1D arrays:
- |      &gt;&gt;&gt; force(np.array([1.0, 1.0]), np.array([0.25, 0.25]), 0.2, 10.0,
- |      ...       np.array([0.1, 0.2]))
- |      array([-9.55, -9.05])
- |      &gt;&gt;&gt; sys.add_measurement(&#39;f&#39;, force)
- |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]  # time is 0.0 by default
- |      -10.05
- |      &gt;&gt;&gt; sys.constants[&#39;k&#39;] = 20.0  # N/m
- |      &gt;&gt;&gt; sys.measurements[&#39;f&#39;]
- |      -20.05
- |      &gt;&gt;&gt; # Note that you should use NumPy functions to ensure your
- |      &gt;&gt;&gt; # measurement is vectorized.
- |      &gt;&gt;&gt; def force_mag(force):
- |      ...     return np.abs(force)
- |      ...
- |      &gt;&gt;&gt; force_mag(-10.05)
- |      10.050000000000001
- |      &gt;&gt;&gt; force_mag(np.array([-10.05, -20.05]))
- |      array([ 10.05,  20.05])
- |      &gt;&gt;&gt; sys.add_measurement(&#39;fmag&#39;, force_mag)
- |      &gt;&gt;&gt; sys.measurements[&#39;fmag&#39;]
- |      20.05
- |  
- |  animate_configuration(self, fps=30, **kwargs)
- |      Returns a matplotlib animation function based on the configuration
- |      plot and the configuration plot update function.
- |      
- |      Parameters
- |      ==========
- |      fps : integer
- |          The frames per second that should be displayed in the animation.
- |          The latest trajectory will be resampled via linear interpolation to
- |          create the correct number of frames. Note that the frame rate will
- |          depend on the CPU speed of the computer. You&#39;ll likely have to
- |          adjust this by trial and error to get something that matches well
- |          for your computer if you want the animation to run in real time.
- |      **kwargs
- |          Any extra keyword arguments will be passed to
- |          ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
- |          argument will be ignored.
- |  
- |  free_response(self, final_time, initial_time=0.0, sample_rate=100, **kwargs)
- |      Returns a data frame with monotonic time values as the index and
- |      columns for each coordinate and measurement at the time value for that
- |      row. Note that this data frame is stored on the system as the variable
- |      ``result`` until this method is called again, which will overwrite it.
- |      
- |      Parameters
- |      ==========
- |      final_time : float
- |          A value of time in seconds corresponding to the end of the
- |          simulation.
- |      initial_time : float, optional
- |          A value of time in seconds corresponding to the start of the
- |          simulation.
- |      sample_rate : integer, optional
- |          The sample rate of the simulation in Hertz (samples per second).
- |          The time values will be reported at the initial time and final
- |          time, i.e. inclusive, along with times space equally based on the
- |          sample rate.
- |      
- |      Returns
- |      =======
- |      df : pandas.DataFrame
- |          A data frame indexed by time with all of the coordinates and
- |          measurements as columns.
- |  
- |  plot_configuration(self)
- |      Returns a matplotlib figure generated by the function assigned to
- |      the ``config_plot_func`` attribute. You may need to call
- |      ``matplotlib.pyplot.show()`` to display the figure.
- |      
- |      Returns
- |      =======
- |      fig : matplotlib.figure.Figure
- |          The first returned object is always a figure.
- |      *args : matplotlib objects
- |          Any matplotlib objects can be returned after the figure.
- |  
- |  ----------------------------------------------------------------------
- |  Readonly properties inherited from resonance.system.System:
- |  
- |  states
- |      An ordered dictionary containing the system&#39;s state variables and
- |      values. The coordinates are always ordered before the speeds and the
- |      individual order of the values depends on the order they were added to
- |      coordinates and speeds.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.coordinates[&#39;angle&#39;] = 0.2
- |      &gt;&gt;&gt; sys.speeds[&#39;angle_vel&#39;] = 0.1
- |      &gt;&gt;&gt; sys.states
- |      {&#39;angle&#39;: 0.2, &#39;angle_vel&#39;: 0.1}
- |      &gt;&gt;&gt; list(sys.states.keys())
- |      [&#39;angle&#39;, &#39;angle_vel&#39;]
- |      &gt;&gt;&gt; list(sys.states.values())
- |      [0.2, 0.1]
- |  
- |  ----------------------------------------------------------------------
- |  Data descriptors inherited from resonance.system.System:
- |  
- |  __dict__
- |      dictionary for instance variables (if defined)
- |  
- |  __weakref__
- |      list of weak references to the object (if defined)
- |  
- |  config_plot_func
- |      The configuration plot function arguments should be any of the
- |      system&#39;s constants, coordinates, measurements, or &#39;time&#39;. No other
- |      arguments are valid. The function has to return the matplotlib figure
- |      as the first item but can be followed by any number of mutable
- |      matplotlib objects that you may want to change during an animation.
- |      Refer to the matplotlib documentation for tips on creating figures.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
- |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
- |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
- |      ...     fig, ax = plt.subplots(1, 1)
- |      ...     circle = Circle((center_x, center_y), radius=radius)
- |      ...     ax.add_patch(circle)
- |      ...     ax.set_title(time)
- |      ...     return fig, circle, ax
- |      ...
- |      &gt;&gt;&gt; sys.config_plot_function = plot
- |      &gt;&gt;&gt; sys.plot_configuration()
- |  
- |  config_plot_update_func
- |      The configuration plot update function arguments should be any of
- |      the system&#39;s constants, coordinates, measurements, or &#39;time&#39; in any
- |      order with the returned values from the ``config_plot_func`` as the
- |      last arguments in the exact order as in the configuration plot return
- |      statement. No other arguments are valid. Nothing need be returned from
- |      the function. See the matplotlib animation documentation for tips on
- |      creating these update functions.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
- |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
- |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
- |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
- |      ...     fig, ax = plt.subplots(1, 1)
- |      ...     circle = Circle((center_x, center_y), radius=radius)
- |      ...     ax.add_patch(circle)
- |      ...     ax.set_title(time)
- |      ...     return fig, circle, ax
- |      ...
- |      &gt;&gt;&gt; sys.config_plot_function = plot
- |      &gt;&gt;&gt; def update(center_y, center_x, time, circle, ax):
- |      ...     # NOTE : that circle and ax have to be the last arguments and be
- |      ...     # in the same order as returned from plot()
- |      ...     circle.set_xy((center_x, center_y))
- |      ...     ax.set_title(time)
- |      ...     fig.canvas.draw()
- |      ...
- |      &gt;&gt;&gt; sys.config_plot_update_func = update
- |      &gt;&gt;&gt; sys.animate_configuration()
- |  
- |  constants
- |      A dictionary containing the all of the system&#39;s constants, i.e.
- |      parameters that do not vary with time.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.constants
- |      {}
- |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants
- |      {&#39;mass&#39;: 5.0}
- |      &gt;&gt;&gt; del sys.constants[&#39;mass&#39;]
- |      &gt;&gt;&gt; sys.constants
- |      {}
- |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 5.0
- |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 10.0
- |      &gt;&gt;&gt; sys.constants
- |      {&#39;mass&#39;: 5.0, &#39;length&#39;: 10.0}
- |  
- |  coordinates
- |      A dictionary containing the system&#39;s generalized coordinates, i.e.
- |      coordinate parameters that vary with time. These values will be used as
- |      initial conditions in simulations.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.coordinates[&#39;angle&#39;] = 0.0
- |      &gt;&gt;&gt; sys.coordinates
- |      {&#39;angle&#39;: 0.0}
- |  
- |  measurements
- |      A dictionary containing the all of the system&#39;s measurements, i.e.
- |      parameters that are functions of the constants, coordinates, speeds,
- |      and other measurements.
- |  
- |  speeds
- |      A dictionary containing the system&#39;s generalized speeds, i.e. speed
- |      parameters that vary with time. These values will be used as initial
- |      conditions in simulations.
- |      
- |      Examples
- |      ========
- |      &gt;&gt;&gt; sys = System()
- |      &gt;&gt;&gt; sys.speeds[&#39;angle_vel&#39;] = 0.0
- |      &gt;&gt;&gt; sys.speeds
- |      {&#39;angle_vel&#39;: 0.0}
-
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -14162,7 +13267,6 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Exercise</strong></p>
 <p>Simulate each system for 5 seconds with an initial angle of 1.0 degrees and plot the trajectory of the angle from each response on a single plot to see if there are any differences.</p>
 
 </div>
@@ -14190,19 +13294,6 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -14259,7 +13350,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">compare_lin_to_nonlin</span><span class="p">(</span><span class="n">initial_angle</span><span class="p">):</span>
@@ -14285,7 +13376,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
@@ -14299,7 +13390,6 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Exercise</strong></p>
 <p>Try out some angles from 0 to 180 degrees and view the graphs to see if there is anything interesting.</p>
 
 </div>
@@ -14307,7 +13397,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">compare_lin_to_nonlin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -14388,26 +13478,13 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
 <p>Make a plot of initial angle versus period for the nonlinear pendulum. Report on your what you learn from this plot. The code should look something like:</p>
 <div class="highlight"><pre><span></span><span class="n">periods</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">))</span>
+<span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
     <span class="c1"># fill in the loop here</span>
 
@@ -14422,12 +13499,12 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">resonance.functions</span> <span class="kn">import</span> <span class="n">estimate_period</span>
 <span class="n">periods</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">))</span>
+<span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
     <span class="n">non_lin_sys</span><span class="o">.</span><span class="n">coordinates</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
     <span class="n">traj</span> <span class="o">=</span> <span class="n">non_lin_sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="mf">5.0</span><span class="p">)</span>
@@ -14462,7 +13539,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[16]:</div>
+    <div class="prompt output_prompt">Out[14]:</div>
 
 
 
@@ -14481,7 +13558,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 
 
 <div class="output_png output_subarea ">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAY4AAAEGCAYAAABy53LJAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAADh0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uMy4xLjIsIGh0dHA6Ly9tYXRwbG90bGliLm9yZy8li6FKAAAgAElEQVR4nO3dd5hV1dn38e9N7wIy9DIgCAJShyL2qBHsxooNjIpGfY0mmtiipviEGI0x0aCoNEHs2GOJj8YIIgy9SxtgYGCG3mHK/f5x9ph5YCrMmX3mnN/nuuY6Z6+19z73bIa5Z6+19lrm7oiIiJRWlbADEBGRykWJQ0REykSJQ0REykSJQ0REykSJQ0REyqRa2AFUhCZNmnhycnLYYYiIVCqzZs3a7O5Jh5YnROJITk4mNTU17DBERCoVM1tTWLmaqkREpEyUOEREpEyUOEREpEyUOEREpEyUOEREpEyUOEREpEyUOEREpEyUOERE4tD+7Fwee38Rm3cfKPdzK3GIiMShP32ylHHT0liasavcz63EISISZ75ZvpmxU9MYPiiZUzo1KffzK3GIiMSR7XsPcu+b8zguqS73D+kSlc9Q4hARiSO/eS/Sr/HXq3pTq3rVqHyGEoeISJx4b+56Ppi3gbvP7sSJrY+J2ucocYiIxIEN2/fxm3cX0qdtQ247/bioflbUEoeZjTGzTDNbWER9FzP71swOmNm9Bco7m9ncAl87zezuoO4xM1tfoO68aMUvIlJZ5OU59701j5w85y9X9qJa1ejeE0RzPY5xwLPAhCLqtwJ3AZcULHT3ZUAvADOrCqwHphTY5Wl3f7K8gxURqazGTUtj6oot/PEnJ5LcpG7UPy9qacndvyaSHIqqz3T3mUB2Mac5C1jp7oUuJiIikuiWb9rFyE+WclaXplzdr02FfGas93FcDUw+pOxOM5sfNIU1KupAMxthZqlmlpqVlRXdKEVEQuDuPPDOAurVrMbIy3pgZhXyuTGbOMysBnAR8GaB4lHAcUSasjKAp4o63t1Hu3uKu6ckJR22ZK6ISKX3wfwMUtds475zO5NUv2aFfW7MJg5gCDDb3TflF7j7JnfPdfc84EWgf2jRiYiEaO/BHP748RK6tWzAlSkV00SVL5YTx1AOaaYysxYFNi8FCh2xJSIS757/9yoyduzn0Qu7UbVKxTRR5YvaqCozmwycATQxs3TgUaA6gLs/b2bNgVSgAZAXDLnt6u47zawOcA5w6yGnfcLMegEOpBVSLyIS99K37eWFf6/kwp4t6d++cYV/ftQSh7sPLaF+I9C6iLq9wLGFlF9fPtGJiFRef/x4KWbwQJTmoipJLDdViYjIIb5duYWPFmTws9M70rJh7VBiUOIQEakkcvOc336wiFYNazPitA6hxaHEISJSSUyesZalG3fx4HknULtGdGa+LQ0lDhGRSmDH3mye+mwZA9o35rwTm4caixKHiEgl8NTny9ixL5tHLuxaYU+IFyWakxyKiMhRystz/vjPJUz4dg3DTmpHt5bRW2ejtJQ4RERi1L6Dudzz+lw+WbSRYSe145ELu4UdEqDEISISk7J2HeDmCanMT9/OIxd05aentA87pB8ocYiIxJjlm3Zx47iZbNl9kBeu68uPu4XbGX4oJQ4RkRgybcVmbp04i5rVqvL6rQPp0bph2CEdRolDRCRGTF2xmWFjZtAhqS5jhvejdaM6YYdUKCUOEZEYkLFjH/9v8hzaN6nLm7cN4pja1cMOqUh6jkNEJGQHc/K4fdJsDmTnMuq6vjGdNEB3HCIiofufj5cwZ+12nrumDx2b1gs7nBLpjkNEJETvz9vAuGlp3HRKe87v0aLkA2KAEoeISEiWb9rF/W/PJ6VdI+4PaW2NI6HEISISgt0Hcrht4izq1KjKc9f2oXrVyvPrWH0cIiIVzN359dvzWb15DxNvHkCzBrXCDqlMKk+KExGJE2OnpvHR/AzuPbczg45rEnY4ZRa1xGFmY8ws08wWFlHfxcy+NbMDZnbvIXVpZrbAzOaaWWqB8sZm9rmZLQ9eG0UrfhGRaEhN28r/fLyEc7o242enHxd2OEckmncc44DBxdRvBe4Cniyi/kx37+XuKQXK7ge+cPdOwBfBtohIpZC16wB3vDqbVo1q8+QVPUNfV+NIRS1xuPvXRJJDUfWZ7j4TyC7DaS8GxgfvxwOXHHmEIiIVJyc3j7smz2H73mxGXRv7D/kVJ1b7OBz4zMxmmdmIAuXN3D0DIHhtWtQJzGyEmaWaWWpWVlaUwxURKd6Tn33Pt6u28PilJ9K1ZYOwwzkqsZo4Tnb3PsAQ4A4zO62sJ3D30e6e4u4pSUlJ5R+hiEgpfbpoI8//eyXXDGjL5X1bhx3OUYvJxOHuG4LXTGAK0D+o2mRmLQCC18xwIhQRKZ20zXu494159Gh9DI9c0DXscMpFzCUOM6trZvXz3wM/BvJHZr0PDAveDwPeq/gIRURKZ9/BXG6bOIuqVY3nrulDrepVww6pXETtAUAzmwycATQxs3TgUaA6gLs/b2bNgVSgAZBnZncDXYEmwJRgtEE14FV3/yQ47UjgDTO7CVgLXBGt+EVEjoa789C7C1i2aRdjh/ejTePYXFvjSEQtcbj70BLqNwKFNfbtBHoWccwW4Kyjj05EJLomz1jHO7PX8/OzOnFG5yLH8VRKMddUJSJS2c1P385j7y/i1E5NuOusTmGHU+6UOEREytG2PQf52cTZJNWvyTNX96Zqlcr5kF9xNMmhiEg5yctz7n59Llm7DvDmbSfRuG6NsEOKCt1xiIiUk7//7wr+/X0Wj1zYlZ5tGoYdTtQocYiIlIN/f5/FX7/4np/0bsW1A9qGHU5UKXGIiByl9G17+flrc+jcrD6PX3pipZ28sLSUOEREjsKBnFzumDSb3Fxn1HV9qV0jPh7yK446x0VEjsLvP1zMvPQdPH9dH9o3qRt2OBVCdxwiIkdoypx0Jk5fy62ndWBw9xZhh1NhlDhERI7A0o07eeCdBfRv35j7zu0cdjgVSolDRKSMdu3P5mcTZ1O/VnWevaY31aom1q9S9XGIiJSBu3Pfm/NZu3Uvr948gKb1a4UdUoVLrDQpInKUXvrPaj5ZtJH7B3dhQIdjww4nFEocIiKl9N2qLYz8ZCmDuzXn5lPbhx1OaJQ4RERKIXPnfu6cPIe2jevw5yt6xP1DfsVRH4eISAlycvO489U57N6fw8SbBlC/VvWwQwqVEoeISAme+HQZM9K28teretG5ef2wwwmdmqpERIrxycIMRn+9iusHtuOS3q3CDicmRC1xmNkYM8s0s4VF1Hcxs2/N7ICZ3VugvI2ZfWlmS8xskZn9vEDdY2a23szmBl/nRSt+EZFVWbu598359GzTkIcvOCHscGJGNO84xgGDi6nfCtwFPHlIeQ7wS3c/ARgI3GFmXQvUP+3uvYKvj8szYBGRfHsP5vCzibOpXtUYdW0falaL/8kLSytqicPdvyaSHIqqz3T3mUD2IeUZ7j47eL8LWALo/lBEKoy789CUhXyfuYu/De1Ny4a1ww4ppsR0H4eZJQO9ge8KFN9pZvODprBGxRw7wsxSzSw1KysrypGKSDyZ+N1apsxZzy/OPp5TOyWFHU7MidnEYWb1gLeBu919Z1A8CjgO6AVkAE8Vdby7j3b3FHdPSUrSP7yIlM7cddv53QeLOLNzEnec2THscGJSTCYOM6tOJGlMcvd38svdfZO757p7HvAi0D+sGEUk/izesJMRE1Jp1qAWT1/ViypVEvchv+LEXOKwyOOYLwNL3P0vh9QVnPD+UqDQEVsiImX11bJMrnh+GlXMeHlYPxrWqRF2SDErag8Amtlk4AygiZmlA48C1QHc/Xkzaw6kAg2APDO7G+gK9ACuBxaY2dzgdA8GI6ieMLNegANpwK3Ril9EEsek79bwyHuL6NysPmOG96P5MYk3421ZRC1xuPvQEuo3Aq0LqfoGKPT+0N2vL4fQREQAyMtzRn6ylNFfr+LMzkn8/Zo+1KupCTVKoiskIglpf3Yu97w+l38u3MgNJ7XjkQu6JtyCTEdKiUNEEs6OvdkMGzuDeenbefj8E7jplPYJPdttWSlxiEhCyctz7n59Dos27GDUtX0Z3L152CFVOrovE5GE8tyXK/hyWRaPXNhNSeMIKXGISML4z/Is/vKv77m0dyuuG9A27HAqLSUOEUkI67fv467Jczi+aX0ev7S7+jSOghKHiMS9Azm53D5pNtm5zqjr+lCnhrp3j4aunojEvT98uIR567bz/HV96JBUL+xwKr1iE4eZ7SyunsiDehnufnz5hSQiUn6mzEnnlelrGHFaBwZ3b1HyAVKiku44Vrp77+J2MLM55RiPiEi5WbpxJw+8s4D+7Rvzq3M7hx1O3Cipj+OyUpyjNPuIiFSoWWu2cs2L31G/VnWeHdpbT4WXo2KvpLuvAjCzumZWJXh/vJldFEx9/sM+IiKx4sP5Gxj64nc0qFWNN249iaYNNGlheSptCv4aqGVmrYAvgBuJrCkuIhIz3J1RX63kzlfn0KPVMbxz+8m0b1I37LDiTmlHVZm77zWzm4C/u/sT6tsQkViSnZvHI+8tZPKMdVzUsyVPXN6DWtWrhh1WXCp14jCzk4BrgZvKeKyISFTt3J/NHZNm85/lm7nzzI784pzjtXpfFJX2l//PgQeAKe6+yMw6AF9GLywRkdLZcyCHq1+YzvebdvHEZT24sl+bsEOKe6VKHO7+NZF+jvztVcBd0QpKRKQ03J1fvz2fpRt38vKwfpzZpWnYISWEYjvHzeyxkk5Qmn1ERKJh3LQ0Ppyfwb3ndlbSqEAl3XHcXMLT4wZcDTx2WIXZGOACINPduxdS3wUYC/QBHnL3JwvUDQaeAaoCL7n7yKC8MfA6kExkzfEr3X1bCd+DiMShWWu28fhHSzj7hGbcdtpxYYeTUEoajvsiUL+Yr3rBPoUZBwwu5txbiTR3PVmw0MyqAs8BQ4CuwFAz6xpU3w984e6diAwLvr+E+EUkDm3efYA7Js2mZcPaPHVlT3WEV7Bi7zjc/bdHemJ3/9rMkoupzwQyzez8Q6r6AysKPHz4GnAxsDh4PSPYbzzwFfDrI41RRCqf3Dznrslz2Lb3IO/cPohjalcPO6SEE4vP4LcC1hXYTg/KAJq5ewZA8Fpko6aZjTCzVDNLzcrKilqwIlKx/vL5Mqat3MIfLulOt5bHhB1OQorFxFHYPaeX9STuPtrdU9w9JSkpqRzCEpGw/WvxJp77ciVD+7fhihQNuw1LLCaOdKDgT0RrYEPwfpOZtQAIXjMrODYRCcnSjTu55425dG/VgEcv7BZ2OAmtpPU4/k4xf+27ezSe5ZgJdDKz9sB6IqO2rgnq3geGASOD1/ei8PkiEmO+/j6LOybNpnaNqoy6tq+mEglZScNxU4PXk4mMcHo92L4CmFXcgWY2mUhHdhMzSwceBfJn1H3ezJoH528A5JnZ3UBXd99pZncCnxIZjjvG3RcFpx0JvBHMmbU2iENE4thrM9by0LsL6dS0HmOG96Nlw9phh5TwzL3k7gMz+xL4sbtnB9vVgc/c/cwox1cuUlJSPDU1teQdRSRm5OU5f/5sGaO+Wsnpxyfx7DW9qV9LI6gqkpnNcveUQ8tLO1dVSyLPbWwNtusFZSIi5W5/di6/fHMeH83P4JoBbfndRd20EFMMKW3iGAnMCe48AE6nkKfFRUSO1pbdB7hlQiqz127nwfO6cMupHTDTA36xpLSTHI41s38CA4h0lt/v7hujGpmIJJyVWbu5cexMNu3cz6hr+zDkxBZhhySFKMuaGv2BU4P3DnxQ/uGISKKavmoLt74yi2pVjMkjBtKnbaOwQ5IilCpxmNlIoB8wKSi6y8wGufsDUYtMRBLGlDnp/Oqt+bRtXIdxN/anTeM6YYckxSjtHcd5QC93zwMws/HAHCKLO4mIHBF355kvlvPXfy1nYIfGvHBdCsfU0cipWFeWpqqG/HdUlSaIEZGjcjAnj/vfmc87s9fzkz6tGPmTHtSoppFTlUFpE8cf+e+oKgNOQ3cbInKEduzN5taJqUxftZV7zj6eu87qqJFTlUhpR1VNNrOviPRzGPBrjaoSkSOxdsteho+bwbqte3n6qp5c2rt12CFJGZU0V1UXd19qZn2CovTgtaWZtXT32dENT0Tiyey127hlfCo5ec7EmwYwoMOxYYckR6CkO45fACOApwqpc+BH5R6RiMSlj+Zn8Is35tL8mFqMGd6P45LqhR2SHKGSVgAcYWZVgIfdfWoFxSQiccTdeeHrVYz851L6tmvEizek0LhujbDDkqNQYh+Hu+eZ2ZPASRUQj4jEkf3Zufz2g8VMnrGWC3q04MkrempK9DhQ2lFVn5nZZcA7XprpdEUkoW3Yvo9Xpq9h8oy1bN+bzR1nHscvz+lMlSoaORUPSps4fgHUBXLNbB+RkVXu7g2iFpmIVCruTuqabYybmsYnizbi7vy4a3NuPDlZneBxprTDcetHOxARqby+WpbJk58tY+H6nTSoVY2bT2nPdQPbaeqQOFXauaoMuBZo7+6/N7M2QAt3nxHV6EQkprk7Y6am8YePFtP+2Lo8fml3Lu3dijo1yjIphVQ2pf3X/QeQR2T47e+B3cBzRB4IFJEElJvn/O6DRYz/dg3ndmvGX6/qTe0a6vhOBKVNHAPcvY+ZzQFw921mpvF0Iglqz4Ec7po8hy+WZnLLqe25f8gJVFXHd8Io7Yxi2WZWlchDf5hZEpE7kCKZ2RgzyzSzhUXUm5n9zcxWmNn8/KfTzayzmc0t8LXTzO4O6h4zs/UF6s4r9XcqIuVi0879XPnCt3y5LJPfX9Kdh87vqqSRYEp7x/E3YArQ1MweBy4HHi7hmHHAs8CEIuqHAJ2CrwHAKCJ3NsuAXgBBsloffHa+p939yVLGLSLlaEnGTn46biY792Xz8rB+nNmladghSQhKO6pqkpnNAs4iMhT3EndfUsIxX5tZcjG7XAxMCJ4LmW5mDc2shbtnFNjnLGClu68pTZwiEj3//j6LOybNpl7Narxx20l0a6nVFRJVSZMc1gJuAzoCC4AX3D2nnD67FbCuwHZ6UFYwcVwNTD7kuDvN7AYgFfilu28rIvYRRObZom3btuUUskhimvTdGh55bxHHN6vPmOEptDimdtghSYhK6uMYD6QQSRpDgPJsIiqsUfSHp9KDzveLgDcL1I8CjiPSlJVB4ZMvRk7kPtrdU9w9JSkpqXwiFkkweXnOHz9ewkNTFnJapya8edtJShpSYlNVV3c/EcDMXgbK87mNdKBNge3WwIYC20OA2e6+Kb+g4HszexH4sBzjEZEC9mfncs/rc/nnwo1cP7Adj17YlWpVtUKflHzHkZ3/phybqPK9D9wQjK4aCOw4pH9jKIc0U5lZiwKblwKFjtgSkaOzefcBrh49nU8WbeTh80/gdxd3U9KQH5R0x9HTzHYG7w2oHWyXOFeVmU0GzgCamFk68ChQnciBzwMfA+cBK4C9wI0Fjq0DnAPceshpnzCzXkSatNIKqReRo7Qiczc3jptB1q4DjLq2L4O7Nw87JIkxJa3HccSPgbr70BLqHbijiLq9wGGzorn79Ucaj4iUbNrKzdz2yixqVKvCayNOolebhmGHJDFIE8qICABvzUrngXfmk3xsXcYM76cJCqVIShwiCc7defpfy/nbF8s5ueOx/OPavhxTu3rYYUkMU+IQSWAHcnL59VvzeXfuBq7o25rHLz2RGtXUCS7FU+IQSVDb9x5kxCuzmLF6K/ed25nbzziOyAoKIsVT4hBJQGmb9/DTcTNJ376Pvw3tzUU9W4YdklQiShwiCSY1bSu3TEgFYNLNA+iX3DjkiKSyUeIQSSAfzNvAL9+cR6uGtRk7vB/JTeqGHZJUQkocIgnA3fnHVyv586fL6J/cmBeu70ujulqLTY6MEodInMvOzePhKQt5PXUdF/dqyROX96BmNS3xKkdOiUMkju3cn83tE2fzzYrN3PWjjtxzzvEaOSVHTYlDJE6lb9vLjWNnsnrzHv58eQ+uSGlT8kEipaDEIRKH5q3bzk3jUzmQk8uEn/ZnUMcmYYckcUSJQyTOfLpoIz9/bQ5N6tXktRED6Ni0ftghSZxR4hCJE+7Oy9+s5vGPl9CjdUNeuiGFpPo1ww5L4pASh0gcOJiTxx8+WsyEb9cwpHtz/nJlL2rX0MgpiQ4lDpFKbPPuA7z63VomTl9D5q4DjDitA/cP7kKVKho5JdGjxCFSCS1cv4OxU9P4YN4GDubmcfrxSfz5ivacfnxS2KFJAlDiEKlEpq3YzNP/+p6ZaduoU6MqV/dvww0nJdOxab2wQ5MEErXEYWZjgAuATHfvXki9Ac8QWXd8LzDc3WcHdWnALiAXyHH3lKC8MfA6kExkzfEr3X1btL4HkVjyyrdpPPr+Ilo2rM3D55/Alf3a0KCWFlySihfNFVvGAYOLqR8CdAq+RgCjDqk/09175SeNwP3AF+7eCfgi2BaJa7l5zh8+XMxv3lvEj7o05dO7T+PmUzsoaUhoopY43P1rYGsxu1wMTPCI6UBDM2tRwmkvBsYH78cDlxx9pCKxa9/BXG6fNIuXvlnN8EHJvHB9CnVrqoVZwhXmT2ArYF2B7fSgLANw4DMzc+AFdx8d7NPM3TMA3D3DzJoWdXIzG0HkToa2bdtGIXyR6MrctZ9bxqcyf/0OHr2wKzee3D7skESAcBNHYeMFPXg92d03BInhczNbGtzBlFqQbEYDpKSkeAm7i8SU7zft4saxM9m65yCjr0/hnK7Nwg5J5AdhrkqfDhScda01sAHA3fNfM4EpQP9gn035zVnBa2aFRStSQb5ZvpnL/jGNg7l5vHHrSUoaEnPCTBzvAzdYxEBgR9D8VNfM6gOYWV3gx8DCAscMC94PA96r6KBFoumNmesYPnYGLRvW5t07TubE1seEHZLIYaI5HHcycAbQxMzSgUeB6gDu/jzwMZGhuCuIDMe9MTi0GTAlWDOgGvCqu38S1I0E3jCzm4C1wBXRil+kIuXlOU99voznvlzJqZ2a8Ny1fTRqSmJW1BKHuw8tod6BOwopXwX0LOKYLcBZ5RKgSIzYn53LfW/N54N5Gxjavw2/u7g71auG2RggUjyN6xMJ0dY9BxkxIZXUNdv49eAu3HZ6B63QJzFPiUMkBO7OtJVbeGjKAjbs2M9z1/Th/B4lPcYkEhuUOEQq0L6DuUyZs55x01bz/abdNK1fk8m3DKRvu0ZhhyZSakocIhUgfdteXvl2Da/NXMeOfdl0a9mAJ6/oyQU9WlCrutbNkMpFiUOkHKRt3sND7y5g866Dh9XlubMyazdmxuBuzRl+cjIp7RqpL0MqLSUOkaM0M20rIyakAjCg/bGF7vPjbs24ZkA7WjWsXZGhiUSFEofIUXh/3gbufWMerRvVZszwfiQ3qRt2SCJRp8QhcgTcnX98tZI/f7qM/smNeeH6vjSqWyPssEQqhBKHSBll5+bx0JQFvJGaziW9WvKny3tQs5o6uCVxKHGIlEHmzv3c88Zcpq7Ywl1ndeKeszupk1sSjhKHSCnMXbedcVNX89GCDACevKInl/dtHXJUIuFQ4hApwsGcPP65MIOxU9OYu2479WpW47qB7Rg+KJl2x6oTXBKXEofIITbvPsCr361l4vQ1ZO46QPsmdfntRd24rG9r6mnZVhElDpF8C9fvYOzUND6Yt4GDuXmcdnwSf7o8mdM7JVGlivoxRPIpcUhCy8nN49NFmxg3bTUz07ZRp0ZVru7fhhtOSqZj03phhycSk5Q4JCFt3XOQ12au5ZVv15CxYz9tG9fh4fNP4Mp+bbSAkkgJlDgkoSzJ2Mm4qWm8O3c9B3LyOLnjsfzu4u78qEtTqqo5SqRUlDgk7uXmOZ8vjjRHTV+1lVrVq3BZ39YMH5TM8c3qhx2eSKUTzTXHxwAXAJnu3r2QegOeIbLu+F5guLvPNrM2wASgOZAHjHb3Z4JjHgNuAbKC0zzo7h9H63uQym3H3mxeT13L+GlrWL99H60a1uaBIV24ql8bGtbR9CAiRyqadxzjgGeJJIHCDAE6BV8DgFHBaw7wyyCJ1Admmdnn7r44OO5pd38yinFLJbd80y7GTktjyuz17MvOZUD7xvzmghM4+4RmVNNa3iJHLWqJw92/NrPkYna5GJjg7g5MN7OGZtbC3TOAjOAcu8xsCdAKWFzMuSTB5eU5Xy7LZOzUNL5ZsZka1apwSa+WDBuUTLeWx4QdnkhcCbOPoxWwrsB2elCWkV8QJJ7ewHcF9rvTzG4AUoncmWwr7ORmNgIYAdC2bdvyjFtiyM792byZms6Eb9NYs2UvzRvU4r5zOzO0f1saa7ZakagIM3EUNoTFf6g0qwe8Ddzt7juD4lHA74P9fg88Bfy0sJO7+2hgNEBKSooXto9UXiuzdjNhWhpvzUpnz8Fc+rZrxH3ndubcbs2pruYokagKM3GkA20KbLcGNgCYWXUiSWOSu7+Tv4O7b8p/b2YvAh9WTKgSC/LynK+XZzF2ahr//j6LGlWrcEHPFgwflEyP1g3DDk8kYYSZON4n0uz0GpFO8R3unhGMtnoZWOLufyl4QIE+EIBLgYUVGrGEYveBHN6elc74aWms2ryHpPo1uefs47lmQFuS6tcMOzyRhBPN4biTgTOAJmaWDjwKVAdw9+eBj4kMxV1BZDjujcGhJwPXAwvMbG5Qlj/s9gkz60WkqSoNuDVa8Uv41mzZw/hpa3gzdR27DuTQs01Dnrm6F0O6t6BGNTVHiYQlmqOqhpZQ78AdhZR/Q+H9H7j79eUTncQqd2fqii2Mm7aaL5ZmUtWM83tEmqN6t20Udngigp4clxix92AOU+asZ9zUNJZn7ubYujW488yOXDewHc0a1Ao7PBEpQIlDQpW+bS+vfLuGyTPWsnN/Dt1bNeCpK3pyfo8W1KqudbxFYpESh1Q4d+e71VsZO3U1ny/ehJkxuHtzbhyUTN92jbSGt0iMU+KQCrM/O5f35q5n7NQ0lm7cRaM61bnt9OO4bmA7WjasHXZ4IlJKShwSdRk79v3QHLVtbzZdmtfnT5edyMW9Wqk5SqQSUuKQqHB3Zq3ZxqxoCagAAAnjSURBVNipaXyyaCPuztknNOPGk9szsENjNUeJVGJKHFKuDuTk8sG8DMZNW83C9TtpUKsaN53SnusHtqNN4zphhyci5UCJQ0rN3Zm9djsTp69h3da9he6zevMetuw5SMem9fjDJd35SZ9W1KmhHzOReKL/0VKiAzm5fLwgg7FT05ifvoP6tapxYqtjKKy16aTjjuXqfm05ueOxao4SiVNKHFKkzF37mTR9LZO+W8vm3Qc4Lqkuv7+kOz/p3Yq6NfWjI5Ko9L9fDjNv3XbGTUvjw/kbyM51ftSlKcMHJXNKxyZUqaK7CJFEp8QhAGTn5vHxggzGTUtjztrt1KtZjWsHtGPYoGTaN6kbdngiEkOUOBLEkoydrN+2r8i6id+tYdPOAyQfW4dHL+zK5X1bU79W9QqOUkQqAyWOOJadm8enizYydmoas9YUusLuD07t1IQ//uREzji+qZqjRKRYShxxaOueg0yesZZXvl3Dxp37aXdsHR65oCspyY2wQmasb1S3Oq0b6RkLESkdJY4YtXXPQd6atY4N2/eX+bhPFm3kYE4ep3ZqwuOXdueMzk2pqrsIESknShwxZvGGnYybtpp3527gYE4e9WtVK3xVqyLUqFaFK/q2ZvigZDo1qx+1OEUkcSlxxICc3Dz+tWQTY6em8d3qrdSuXlW//EUkZkVzzfExwAVAprt3L6TegGeIrDu+Fxju7rODusFBXVXgJXcfGZQ3Bl4HkomsOX6luxff63sU/v7Fct6ftyFap//Btr3ZbN59gFYNa/PgeV24KqUtx9TRiCYRiU3RvOMYBzwLTCiifgjQKfgaAIwCBphZVeA54BwgHZhpZu+7+2LgfuALdx9pZvcH27+O1jeQVL8mnZrVi9bpf1C9ahWGdG/BOV2bqS9CRGJe1BKHu39tZsnF7HIxMMHdHZhuZg3NrAWRu4kV7r4KwMxeC/ZdHLyeERw/HviKKCaOq/u35er+baN1ehGRSqlKiJ/dClhXYDs9KCuqHKCZu2cABK9NKyBOEREpIMzEUVibjBdTXraTm40ws1QzS83KyipzcCIiUrgwE0c60KbAdmtgQzHlAJuC5iyC18yiTu7uo909xd1TkpKSyjVwEZFEFmbieB+4wSIGAjuC5qeZQCcza29mNYCrg33zjxkWvB8GvFfRQYuIJLpoDsedTKQju4mZpQOPAtUB3P154GMiQ3FXEBmOe2NQl2NmdwKfEhmOO8bdFwWnHQm8YWY3AWuBK6IVv4iIFM4ig5riW0pKiqempoYdhohIpWJms9w95dDyMJuqRESkElLiEBGRMkmIpiozywLWlLBbE2BzBYRTmeiaHE7X5HC6JoeLl2vSzt0PG5aaEImjNMwstbC2vESma3I4XZPD6ZocLt6viZqqRESkTJQ4RESkTJQ4/mt02AHEIF2Tw+maHE7X5HBxfU3UxyEiImWiOw4RESkTJQ4RESmThE8cZjbYzJaZ2YpgVcGEY2ZtzOxLM1tiZovM7OdBeWMz+9zMlgevjcKOtaKZWVUzm2NmHwbbCX1NggXX3jKzpcHPy0m6JnZP8P9moZlNNrNa8X5NEjpxFFimdgjQFRhqZl3DjSoUOcAv3f0EYCBwR3Ad8pfq7QR8EWwnmp8DSwpsJ/o1eQb4xN27AD2JXJuEvSZm1gq4C0hx9+5EJma9mji/JgmdOID+BMvUuvtBIH+Z2oTi7hnuPjt4v4vIL4NWRK7F+GC38cAl4UQYDjNrDZwPvFSgOGGviZk1AE4DXgZw94Puvp0EviaBakBtM6sG1CGyflBcX5NETxzFLVObkIJ14nsD36Glev8K/ArIK1CWyNekA5AFjA2a714ys7ok8DVx9/XAk0SWecggsq7QZ8T5NUn0xFEuy9TGCzOrB7wN3O3uO8OOJ0xmdgGQ6e6zwo4lhlQD+gCj3L03sIc4a4Ipq6Dv4mKgPdASqGtm14UbVfQleuIobpnahGJm1YkkjUnu/k5QXOqleuPQycBFZpZGpAnzR2Y2kcS+JulAurt/F2y/RSSRJPI1ORtY7e5Z7p4NvAMMIs6vSaInjuKWqU0YZmZE2q2XuPtfClQl7FK97v6Au7d292QiPxf/6+7XkdjXZCOwzsw6B0VnAYtJ4GtCpIlqoJnVCf4fnUWkjzCur0nCPzluZucRacvOX6b28ZBDqnBmdgrwH2AB/23Pf5BIP8cbQFuCpXrdfWsoQYbIzM4A7nX3C8zsWBL4mphZLyKDBWoAq4gs+VyFxL4mvwWuIjI6cQ5wM1CPOL4mCZ84RESkbBK9qUpERMpIiUNERMpEiUNERMpEiUNERMpEiUNERMpEiUPijpntLsU+L+VPaGlmDx5SN+1oPsPMLjUzN7MupYm3mPMMN7Nny7h/lpm9VET9V2aWcoSxXBXMIP3hkRwv8UWJQxKSu9/s7ouDzQcPqRt0lKcfCnxD5MHBiva6u99c3id199eJPJ8gosQh8cvMzgj+ys5fP2JS8HTvD399m9lIIjObzjWzSUHd7uC1npl9YWazzWyBmZU4c3Iw39fJwE0USBwlxHJeUPaNmf2tsL/qzSzJzN42s5nB18mliKW2mb1mZvPN7HWgdoG6H5vZt8H39mYQd6liEVHikHjXG7ibyHorHYj8Uv+Bu98P7HP3Xu5+7SHH7gcudfc+wJnAU/m/7ItxCZH1Kr4HtppZn+JiMbNawAvAEHc/BUgq4rzPAE+7ez/gMv7vVO9F+Rmw1917AI8DfQHMrAnwMHB28L2lAr8oQyyS4JQ4JN7NcPd0d88D5gLJZTjWgP8xs/nAv4hMud+shGOGEpkUkeB1aAmxdAFWufvqYJ/JRZz3bOBZM5tLZB6kBmZWv4RYTgMmArj7fGB+UD6QSPKaGpxvGNCuDLFIgqsWdgAiUXagwPtcyvYzfy2Rv7r7unt2MFNuraJ2Duax+hHQ3cycyPxnbma/KiaWku5g8lUBTnL3fWWIHwpfJsCAz9196P8pNOtdxnNLgtIdhwhkB9PKH+oYImtyZJvZmUT+Ki/O5cAEd2/n7snu3gZYDZxSzDFLgQ7BAloQmSyvMJ8Bd+ZvBJMNluRrIskPM+sO9AjKpxNpJusY1NUxs+PLEIskOCUOERgNzM/vHC9gEpBiZqlEfgEvLeE8Q4Eph5S9DVxT1AHBHcTtwCdm9g2wCdhRyK53BbHMN7PFwG0lxAIwCqgXNLX9CpgRfGYWMByYHNRNB7qUIRZJcJodVyRkZlbP3XcHHe/PAcvd/ekjOM9wIMXd7yxp3yOJpeD08kd6fokPuuMQCd8tQSf1IiLNYy8c4Xn2AUOKegDwaGIxs6uAfwDbjuLcEid0xyEiImWiOw4RESkTJQ4RESkTJQ4RESkTJQ4RESkTJQ4RESmT/w8mffUM20T3SQAAAABJRU5ErkJggg==
+<img src="data:image/png;base64,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
 "
 >
 </div>
@@ -14494,7 +13571,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
@@ -14515,7 +13592,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">lin_sys</span><span class="o">.</span><span class="n">constants</span><span class="p">[</span><span class="s1">&#39;viscous_damping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># Ns/m</span>
@@ -14529,7 +13606,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">compare_lin_to_nonlin</span><span class="p">(</span><span class="mf">5.0</span><span class="p">)</span>
@@ -14571,7 +13648,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">non_lin_traj</span> <span class="o">=</span> <span class="n">non_lin_sys</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -14584,7 +13661,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
@@ -14598,22 +13675,18 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Exercise</strong></p>
-<p>Use your curve fitting function for $\theta(t) = A e^{\lambda t} \cos(\omega t + \phi)$ and see how well it fits the nonlinear trajectory.</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">exp_decayed_oscillation</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">decay_constant</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phase_shift</span><span class="p">):</span>
-    <span class="c1"># write your function here and return the answer</span>
-</pre></div>
+<p>Use your curve fitting function for $\theta(t) = A e^{\lambda t} \sin(\omega t + \phi)$ and see how well it fits the nonlinear trajectory.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">exp_decayed_oscillation</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">decay_constant</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phase_shift</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">decay_constant</span> <span class="o">*</span> <span class="n">times</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">frequency</span> <span class="o">*</span> <span class="n">times</span> <span class="o">+</span> <span class="n">phase_shift</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">decay_constant</span> <span class="o">*</span> <span class="n">times</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">frequency</span> <span class="o">*</span> <span class="n">times</span> <span class="o">+</span> <span class="n">phase_shift</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14623,7 +13696,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
@@ -14644,7 +13717,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">exp_decayed_oscillation</span><span class="p">,</span>
@@ -14659,7 +13732,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -14681,7 +13754,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[25]:</div>
+    <div class="prompt output_prompt">Out[23]:</div>
 
 
 
@@ -14716,7 +13789,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
 <p>Now try a function that looks like:</p>
-$$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying function instead of an exponentially decaying function.</p>
+$$ \theta(t) = (m t + A) \sin(\omega t + \phi) $$<p>This is a linear decaying function instead of an exponentially decaying function.</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">lin_decayed_oscillation</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
     <span class="c1"># write function here and return result</span>
 </pre></div>
@@ -14726,11 +13799,11 @@ $$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying fu
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">lin_decayed_oscillation</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">times</span> <span class="o">+</span> <span class="n">A</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">frequency</span> <span class="o">*</span> <span class="n">times</span> <span class="o">+</span> <span class="n">phi</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">times</span> <span class="o">+</span> <span class="n">A</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">frequency</span> <span class="o">*</span> <span class="n">times</span> <span class="o">+</span> <span class="n">phi</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14740,7 +13813,7 @@ $$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying fu
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write your answer here</span>
@@ -14753,7 +13826,7 @@ $$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying fu
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">lin_decayed_oscillation</span><span class="p">,</span>
@@ -14768,7 +13841,7 @@ $$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying fu
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -14790,7 +13863,7 @@ $$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying fu
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[29]:</div>
+    <div class="prompt output_prompt">Out[27]:</div>
 
 
 
@@ -14833,18 +13906,46 @@ $$ \theta(t) = (m t + A) \cos(\omega t + \phi) $$<p>This is a linear decaying fu
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Exercise</strong></p>
 <p>Add a measurement to the system that computes the friction torque based on the defintion at the beginning of the notebook. Assume that $T_N=1$ Newton-meter, $\mu=0.2$, and $\theta_0=2.0$ deg. Simulate the system and plot the angle, angular velocity, and friction torque in 3 subplots that share the same X axis (time).</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">calculate_friction</span><span class="p">(</span><span class="n">coeff_of_friction</span><span class="p">,</span> <span class="n">angle_vel</span><span class="p">):</span>
+    <span class="c1"># write your code here</span>
+</pre></div>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">calculate_friction</span><span class="p">(</span><span class="n">coeff_of_friction</span><span class="p">,</span> <span class="n">angle_vel</span><span class="p">):</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">coeff_of_friction</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">angle_vel</span><span class="p">)</span>
-<span class="n">non_lin_sys</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="s1">&#39;friction&#39;</span><span class="p">,</span> <span class="n">calculate_friction</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># write answer here</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">non_lin_sys</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="s1">&#39;friction&#39;</span><span class="p">,</span> <span class="n">calculate_friction</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -15122,7 +14223,7 @@ Name: angle, dtype: float64</pre>
 <div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ani</span> <span class="o">=</span> <span class="n">non_lin_sys</span><span class="o">.</span><span class="n">animate_configuration</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">1000</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># interval should be in milliseconds</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ani</span> <span class="o">=</span> <span class="n">non_lin_sys</span><span class="o">.</span><span class="n">animate_configuration</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">1000</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># interval should be in milliseconds</span>
 </pre></div>
 
     </div>
@@ -15387,39 +14488,39 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_img84da76d98cf7494380ef3fe65caf2a7f">
+  <img id="_anim_img435eb37f4c5e45718edb92922ab3e77e">
   <div class="anim-controls">
-    <input id="_anim_slider84da76d98cf7494380ef3fe65caf2a7f" type="range" class="anim-slider"
+    <input id="_anim_slider435eb37f4c5e45718edb92922ab3e77e" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="anim84da76d98cf7494380ef3fe65caf2a7f.set_frame(parseInt(this.value));"></input>
+           oninput="anim435eb37f4c5e45718edb92922ab3e77e.set_frame(parseInt(this.value));"></input>
     <div class="anim-buttons">
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.slower()"><i class="fa fa-minus"></i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.first_frame()"><i class="fa fa-fast-backward">
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.first_frame()"><i class="fa fa-fast-backward">
           </i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.previous_frame()">
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.reverse_animation()">
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.pause_animation()"><i class="fa fa-pause">
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.pause_animation()"><i class="fa fa-pause">
           </i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.play_animation()"><i class="fa fa-play"></i>
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.play_animation()"><i class="fa fa-play"></i>
           </button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.next_frame()"><i class="fa fa-step-forward">
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.next_frame()"><i class="fa fa-step-forward">
           </i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.last_frame()"><i class="fa fa-fast-forward">
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.last_frame()"><i class="fa fa-fast-forward">
           </i></button>
-      <button onclick="anim84da76d98cf7494380ef3fe65caf2a7f.faster()"><i class="fa fa-plus"></i></button>
+      <button onclick="anim435eb37f4c5e45718edb92922ab3e77e.faster()"><i class="fa fa-plus"></i></button>
     </div>
-    <form action="#n" name="_anim_loop_select84da76d98cf7494380ef3fe65caf2a7f" class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_84da76d98cf7494380ef3fe65caf2a7f"
-             >
-      <label for="_anim_radio1_84da76d98cf7494380ef3fe65caf2a7f">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_84da76d98cf7494380ef3fe65caf2a7f"
+    <form action="#n" name="_anim_loop_select435eb37f4c5e45718edb92922ab3e77e" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_435eb37f4c5e45718edb92922ab3e77e"
              checked>
-      <label for="_anim_radio2_84da76d98cf7494380ef3fe65caf2a7f">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_84da76d98cf7494380ef3fe65caf2a7f"
+      <label for="_anim_radio1_435eb37f4c5e45718edb92922ab3e77e">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_435eb37f4c5e45718edb92922ab3e77e"
              >
-      <label for="_anim_radio3_84da76d98cf7494380ef3fe65caf2a7f">Reflect</label>
+      <label for="_anim_radio2_435eb37f4c5e45718edb92922ab3e77e">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_435eb37f4c5e45718edb92922ab3e77e"
+             >
+      <label for="_anim_radio3_435eb37f4c5e45718edb92922ab3e77e">Reflect</label>
     </form>
   </div>
 </div>
@@ -15429,9 +14530,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_img84da76d98cf7494380ef3fe65caf2a7f";
-    var slider_id = "_anim_slider84da76d98cf7494380ef3fe65caf2a7f";
-    var loop_select_id = "_anim_loop_select84da76d98cf7494380ef3fe65caf2a7f";
+    var img_id = "_anim_img435eb37f4c5e45718edb92922ab3e77e";
+    var slider_id = "_anim_slider435eb37f4c5e45718edb92922ab3e77e";
+    var loop_select_id = "_anim_loop_select435eb37f4c5e45718edb92922ab3e77e";
     var frames = new Array(152);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38399,7 +37500,7 @@ wJEIMACAIxFgAABHIsAAAI70fwF+Tc9DY5WOHQAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anim84da76d98cf7494380ef3fe65caf2a7f = new Animation(frames, img_id, slider_id, 16.0,
+        anim435eb37f4c5e45718edb92922ab3e77e = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
