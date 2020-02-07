@@ -454,6 +454,33 @@ def test_defining_system_from_scratch():
     with pytest.raises(ValueError):
         sys.canonical_coeffs_func = second_order_eom_coefficients
 
+    desc = sys.__str__()
+    expected_desc = """\
+System name: SingleDoFLinearSystem
+
+Canonical coefficients function defined: True
+Configuration plot function defined: False
+Configuration update function defined: False
+
+Constants
+=========
+m = 1.00000
+c = 2.00000
+k = 3.00000
+
+Coordinates
+===========
+x = 1.00000
+
+Speeds
+======
+v = d(x)/dt = 1.00000
+
+Measurements
+============
+"""
+    assert desc == expected_desc
+
 
 def test_multi_dof_linear_system():
 
@@ -493,6 +520,36 @@ def test_multi_dof_linear_system():
         return M, C, K
 
     sys.canonical_coeffs_func = coeff_func
+
+    desc = sys.__str__()
+    expected_desc = """\
+System name: MultiDoFLinearSystem
+
+Canonical coefficients function defined: True
+Configuration plot function defined: False
+Configuration update function defined: False
+
+Constants
+=========
+m1 = 1.00000
+m2 = 1.00000
+k1 = 10.00000
+k2 = 10.00000
+
+Coordinates
+===========
+x1 = 0.10000
+x2 = 0.20000
+
+Speeds
+======
+v1 = d(x1)/dt = 0.00000
+v2 = d(x2)/dt = 0.00000
+
+Measurements
+============
+"""
+    assert desc == expected_desc
 
     sys.free_response(2.0)
 

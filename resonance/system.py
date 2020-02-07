@@ -190,6 +190,48 @@ class System(object):
         self._config_plot_func = None
         self._config_plot_update_func = None
 
+    def __str__(self):
+        text = """\
+System name: {name}
+
+Configuration plot function defined: {plot}
+Configuration update function defined: {update}
+
+Constants
+=========
+{constants}
+
+Coordinates
+===========
+{coordinates}
+
+Speeds
+======
+{speeds}
+
+Measurements
+============
+{measurements}"""
+
+        ls = lambda d: '\n'.join('{} = {:1.5f}'.format(k, v) for k, v in d.items())
+
+        speed_tmpl = '{} = d({})/dt = {:1.5f}'
+        speed_strs = []
+        for gs, gc in zip(self.speeds.keys(), self.coordinates.keys()):
+            speed_strs.append(speed_tmpl.format(gs, gc, self.speeds[gs]))
+
+        return text.format(
+            name=self.__class__.__name__,
+            plot='True' if self.config_plot_func is not None else 'False',
+            update='True' if self.config_plot_update_func is not None else 'False',
+            constants=ls(self.constants),
+            coordinates=ls(self.coordinates),
+            speeds='\n'.join(speed_strs),
+            measurements=ls(self.measurements))
+
+    def __repr__(self):
+        return self.__str__()
+
     @property
     def constants(self):
         """A dictionary containing the all of the system's constants, i.e.

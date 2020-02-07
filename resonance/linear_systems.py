@@ -1,3 +1,4 @@
+import re
 import math
 from inspect import getfullargspec
 import warnings
@@ -20,6 +21,16 @@ class _LinearSystem(_System):
         super(_LinearSystem, self).__init__()
 
         self._canonical_coeffs_func = None
+
+    def __str__(self):
+        text = super().__str__()
+        divider = 'Configuration plot function'
+        parts = text.split(divider)
+
+        new_line_tmpl = 'Canonical coefficients function defined: {}\n'
+        new_line = new_line_tmpl.format('True' if self.canonical_coeffs_func is not None else 'False')
+
+        return parts[0] + new_line + divider + parts[1]
 
     @property
     def canonical_coeffs_func(self):
@@ -714,6 +725,20 @@ class MultiDoFLinearSystem(_MDNLS):
         self._canonical_coeffs_func = None
         self._forcing_func = None
         self._compute_forcing = False
+
+    def __str__(self):
+        text = super().__str__()
+
+        pattern = 'Differential equations function defined.*\n'
+        text = re.sub(pattern, '', text)
+
+        divider = 'Configuration plot function'
+        parts = text.split(divider)
+
+        new_line_tmpl = 'Canonical coefficients function defined: {}\n'
+        new_line = new_line_tmpl.format('True' if self.canonical_coeffs_func is not None else 'False')
+
+        return parts[0] + new_line + divider + parts[1]
 
     @property
     def canonical_coeffs_func(self):

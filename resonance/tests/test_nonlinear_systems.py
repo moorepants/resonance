@@ -180,6 +180,35 @@ def test_sdof_trifilar_pendulum():
     assert 'omega' in traj.columns
     assert 'theta_acc' in traj.columns
 
+    desc = sys.__str__()
+    expected_desc = """\
+System name: SingleDoFNonLinearSystem
+
+Differential equations function defined: True
+Configuration plot function defined: False
+Configuration update function defined: False
+
+Constants
+=========
+m = 1.00000
+r = 0.30000
+l = 1.00000
+g = 9.81000
+I = 0.09000
+
+Coordinates
+===========
+theta = 0.20000
+
+Speeds
+======
+omega = d(theta)/dt = 0.00000
+
+Measurements
+============
+"""
+    assert desc == expected_desc
+
 
 def test_multi_dof_nonlinear_system():
 
@@ -222,6 +251,36 @@ def test_multi_dof_nonlinear_system():
         return x2d, x1d, v1d, v2d
 
     sys.diff_eq_func = rhs
+
+    desc = sys.__str__()
+    expected_desc = """\
+System name: MultiDoFNonLinearSystem
+
+Differential equations function defined: True
+Configuration plot function defined: False
+Configuration update function defined: False
+
+Constants
+=========
+m = 1.00000
+k = 0.50000
+Fo = 1.00000
+w = 3.00000
+
+Coordinates
+===========
+x2 = 0.20000
+x1 = 0.10000
+
+Speeds
+======
+v1 = d(x2)/dt = 0.01000
+v2 = d(x1)/dt = 0.02000
+
+Measurements
+============
+"""
+    assert desc == expected_desc
 
     # TODO : would be nice to work with shape(2n,), otherwise lsoda won't work
 

@@ -21,6 +21,16 @@ class MultiDoFNonLinearSystem(_System):
 
         self._diff_eq_func = None
 
+    def __str__(self):
+        text = super().__str__()
+        divider = 'Configuration plot function'
+        parts = text.split(divider)
+
+        new_line_tmpl = 'Differential equations function defined: {}\n'
+        new_line = new_line_tmpl.format('True' if self.diff_eq_func is not None else 'False')
+
+        return parts[0] + new_line + divider + parts[1]
+
     @property
     def diff_eq_func(self):
         """A function that returns the time derivatives of the coordinates and
