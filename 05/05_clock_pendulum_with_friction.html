@@ -13302,10 +13302,10 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |          This string can be different that the function name.
  |      func : function
  |          This function must only have existing constant, coordinate, speed,
- |          or measurement names, and/or the special name &#34;time&#34; in the function
- |          signature. These can be a subset of the available choices in
- |          constants, coordinates, speeds, measurements and any order in the
- |          signature is permitted. The function must be able to operate on
+ |          or measurement names, and/or the special name ``&#39;time&#39;`` in the
+ |          function signature. These can be a subset of the available choices
+ |          in constants, coordinates, speeds, measurements and any order in
+ |          the signature is permitted. The function must be able to operate on
  |          both inputs that are a collection of floats or a collection of
  |          equal length 1D NumPy arrays and floats, i.e. the function must be
  |          vectorized. So be sure to use NumPy vectorized functions inside
@@ -13381,7 +13381,7 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      Returns a data frame with monotonic time values as the index and
  |      columns for each coordinate and measurement at the time value for that
  |      row. Note that this data frame is stored on the system as the variable
- |      ``result`` until this method is called again, which will overwrite it.
+ |      ``.result`` until this method is called again, which will overwrite it.
  |      
  |      Parameters
  |      ==========
@@ -13447,7 +13447,7 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |  
  |  config_plot_func
  |      The configuration plot function arguments should be any of the
- |      system&#39;s constants, coordinates, measurements, or &#39;time&#39;. No other
+ |      system&#39;s constants, coordinates, measurements, or ``&#39;time&#39;``. No other
  |      arguments are valid. The function has to return the matplotlib figure
  |      as the first item but can be followed by any number of mutable
  |      matplotlib objects that you may want to change during an animation.
@@ -13497,7 +13497,6 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      ...     # in the same order as returned from plot()
  |      ...     circle.set_xy((center_x, center_y))
  |      ...     ax.set_title(time)
- |      ...     fig.canvas.draw()
  |      ...
  |      &gt;&gt;&gt; sys.config_plot_update_func = update
  |      &gt;&gt;&gt; sys.animate_configuration()
@@ -13879,10 +13878,10 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |          This string can be different that the function name.
  |      func : function
  |          This function must only have existing constant, coordinate, speed,
- |          or measurement names, and/or the special name &#34;time&#34; in the function
- |          signature. These can be a subset of the available choices in
- |          constants, coordinates, speeds, measurements and any order in the
- |          signature is permitted. The function must be able to operate on
+ |          or measurement names, and/or the special name ``&#39;time&#39;`` in the
+ |          function signature. These can be a subset of the available choices
+ |          in constants, coordinates, speeds, measurements and any order in
+ |          the signature is permitted. The function must be able to operate on
  |          both inputs that are a collection of floats or a collection of
  |          equal length 1D NumPy arrays and floats, i.e. the function must be
  |          vectorized. So be sure to use NumPy vectorized functions inside
@@ -13958,7 +13957,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      Returns a data frame with monotonic time values as the index and
  |      columns for each coordinate and measurement at the time value for that
  |      row. Note that this data frame is stored on the system as the variable
- |      ``result`` until this method is called again, which will overwrite it.
+ |      ``.result`` until this method is called again, which will overwrite it.
  |      
  |      Parameters
  |      ==========
@@ -14024,7 +14023,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |  
  |  config_plot_func
  |      The configuration plot function arguments should be any of the
- |      system&#39;s constants, coordinates, measurements, or &#39;time&#39;. No other
+ |      system&#39;s constants, coordinates, measurements, or ``&#39;time&#39;``. No other
  |      arguments are valid. The function has to return the matplotlib figure
  |      as the first item but can be followed by any number of mutable
  |      matplotlib objects that you may want to change during an animation.
@@ -14074,7 +14073,6 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      ...     # in the same order as returned from plot()
  |      ...     circle.set_xy((center_x, center_y))
  |      ...     ax.set_title(time)
- |      ...     fig.canvas.draw()
  |      ...
  |      &gt;&gt;&gt; sys.config_plot_update_func = update
  |      &gt;&gt;&gt; sys.animate_configuration()
@@ -15402,39 +15400,39 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_imgc0608613a8754f2d834b2575c0094b53">
+  <img id="_anim_img9feac808c1b24cf481cb9166867497e3">
   <div class="anim-controls">
-    <input id="_anim_sliderc0608613a8754f2d834b2575c0094b53" type="range" class="anim-slider"
+    <input id="_anim_slider9feac808c1b24cf481cb9166867497e3" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="animc0608613a8754f2d834b2575c0094b53.set_frame(parseInt(this.value));"></input>
+           oninput="anim9feac808c1b24cf481cb9166867497e3.set_frame(parseInt(this.value));"></input>
     <div class="anim-buttons">
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.slower()"><i class="fa fa-minus"></i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.first_frame()"><i class="fa fa-fast-backward">
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.first_frame()"><i class="fa fa-fast-backward">
           </i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.previous_frame()">
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.reverse_animation()">
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.pause_animation()"><i class="fa fa-pause">
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.pause_animation()"><i class="fa fa-pause">
           </i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.play_animation()"><i class="fa fa-play"></i>
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.play_animation()"><i class="fa fa-play"></i>
           </button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.next_frame()"><i class="fa fa-step-forward">
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.next_frame()"><i class="fa fa-step-forward">
           </i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.last_frame()"><i class="fa fa-fast-forward">
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.last_frame()"><i class="fa fa-fast-forward">
           </i></button>
-      <button onclick="animc0608613a8754f2d834b2575c0094b53.faster()"><i class="fa fa-plus"></i></button>
+      <button onclick="anim9feac808c1b24cf481cb9166867497e3.faster()"><i class="fa fa-plus"></i></button>
     </div>
-    <form action="#n" name="_anim_loop_selectc0608613a8754f2d834b2575c0094b53" class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_c0608613a8754f2d834b2575c0094b53"
+    <form action="#n" name="_anim_loop_select9feac808c1b24cf481cb9166867497e3" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_9feac808c1b24cf481cb9166867497e3"
              >
-      <label for="_anim_radio1_c0608613a8754f2d834b2575c0094b53">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_c0608613a8754f2d834b2575c0094b53"
+      <label for="_anim_radio1_9feac808c1b24cf481cb9166867497e3">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_9feac808c1b24cf481cb9166867497e3"
              checked>
-      <label for="_anim_radio2_c0608613a8754f2d834b2575c0094b53">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_c0608613a8754f2d834b2575c0094b53"
+      <label for="_anim_radio2_9feac808c1b24cf481cb9166867497e3">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_9feac808c1b24cf481cb9166867497e3"
              >
-      <label for="_anim_radio3_c0608613a8754f2d834b2575c0094b53">Reflect</label>
+      <label for="_anim_radio3_9feac808c1b24cf481cb9166867497e3">Reflect</label>
     </form>
   </div>
 </div>
@@ -15444,9 +15442,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imgc0608613a8754f2d834b2575c0094b53";
-    var slider_id = "_anim_sliderc0608613a8754f2d834b2575c0094b53";
-    var loop_select_id = "_anim_loop_selectc0608613a8754f2d834b2575c0094b53";
+    var img_id = "_anim_img9feac808c1b24cf481cb9166867497e3";
+    var slider_id = "_anim_slider9feac808c1b24cf481cb9166867497e3";
+    var loop_select_id = "_anim_loop_select9feac808c1b24cf481cb9166867497e3";
     var frames = new Array(152);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38414,7 +38412,7 @@ wJEIMACAIxFgAABHIsAAAI70fwF+Tc9DY5WOHQAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        animc0608613a8754f2d834b2575c0094b53 = new Animation(frames, img_id, slider_id, 16.0,
+        anim9feac808c1b24cf481cb9166867497e3 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
