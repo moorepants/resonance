@@ -359,7 +359,7 @@ Measurements
     @property
     def config_plot_func(self):
         """The configuration plot function arguments should be any of the
-        system's constants, coordinates, measurements, or 'time'. No other
+        system's constants, coordinates, measurements, or ``'time'``. No other
         arguments are valid. The function has to return the matplotlib figure
         as the first item but can be followed by any number of mutable
         matplotlib objects that you may want to change during an animation.
@@ -417,7 +417,6 @@ Measurements
         ...     # in the same order as returned from plot()
         ...     circle.set_xy((center_x, center_y))
         ...     ax.set_title(time)
-        ...     fig.canvas.draw()
         ...
         >>> sys.config_plot_update_func = update
         >>> sys.animate_configuration()
@@ -528,10 +527,10 @@ Measurements
             This string can be different that the function name.
         func : function
             This function must only have existing constant, coordinate, speed,
-            or measurement names, and/or the special name "time" in the function
-            signature. These can be a subset of the available choices in
-            constants, coordinates, speeds, measurements and any order in the
-            signature is permitted. The function must be able to operate on
+            or measurement names, and/or the special name ``'time'`` in the
+            function signature. These can be a subset of the available choices
+            in constants, coordinates, speeds, measurements and any order in
+            the signature is permitted. The function must be able to operate on
             both inputs that are a collection of floats or a collection of
             equal length 1D NumPy arrays and floats, i.e. the function must be
             vectorized. So be sure to use NumPy vectorized functions inside
@@ -672,7 +671,7 @@ Measurements
         """Returns a data frame with monotonic time values as the index and
         columns for each coordinate and measurement at the time value for that
         row. Note that this data frame is stored on the system as the variable
-        ``result`` until this method is called again, which will overwrite it.
+        ``.result`` until this method is called again, which will overwrite it.
 
         Parameters
         ==========
