@@ -51,6 +51,8 @@ def test_setting_coordinates_item():
 
     assert 'first_key' in c
 
+    assert c.__str__() == "{'first_key': 12.0}"
+
     del c['first_key']
 
     assert 'first_key' not in c
@@ -67,6 +69,8 @@ def test_system():
     sys.constants['a'] = 1.0
     assert isclose(sys._time['t'], 0.0)
     assert isclose(sys._get_par_vals('time'), 0.0)
+
+    assert sys.constants.__str__() == "{'a': 1.0}"
 
     def plot(a):
         fig, ax = plt.subplots(1, 1)
@@ -104,6 +108,11 @@ def test_add_measurement():
     sys.coordinates['x'] = 3.0
     sys.speeds['v'] = 4.0
 
+    assert sys.constants.__str__() == "{'a': 1.0, 'b': 2.0}"
+    assert sys.coordinates.__str__() == "{'x': 3.0}"
+    assert sys.speeds.__str__() == "{'v': 4.0}"
+    assert sys.measurements.__str__() == "{}"
+
     # this will fail if all floats are passed in
     def meas1(a, b, x, v, time):
         return a * np.array([x + v])
@@ -129,6 +138,8 @@ def test_add_measurement():
         return a**2 * v * time
 
     sys.add_measurement('meas4', meas4)
+
+    assert sys.measurements.__str__() == "{'meas4': 0.0}"
 
     def meas5(a, b, x, v, time, meas4):
         return np.sum(meas4)

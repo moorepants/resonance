@@ -58,8 +58,17 @@ class _StatesDict(_collections.OrderedDict):
         else:
             raise ValueError(msg)
 
+    def __str__(self):
+        pairs = []
+        for k, v in self.items():
+            pairs.append("'{}': {}".format(k, v))
+        return '{' + ', '.join(pairs) + '}'
 
-class _CoordinatesDict(_collections.OrderedDict):
+    def __repr__(self):
+        return self.__str__()
+
+
+class _CoordinatesDict(_StatesDict):
     """A custom dictionary for storing coordinates and speeds."""
 
     def __setitem__(self, key, value):
