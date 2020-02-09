@@ -25,6 +25,10 @@ import resonance
 
 print(resonance.__file__)
 
+# ensures that jupyter-sphinx uses the dev version of resonance
+package_path = os.path.abspath('..')
+os.environ['PYTHONPATH'] = ':'.join((package_path, os.environ.get('PYTHONPATH', '')))
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
