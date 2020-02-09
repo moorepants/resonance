@@ -13,7 +13,7 @@ setup(
     description='Learning mechanical vibrations through computation.',
     long_description=open('README.rst').read(),
     keywords="engineering vibrations mechanical simulation",
-    license='CC-BY 4.0',
+    license='MIT',
     packages=find_packages(),
     # These versions correspond to those in Ubuntu 18.04 LTS
     install_requires=['numpy>=1.13',

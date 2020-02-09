@@ -1,6 +1,7 @@
 0.21.0
 ======
 
+- Switched to MIT license.
 - Corrected the equation (and output) of ``periodic_forcing_response()``:
   https://github.com/moorepants/resonance/pull/206
 - Added documentation example of creating a single degree of freedom linear
