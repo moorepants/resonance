@@ -10,6 +10,7 @@ dependencies:
   - pytest-cov
   - coverage
   - sphinx
+  - jupyter_sphinx
   - numpy >=1.13
   - scipy >=0.19
   - matplotlib >=2.1

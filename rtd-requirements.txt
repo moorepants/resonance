@@ -2,3 +2,4 @@ numpy
 scipy
 pandas
 matplotlib
+jupyter-sphinx

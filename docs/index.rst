@@ -33,6 +33,7 @@ have guidelines on its design to facilitate this. Those guidelines are roughly:
    :caption: Contents:
 
    outline.rst
+   custom_sdof_system.rst
    api.rst
 
 Indices and tables
