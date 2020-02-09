@@ -10,6 +10,7 @@ dependencies:
   - pytest-cov
   - coverage
   - sphinx
+  - jupyter_sphinx
   - numpy =1.14.*  # Ubuntu 18.04 is 1.13
   - scipy =1.0.*  # Ubuntu 18.04 is 0.19
   - matplotlib =2.1.*
