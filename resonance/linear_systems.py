@@ -560,8 +560,8 @@ class SingleDoFLinearSystem(_LinearSystem):
             raise ValueError('{} already taken.'.format(col_name))
         else:
             self.result[col_name] = twice_avg / 2 + \
-                np.sum(an * n * np.cos(frequency * n * t) +
-                       bn * n * np.sin(frequency * n * t), axis=0)
+                np.sum(an * np.cos(frequency * n * t) +
+                       bn * np.sin(frequency * n * t), axis=0)
 
         return self.result
 
