@@ -1,3 +1,16 @@
+0.21.0
+======
+
+- Corrected the equation (and output) of ``periodic_forcing_response()``:
+  https://github.com/moorepants/resonance/pull/206
+- Added documentation example of creating a single degree of freedom linear
+  system: https://github.com/moorepants/resonance/pull/205
+- Added better __repr__ formats for the custom ordered dictionaries:
+  https://github.com/moorepants/resonance/pull/204
+- Added a __repr__ for System: https://github.com/moorepants/resonance/pull/203
+- Added several notebooks from the Winter 2020 offering of ENG 122.
+- Added jupyter-sphinx as a dependency to build the documentation.
+
 0.20.0
 ======
 
