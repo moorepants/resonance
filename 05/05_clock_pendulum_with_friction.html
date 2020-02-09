@@ -13811,8 +13811,38 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      Return str(self).
  |  
  |  canonical_coefficients(self)
- |      Returns the mass, damping, and stiffness coefficients in that
- |      order.
+ |      Returns the mass, damping, and stiffness coefficients of the
+ |      canonical second order differential equation.
+ |      
+ |      
+ |      Returns
+ |      =======
+ |      m : float
+ |          System mass coefficient.
+ |      c : float
+ |          System damping coefficient.
+ |      k : float
+ |          System stiffness coefficient.
+ |      
+ |      Example
+ |      =======
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
+ |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
+ |      &gt;&gt;&gt; sys.constants[&#39;gravity&#39;] = 9.8  # m/s**2
+ |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 1.0  # m
+ |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 0.5  # kg
+ |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
+ |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
+ |      &gt;&gt;&gt; def coeffs(gravity, length, mass):
+ |      &gt;&gt;&gt;     # Represents a linear model of a simple pendulum:
+ |      ...     #  m * l**2 ω&#39; + m * g * l * θ = 0
+ |      ...     I = mass * length**2
+ |      ...     c = 0.0
+ |      ...     k = mass * gravity * length
+ |      ...     return I, c, k
+ |      &gt;&gt;&gt; sys.canonical_coeffs_func = coeffs
+ |      &gt;&gt;&gt; sys.canonical_coefficients()
+ |      (0.5, 0.0, 4.9)
  |  
  |  ----------------------------------------------------------------------
  |  Data descriptors inherited from _LinearSystem:
@@ -13844,10 +13874,11 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      
  |      Example
  |      =======
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
  |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
  |      &gt;&gt;&gt; sys.constants[&#39;gravity&#39;] = 9.8  # m/s**2
  |      &gt;&gt;&gt; sys.constants[&#39;length&#39;] = 1.0  # m
- |      &gt;&gt;&gt; sys.constnats[&#39;mass&#39;] = 0.5  # kg
+ |      &gt;&gt;&gt; sys.constants[&#39;mass&#39;] = 0.5  # kg
  |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
  |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
  |      &gt;&gt;&gt; def coeffs(gravity, length, mass):
@@ -15400,39 +15431,39 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_img9feac808c1b24cf481cb9166867497e3">
+  <img id="_anim_img9bb76d1b61044d40b80cb1c3f78ed7a8">
   <div class="anim-controls">
-    <input id="_anim_slider9feac808c1b24cf481cb9166867497e3" type="range" class="anim-slider"
+    <input id="_anim_slider9bb76d1b61044d40b80cb1c3f78ed7a8" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="anim9feac808c1b24cf481cb9166867497e3.set_frame(parseInt(this.value));"></input>
+           oninput="anim9bb76d1b61044d40b80cb1c3f78ed7a8.set_frame(parseInt(this.value));"></input>
     <div class="anim-buttons">
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.slower()"><i class="fa fa-minus"></i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.first_frame()"><i class="fa fa-fast-backward">
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.first_frame()"><i class="fa fa-fast-backward">
           </i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.previous_frame()">
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.reverse_animation()">
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.pause_animation()"><i class="fa fa-pause">
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.pause_animation()"><i class="fa fa-pause">
           </i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.play_animation()"><i class="fa fa-play"></i>
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.play_animation()"><i class="fa fa-play"></i>
           </button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.next_frame()"><i class="fa fa-step-forward">
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.next_frame()"><i class="fa fa-step-forward">
           </i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.last_frame()"><i class="fa fa-fast-forward">
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.last_frame()"><i class="fa fa-fast-forward">
           </i></button>
-      <button onclick="anim9feac808c1b24cf481cb9166867497e3.faster()"><i class="fa fa-plus"></i></button>
+      <button onclick="anim9bb76d1b61044d40b80cb1c3f78ed7a8.faster()"><i class="fa fa-plus"></i></button>
     </div>
-    <form action="#n" name="_anim_loop_select9feac808c1b24cf481cb9166867497e3" class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_9feac808c1b24cf481cb9166867497e3"
+    <form action="#n" name="_anim_loop_select9bb76d1b61044d40b80cb1c3f78ed7a8" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_9bb76d1b61044d40b80cb1c3f78ed7a8"
              >
-      <label for="_anim_radio1_9feac808c1b24cf481cb9166867497e3">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_9feac808c1b24cf481cb9166867497e3"
+      <label for="_anim_radio1_9bb76d1b61044d40b80cb1c3f78ed7a8">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_9bb76d1b61044d40b80cb1c3f78ed7a8"
              checked>
-      <label for="_anim_radio2_9feac808c1b24cf481cb9166867497e3">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_9feac808c1b24cf481cb9166867497e3"
+      <label for="_anim_radio2_9bb76d1b61044d40b80cb1c3f78ed7a8">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_9bb76d1b61044d40b80cb1c3f78ed7a8"
              >
-      <label for="_anim_radio3_9feac808c1b24cf481cb9166867497e3">Reflect</label>
+      <label for="_anim_radio3_9bb76d1b61044d40b80cb1c3f78ed7a8">Reflect</label>
     </form>
   </div>
 </div>
@@ -15442,9 +15473,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_img9feac808c1b24cf481cb9166867497e3";
-    var slider_id = "_anim_slider9feac808c1b24cf481cb9166867497e3";
-    var loop_select_id = "_anim_loop_select9feac808c1b24cf481cb9166867497e3";
+    var img_id = "_anim_img9bb76d1b61044d40b80cb1c3f78ed7a8";
+    var slider_id = "_anim_slider9bb76d1b61044d40b80cb1c3f78ed7a8";
+    var loop_select_id = "_anim_loop_select9bb76d1b61044d40b80cb1c3f78ed7a8";
     var frames = new Array(152);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38412,7 +38443,7 @@ wJEIMACAIxFgAABHIsAAAI70fwF+Tc9DY5WOHQAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anim9feac808c1b24cf481cb9166867497e3 = new Animation(frames, img_id, slider_id, 16.0,
+        anim9bb76d1b61044d40b80cb1c3f78ed7a8 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
