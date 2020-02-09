@@ -60,10 +60,11 @@ class _LinearSystem(_System):
 
         Example
         =======
+        >>> from resonance.linear_systems import SingleDoFLinearSystem
         >>> sys = SingleDoFLinearSystem()
         >>> sys.constants['gravity'] = 9.8  # m/s**2
         >>> sys.constants['length'] = 1.0  # m
-        >>> sys.constnats['mass'] = 0.5  # kg
+        >>> sys.constants['mass'] = 0.5  # kg
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> def coeffs(gravity, length, mass):
@@ -92,8 +93,40 @@ class _LinearSystem(_System):
         self._canonical_coeffs_func = func
 
     def canonical_coefficients(self):
-        """Returns the mass, damping, and stiffness coefficients in that
-        order."""
+        """Returns the mass, damping, and stiffness coefficients of the
+        canonical second order differential equation.
+
+
+        Returns
+        =======
+        m : float
+            System mass coefficient.
+        c : float
+            System damping coefficient.
+        k : float
+            System stiffness coefficient.
+
+        Example
+        =======
+        >>> from resonance.linear_systems import SingleDoFLinearSystem
+        >>> sys = SingleDoFLinearSystem()
+        >>> sys.constants['gravity'] = 9.8  # m/s**2
+        >>> sys.constants['length'] = 1.0  # m
+        >>> sys.constants['mass'] = 0.5  # kg
+        >>> sys.coordinates['theta'] = 0.3  # rad
+        >>> sys.speeds['omega'] = 0.0  # rad/s
+        >>> def coeffs(gravity, length, mass):
+        >>>     # Represents a linear model of a simple pendulum:
+        ...     #  m * l**2 ω' + m * g * l * θ = 0
+        ...     I = mass * length**2
+        ...     c = 0.0
+        ...     k = mass * gravity * length
+        ...     return I, c, k
+        >>> sys.canonical_coeffs_func = coeffs
+        >>> sys.canonical_coefficients()
+        (0.5, 0.0, 4.9)
+
+        """
         self._check_system()
         if self.canonical_coeffs_func is None:
             msg = ('There is no function available to calculate the canonical'

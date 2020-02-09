@@ -139,9 +139,9 @@ class _MeasurementsDict(_abc.MutableMapping, dict):
                 raise KeyError(msg.format(k))
             return v
 
-        # TODO : getfullargspec is deprecated, supposedly signature can do the same
-        # thing but the args are in a dictionary and it isn't clear to me they
-        # are ordered.
+        # TODO : getfullargspec is deprecated, supposedly signature can do the
+        # same thing but the args are in a dictionary and it isn't clear to me
+        # they are ordered.
         args = [get_par(k) for k in getfullargspec(func).args]
         return func(*args)
 
@@ -444,7 +444,7 @@ Measurements
     def _get_par_vals(self, par_name):
         """Returns the value of any variable stored in the parameters,
         coordinates, or measurements dictionaries."""
-        # TODO : This get for duplicates is slow and called way too often.
+        # TODO : This check for duplicates is slow and called way too often.
         self._measurements._check_for_duplicate_keys()
         # TODO : This is duplicate of similar code in
         # _MeasurementsDict._compute_value(). Shouldn't have this redundancy.

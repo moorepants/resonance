@@ -146,17 +146,18 @@ def estimate_period(time, signal):
 
 
 def benchmark_par_to_canonical(p):
-    """
-    Returns the canonical matrices of the Whipple bicycle model linearized
+    """Returns the canonical matrices of the Whipple bicycle model linearized
     about the upright constant velocity configuration. It uses the parameter
     definitions from [Meijaard2007]_.
+
     Parameters
-    ----------
+    ==========
     p : dictionary
         A dictionary of the benchmark bicycle parameters. Make sure your units
         are correct, best to ue the benchmark paper's units!
+
     Returns
-    -------
+    =======
     M : ndarray, shape(2,2)
         The mass matrix.
     C1 : ndarray, shape(2,2)
@@ -165,6 +166,16 @@ def benchmark_par_to_canonical(p):
         The stiffness matrix proportional to gravity, g.
     K2 : ndarray, shape(2,2)
         The stiffness matrix proportional to the speed squared, v**2.
+
+    References
+    ==========
+
+    .. [Meijaard2007] J. P. Meijaard, J. M. Papadopoulos, A. Ruina, and A. L.
+       Schwab, "Linearized dynamics equations for the balance and steer of a
+       bicycle: A benchmark and review," Proceedings of the Royal Society A:
+       Mathematical, Physical and Engineering Sciences, vol. 463, no. 2084, pp.
+       1955–1982, Aug. 2007.
+
     """
     mT = p['mR'] + p['mB'] + p['mH'] + p['mF']
     xT = (p['xB'] * p['mB'] + p['xH'] * p['mH'] + p['w'] * p['mF']) / mT
