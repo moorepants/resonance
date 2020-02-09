@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import resonance
 
+print(resonance.__file__)
 
 # -- General configuration ------------------------------------------------
 
@@ -37,7 +38,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
               'sphinx.ext.mathjax',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon',
+              'jupyter_sphinx.execute']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -53,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'resonance'
-copyright = '2017, Jason K. Moore, Kenneth Lyons'
+copyright = '2017-2020, Jason K. Moore, Kenneth Lyons'
 author = 'Jason K. Moore, Kenneth Lyons'
 
 # The version info for the project you're documenting, acts as replacement for
