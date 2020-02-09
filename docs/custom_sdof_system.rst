@@ -7,6 +7,11 @@ Creating and Exercising a Custom Single Degree of Freedom System
    :jupyter-download:script:`custom_sdof_system` or Jupyter notebook:
    :jupyter-download:notebook:`custom_sdof_system`.
 
+.. jupyter-execute::
+
+   import resonance
+   resonance.__file__
+
 Creating a new system
 =====================
 
