@@ -87,7 +87,7 @@ Authors
 License
 =======
 
-The contents of this repository are licensed under the CC-BY 4.0 license.
+The contents of this repository are licensed under the MIT license.
 
 Acknowledgements
 ================
