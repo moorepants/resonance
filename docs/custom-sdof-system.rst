@@ -4,8 +4,8 @@ Creating and Exercising a Custom Single Degree of Freedom System
 
 .. note::
    You can download this example as a Python script:
-   :jupyter-download:script:`custom_sdof_system` or Jupyter notebook:
-   :jupyter-download:notebook:`custom_sdof_system`.
+   :jupyter-download:script:`custom-sdof-system` or Jupyter notebook:
+   :jupyter-download:notebook:`custom-sdof-system`.
 
 Creating a new system
 =====================
