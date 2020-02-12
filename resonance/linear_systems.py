@@ -68,12 +68,13 @@ class _LinearSystem(_System):
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> def coeffs(gravity, length, mass):
-        >>>     # Represents a linear model of a simple pendulum:
+        ...     # Represents a linear model of a simple pendulum:
         ...     #  m * l**2 ω' + m * g * l * θ = 0
         ...     I = mass * length**2
         ...     c = 0.0
         ...     k = mass * gravity * length
         ...     return I, c, k
+        ...
         >>> sys.canonical_coeffs_func = coeffs
 
         """
@@ -116,12 +117,13 @@ class _LinearSystem(_System):
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> def coeffs(gravity, length, mass):
-        >>>     # Represents a linear model of a simple pendulum:
+        ...     # Represents a linear model of a simple pendulum:
         ...     #  m * l**2 ω' + m * g * l * θ = 0
         ...     I = mass * length**2
         ...     c = 0.0
         ...     k = mass * gravity * length
         ...     return I, c, k
+        ...
         >>> sys.canonical_coeffs_func = coeffs
         >>> sys.canonical_coefficients()
         (0.5, 0.0, 4.9)
@@ -794,9 +796,11 @@ class MultiDoFLinearSystem(_MDNLS):
 
         Example
         =======
+
         This is an example of a simple double pendulum linearized about its
         equilibrium.
 
+        >>> from resonance.linear_systems import MultiDoFLinearSystem
         >>> sys = MulitDoFLinearSystem()
         >>> sys.constants['g'] = 9.8  # m/s**2
         >>> sys.constants['l1'] = 1.0  # m
@@ -881,6 +885,7 @@ class MultiDoFLinearSystem(_MDNLS):
         equilibrium. The forcing function applies sinusoidal torquing with
         respect to theta1 and theta2.
 
+        >>> from resonance.linear_systems import MultiDoFLinearSystem
         >>> sys = MulitDoFLinearSystem()
         >>> sys.constants['g'] = 9.8  # m/s**2
         >>> sys.constants['l1'] = 1.0  # m

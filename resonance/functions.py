@@ -74,6 +74,7 @@ def spring(xA, xB, yA, yB, w, n=1, x=None, y=None):
 
     Examples
     ========
+
     >>> import numpy as np
     >>> import matplotlib.pyplot as plt
     >>> from resonance.functions import spring

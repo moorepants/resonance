@@ -367,6 +367,8 @@ Measurements
 
         Examples
         ========
+
+        >>> from resonance.linear_systems import SingleDoFLinearSystem
         >>> sys = SingleDoFLinearSystem()
         >>> sys.constants['radius'] = 5.0
         >>> sys.constants['center_y'] = 10.0
@@ -400,6 +402,7 @@ Measurements
 
         Examples
         ========
+        >>> from resonance.linear_systems import SingleDoFLinearSystem
         >>> sys = SingleDoFLinearSystem()
         >>> sys.constants['radius'] = 5.0
         >>> sys.constants['center_y'] = 10.0
@@ -419,6 +422,7 @@ Measurements
         ...     ax.set_title(time)
         ...
         >>> sys.config_plot_update_func = update
+        >>> sys.free_response(1.0)
         >>> sys.animate_configuration()
 
 
@@ -577,9 +581,9 @@ Measurements
         ...     return np.abs(force)
         ...
         >>> force_mag(-10.05)
-        10.050000000000001
+        10.05
         >>> force_mag(np.array([-10.05, -20.05]))
-        array([ 10.05,  20.05])
+        array([10.05, 20.05])
         >>> sys.add_measurement('fmag', force_mag)
         >>> sys.measurements['fmag']
         20.05
