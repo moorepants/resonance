@@ -195,6 +195,19 @@ class SingleDoFLinearSystem(_LinearSystem):
         return wn, z, wd
 
     def _solution_type(self):
+        """Returns a string giving the solution type based on the canonical
+        coefficients.
+
+        Returns
+        =======
+        str
+            - no_damping_unstable : k/m is negative
+            - no_damping : k/m is positive, stable
+            - underdamped
+            - overdamped
+            - critically_damped
+
+        """
 
         m, c, k = self.canonical_coefficients()
         omega_n = self._natural_frequency(m, k)
@@ -213,7 +226,7 @@ class SingleDoFLinearSystem(_LinearSystem):
             elif zeta > 1.0:
                 return 'overdamped'
             else:
-                msg = 'No valid simulation solution with these parameters.'
+                msg = 'No valid simulation solution with these constants.'
                 raise ValueError(msg)
 
     def _solution_func(self):
@@ -624,7 +637,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         if typ == 'no_damping':
             wn = self._natural_frequency(m, k)
-            if math.isclose(w, wn):
+            if math.isclose(w, wn):  # resonant frequency
                 X = fo / 2 / w
                 xss = X * t * np.sin(w*t)
                 vss = X * w * t * np.cos(w*t) + X * np.sin(w*t)
