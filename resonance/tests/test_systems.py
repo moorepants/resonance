@@ -155,3 +155,31 @@ def test_add_measurement():
         return a + b
 
     sys.add_measurement('meas6', meas6)
+
+    # this will fail if arrays are passed in
+    # TODO : It would really be nice if this style step function worked.
+    def meas7(a, b, time):
+        if time < a:
+            return 0.0
+        else:
+            return b
+
+    with pytest.raises(ValueError):
+        sys.add_measurement('meas7', meas7)
+
+    # this will fail if arrays are passed in because the return types are
+    # floats
+    def meas8(a, b, time):
+        if np.any(time < a):
+            return 0.0
+        else:
+            return b
+
+    with pytest.raises(TypeError):
+        sys.add_measurement('meas8', meas8)
+
+    # this works (step function)
+    def meas9(a, b, time):
+        return (time > a) * b
+
+    sys.add_measurement('meas9', meas9)
