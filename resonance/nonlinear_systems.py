@@ -126,8 +126,20 @@ class MultiDoFNonLinearSystem(_System):
         n = len(speed_names)
 
         def eval_rhs(x, t):
-            # x is either shape(1, 2n), shape(m, 2n), shape(1, 2n, 1) or shape(m, 2n, 1)
+            # m : num time steps
+            # n : num coordinates = num speeds
+            # x is either:
+            # - shape(2n,)
+            # - shape(1, 2n)
+            # - shape(m, 2n):
+            # - shape(1, 2n, 1)
+            # - shape(m, 2n, 1)
             # t is either float or shape(m,)
+            squeeze_xdot = False
+            if len(x.shape) == 1:
+                x = np.atleast_2d(x)  # if shape(2n,) then make it (1, 2n)
+                squeeze_xdot = True
+
             # TODO : This could be slow for large # coords/speeds.
             for i, cname in enumerate(coord_names):
                 self.coordinates[cname] = x[:, i, ...]
@@ -147,14 +159,14 @@ class MultiDoFNonLinearSystem(_System):
             for i, dot in enumerate(self.diff_eq_func(*arg_vals)):
                 x_dot[:, i, ...] = dot
 
+            if squeeze_xdot:  # return (2n,) if x was (2n,)
+                x_dot = np.squeeze(x_dot)
+
             return x_dot
 
         return eval_rhs
 
     def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
-        # TODO : This overrides the integrator option. Remove this once the
-        # other integrator(s) work.
-        integrator = 'rungakutta4'
 
         x0 = list(self.coordinates.values())
         v0 = list(self.speeds.values())
@@ -190,9 +202,15 @@ class MultiDoFNonLinearSystem(_System):
         times : ndarray, shape(m,)
             The monotonically increasing time values.
 
+        Returns
+        =======
+        x : ndarray, shape(m, n, 1)
+            Array containing the values of the state variables at the
+            specified time values in `t`.
+
         """
-        return sp.integrate.odeint(self._ode_eval_func,
-                                   initial_conditions, times)
+        x = sp.integrate.odeint(self._ode_eval_func, initial_conditions, times)
+        return np.expand_dims(x, 2)
 
     def _integrate_with_rungakutta4(self, initial_conditions, times):
         """4th-order Runge-Kutta integration.
@@ -201,7 +219,7 @@ class MultiDoFNonLinearSystem(_System):
 
         Returns
         -------
-        x : ndarray, shape(m, n)
+        x : ndarray, shape(m, n, 1)
             Array containing the values of the state variables at the
             specified time values in `t`.
 
