@@ -1013,7 +1013,7 @@ class MultiDoFLinearSystem(_MDNLS):
             """
             Parameters
             ==========
-            x : ndarray, shape(2n,) or (1, 2n, 1) or (m, 2n) or (m, 2n, 1)
+            x : ndarray, shape(2n,) or (1, 2n) or (1, 2n, 1) or (m, 2n) or (m, 2n, 1)
                 State at provided time value(s).
             t : float or ndarray, shape(m,)
                 Time value(s).
@@ -1035,7 +1035,10 @@ class MultiDoFLinearSystem(_MDNLS):
                 return np.squeeze(A @ x + B @ u)
             else:
                 if len(x.shape) == 2:
-                    return (A @ x.T + B @ np.squeeze(u).T).T
+                    if x.shape[0] == 1:
+                        return (A @ x.T + B @ u).T
+                    else:
+                        return (A @ x.T + B @ np.squeeze(u).T).T
                 else:
                     return A @ x + B @ u
 

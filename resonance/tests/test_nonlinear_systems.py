@@ -294,6 +294,18 @@ Measurements
     sys.speeds['v2'] = 0.02
     sys._time['t'] = 0.0
 
+    # should work with shape(1, 2n)
+    x = np.random.random(4).reshape(1, 4)
+    t = 0.1
+    res = sys._ode_eval_func(x, t)
+    assert res.shape == (1, 4)
+    np.testing.assert_allclose(res, x * t)
+    sys.coordinates['x2'] = 0.2
+    sys.coordinates['x1'] = 0.1
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
     # should work with shape(1, 2n, 1)
     x = np.random.random(4).reshape(1, 4, 1)
     t = 0.1
