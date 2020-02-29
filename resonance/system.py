@@ -667,7 +667,7 @@ Measurements
         return np.linspace(initial_time, final_time, num=num)
 
     def free_response(self, final_time, initial_time=0.0, sample_rate=100,
-                      **kwargs):
+                      integrator="rungakutta4", **kwargs):
         """Returns a data frame with monotonic time values as the index and
         columns for each coordinate and measurement at the time value for that
         row. Note that this data frame is stored on the system as the variable
@@ -686,6 +686,16 @@ Measurements
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        integrator : string, optional
+            Either ``rungakutta4`` or ``lsoda``. The ``rungakutta4`` option is
+            a very simple implementation and the ``sample_rate`` directly
+            affects the accuracy and quality of the result. The ``lsoda`` makes
+            use of SciPy's ``odeint`` function which switches between two
+            integrators for stiff and non-stiff portions of the simulation and
+            is variable step so the sample rate does not affect the quality and
+            accuracy of the result. This has no affect on single degree of
+            freedom linear systems, as their solutions are computed
+            analytically.
 
         Returns
         =======
@@ -697,7 +707,9 @@ Measurements
 
         times = self._calc_times(final_time, initial_time, sample_rate)
 
-        pos, vel, acc = self._generate_state_trajectories(times, **kwargs)
+        pos, vel, acc = self._generate_state_trajectories(times,
+                                                          integrator=integrator,
+                                                          **kwargs)
 
         self.result = self._state_traj_to_dataframe(times, pos, vel, acc)
 
