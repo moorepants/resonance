@@ -13271,15 +13271,15 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      &gt;&gt;&gt; sys.constants[&#39;omega_b&#39;] = 0.1  # rad/s
  |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
  |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
- |      &gt;&gt;&gt; sys.states
- |      {&#39;theta&#39;: 0.3, &#39;omega&#39;: 0.0}  # note the order!
+ |      &gt;&gt;&gt; sys.states  # note the order!
+ |      {&#39;theta&#39;: 0.3, &#39;omega&#39;: 0.0}
  |      &gt;&gt;&gt; def rhs(theta, omega, gravity, length, mass, omega_b, time):
  |      ...     # Represents a linear model of a simple pendulum under
  |      ...     # sinusoidal torquing.
  |      ...     #  m * l**2 ω&#39; + m * g * l * sin(θ) = sin(ω_b * t)
  |      ...     thetad = omega
  |      ...     omegad = (np.sin(omega_b * time) -
- |      ...               m*g*l*np.sin(theta)) / m / l**2
+ |      ...               mass*gravity*length*np.sin(theta)) / mass / length**2
  |      ...     return thetad, omegad  # in order of sys.states
  |      &gt;&gt;&gt; sys.diff_eq_func = rhs
  |  
@@ -13348,16 +13348,17 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      -20.05
  |      &gt;&gt;&gt; # Note that you should use NumPy functions to ensure your
  |      &gt;&gt;&gt; # measurement is vectorized.
+ |      &gt;&gt;&gt; sys.constants[&#39;force&#39;] = 2.0
  |      &gt;&gt;&gt; def force_mag(force):
  |      ...     return np.abs(force)
  |      ...
  |      &gt;&gt;&gt; force_mag(-10.05)
- |      10.050000000000001
+ |      10.05
  |      &gt;&gt;&gt; force_mag(np.array([-10.05, -20.05]))
- |      array([ 10.05,  20.05])
+ |      array([10.05, 20.05])
  |      &gt;&gt;&gt; sys.add_measurement(&#39;fmag&#39;, force_mag)
  |      &gt;&gt;&gt; sys.measurements[&#39;fmag&#39;]
- |      20.05
+ |      2.0
  |  
  |  animate_configuration(self, fps=30, **kwargs)
  |      Returns a matplotlib animation function based on the configuration
@@ -13465,19 +13466,22 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      
  |      Examples
  |      ========
+ |      
+ |      &gt;&gt;&gt; import matplotlib.pyplot as plt
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
  |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
  |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
  |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
  |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
  |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
  |      ...     fig, ax = plt.subplots(1, 1)
- |      ...     circle = Circle((center_x, center_y), radius=radius)
+ |      ...     circle = plt.Circle((center_x, center_y), radius=radius)
  |      ...     ax.add_patch(circle)
  |      ...     ax.set_title(time)
  |      ...     return fig, circle, ax
  |      ...
- |      &gt;&gt;&gt; sys.config_plot_function = plot
- |      &gt;&gt;&gt; sys.plot_configuration()
+ |      &gt;&gt;&gt; sys.config_plot_func = plot
+ |      &gt;&gt;&gt; sys.plot_configuration()  # doctest: +SKIP
  |  
  |  config_plot_update_func
  |      The configuration plot update function arguments should be any of
@@ -13490,10 +13494,16 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      
  |      Examples
  |      ========
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
  |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
  |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
  |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
  |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
+ |      &gt;&gt;&gt; sys.speeds[&#39;center_vx&#39;] = 0.0
+ |      &gt;&gt;&gt; def calc_coeffs():
+ |      ...     # dummy placeholder
+ |      ...     return 1.0, 1.0, 1.0
+ |      &gt;&gt;&gt; sys.canonical_coeffs_func = calc_coeffs
  |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
  |      ...     fig, ax = plt.subplots(1, 1)
  |      ...     circle = Circle((center_x, center_y), radius=radius)
@@ -13509,7 +13519,23 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      ...     ax.set_title(time)
  |      ...
  |      &gt;&gt;&gt; sys.config_plot_update_func = update
- |      &gt;&gt;&gt; sys.animate_configuration()
+ |      &gt;&gt;&gt; sys.free_response(1.0)  #doctest: +SKIP
+ |            center_x  center_x_acc  center_vx
+ |      time
+ |      0.00       0.0           0.0        0.0
+ |      0.01       0.0           0.0        0.0
+ |      0.02       0.0           0.0        0.0
+ |      0.03       0.0           0.0        0.0
+ |      0.04       0.0           0.0        0.0
+ |      ...        ...           ...        ...
+ |      0.96       0.0           0.0        0.0
+ |      0.97       0.0           0.0        0.0
+ |      0.98       0.0           0.0        0.0
+ |      0.99       0.0           0.0        0.0
+ |      1.00       0.0           0.0        0.0
+ |      
+ |      [101 rows x 3 columns]
+ |      &gt;&gt;&gt; sys.animate_configuration()  #doctest: +SKIP
  |  
  |  constants
  |      A dictionary containing the all of the system&#39;s constants, i.e.
@@ -13844,12 +13870,13 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
  |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
  |      &gt;&gt;&gt; def coeffs(gravity, length, mass):
- |      &gt;&gt;&gt;     # Represents a linear model of a simple pendulum:
+ |      ...     # Represents a linear model of a simple pendulum:
  |      ...     #  m * l**2 ω&#39; + m * g * l * θ = 0
  |      ...     I = mass * length**2
  |      ...     c = 0.0
  |      ...     k = mass * gravity * length
  |      ...     return I, c, k
+ |      ...
  |      &gt;&gt;&gt; sys.canonical_coeffs_func = coeffs
  |      &gt;&gt;&gt; sys.canonical_coefficients()
  |      (0.5, 0.0, 4.9)
@@ -13892,12 +13919,13 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      &gt;&gt;&gt; sys.coordinates[&#39;theta&#39;] = 0.3  # rad
  |      &gt;&gt;&gt; sys.speeds[&#39;omega&#39;] = 0.0  # rad/s
  |      &gt;&gt;&gt; def coeffs(gravity, length, mass):
- |      &gt;&gt;&gt;     # Represents a linear model of a simple pendulum:
+ |      ...     # Represents a linear model of a simple pendulum:
  |      ...     #  m * l**2 ω&#39; + m * g * l * θ = 0
  |      ...     I = mass * length**2
  |      ...     c = 0.0
  |      ...     k = mass * gravity * length
  |      ...     return I, c, k
+ |      ...
  |      &gt;&gt;&gt; sys.canonical_coeffs_func = coeffs
  |  
  |  ----------------------------------------------------------------------
@@ -13965,16 +13993,17 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      -20.05
  |      &gt;&gt;&gt; # Note that you should use NumPy functions to ensure your
  |      &gt;&gt;&gt; # measurement is vectorized.
+ |      &gt;&gt;&gt; sys.constants[&#39;force&#39;] = 2.0
  |      &gt;&gt;&gt; def force_mag(force):
  |      ...     return np.abs(force)
  |      ...
  |      &gt;&gt;&gt; force_mag(-10.05)
- |      10.050000000000001
+ |      10.05
  |      &gt;&gt;&gt; force_mag(np.array([-10.05, -20.05]))
- |      array([ 10.05,  20.05])
+ |      array([10.05, 20.05])
  |      &gt;&gt;&gt; sys.add_measurement(&#39;fmag&#39;, force_mag)
  |      &gt;&gt;&gt; sys.measurements[&#39;fmag&#39;]
- |      20.05
+ |      2.0
  |  
  |  animate_configuration(self, fps=30, **kwargs)
  |      Returns a matplotlib animation function based on the configuration
@@ -14082,19 +14111,22 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      
  |      Examples
  |      ========
+ |      
+ |      &gt;&gt;&gt; import matplotlib.pyplot as plt
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
  |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
  |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
  |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
  |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
  |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
  |      ...     fig, ax = plt.subplots(1, 1)
- |      ...     circle = Circle((center_x, center_y), radius=radius)
+ |      ...     circle = plt.Circle((center_x, center_y), radius=radius)
  |      ...     ax.add_patch(circle)
  |      ...     ax.set_title(time)
  |      ...     return fig, circle, ax
  |      ...
- |      &gt;&gt;&gt; sys.config_plot_function = plot
- |      &gt;&gt;&gt; sys.plot_configuration()
+ |      &gt;&gt;&gt; sys.config_plot_func = plot
+ |      &gt;&gt;&gt; sys.plot_configuration()  # doctest: +SKIP
  |  
  |  config_plot_update_func
  |      The configuration plot update function arguments should be any of
@@ -14107,10 +14139,16 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      
  |      Examples
  |      ========
+ |      &gt;&gt;&gt; from resonance.linear_systems import SingleDoFLinearSystem
  |      &gt;&gt;&gt; sys = SingleDoFLinearSystem()
  |      &gt;&gt;&gt; sys.constants[&#39;radius&#39;] = 5.0
  |      &gt;&gt;&gt; sys.constants[&#39;center_y&#39;] = 10.0
  |      &gt;&gt;&gt; sys.coordinates[&#39;center_x&#39;] = 0.0
+ |      &gt;&gt;&gt; sys.speeds[&#39;center_vx&#39;] = 0.0
+ |      &gt;&gt;&gt; def calc_coeffs():
+ |      ...     # dummy placeholder
+ |      ...     return 1.0, 1.0, 1.0
+ |      &gt;&gt;&gt; sys.canonical_coeffs_func = calc_coeffs
  |      &gt;&gt;&gt; def plot(radius, center_x, center_y, time):
  |      ...     fig, ax = plt.subplots(1, 1)
  |      ...     circle = Circle((center_x, center_y), radius=radius)
@@ -14126,7 +14164,23 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |      ...     ax.set_title(time)
  |      ...
  |      &gt;&gt;&gt; sys.config_plot_update_func = update
- |      &gt;&gt;&gt; sys.animate_configuration()
+ |      &gt;&gt;&gt; sys.free_response(1.0)  #doctest: +SKIP
+ |            center_x  center_x_acc  center_vx
+ |      time
+ |      0.00       0.0           0.0        0.0
+ |      0.01       0.0           0.0        0.0
+ |      0.02       0.0           0.0        0.0
+ |      0.03       0.0           0.0        0.0
+ |      0.04       0.0           0.0        0.0
+ |      ...        ...           ...        ...
+ |      0.96       0.0           0.0        0.0
+ |      0.97       0.0           0.0        0.0
+ |      0.98       0.0           0.0        0.0
+ |      0.99       0.0           0.0        0.0
+ |      1.00       0.0           0.0        0.0
+ |      
+ |      [101 rows x 3 columns]
+ |      &gt;&gt;&gt; sys.animate_configuration()  #doctest: +SKIP
  |  
  |  constants
  |      A dictionary containing the all of the system&#39;s constants, i.e.
@@ -14517,7 +14571,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>/home/travis/miniconda3/envs/resonance-dev/lib/python3.8/site-packages/resonance-0.23.0.dev0-py3.8.egg/resonance/functions.py:143: RuntimeWarning: Mean of empty slice.
+<pre>/home/travis/miniconda3/envs/resonance-dev/lib/python3.8/site-packages/resonance-0.23.0.dev0-py3.8.egg/resonance/functions.py:145: RuntimeWarning: Mean of empty slice.
 /home/travis/miniconda3/envs/resonance-dev/lib/python3.8/site-packages/numpy/core/_methods.py:161: RuntimeWarning: invalid value encountered in double_scalars
   ret = ret.dtype.type(ret / rcount)
 </pre>
@@ -15451,39 +15505,39 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_imge63bab62581d40709c2aa40c42f9273a">
+  <img id="_anim_imgb62c4ab6fefc4cf8a934739556099401">
   <div class="anim-controls">
-    <input id="_anim_slidere63bab62581d40709c2aa40c42f9273a" type="range" class="anim-slider"
+    <input id="_anim_sliderb62c4ab6fefc4cf8a934739556099401" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="anime63bab62581d40709c2aa40c42f9273a.set_frame(parseInt(this.value));"></input>
+           oninput="animb62c4ab6fefc4cf8a934739556099401.set_frame(parseInt(this.value));"></input>
     <div class="anim-buttons">
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.slower()"><i class="fa fa-minus"></i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.first_frame()"><i class="fa fa-fast-backward">
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.first_frame()"><i class="fa fa-fast-backward">
           </i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.previous_frame()">
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.reverse_animation()">
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.pause_animation()"><i class="fa fa-pause">
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.pause_animation()"><i class="fa fa-pause">
           </i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.play_animation()"><i class="fa fa-play"></i>
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.play_animation()"><i class="fa fa-play"></i>
           </button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.next_frame()"><i class="fa fa-step-forward">
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.next_frame()"><i class="fa fa-step-forward">
           </i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.last_frame()"><i class="fa fa-fast-forward">
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.last_frame()"><i class="fa fa-fast-forward">
           </i></button>
-      <button onclick="anime63bab62581d40709c2aa40c42f9273a.faster()"><i class="fa fa-plus"></i></button>
+      <button onclick="animb62c4ab6fefc4cf8a934739556099401.faster()"><i class="fa fa-plus"></i></button>
     </div>
-    <form action="#n" name="_anim_loop_selecte63bab62581d40709c2aa40c42f9273a" class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_e63bab62581d40709c2aa40c42f9273a"
+    <form action="#n" name="_anim_loop_selectb62c4ab6fefc4cf8a934739556099401" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_b62c4ab6fefc4cf8a934739556099401"
              >
-      <label for="_anim_radio1_e63bab62581d40709c2aa40c42f9273a">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_e63bab62581d40709c2aa40c42f9273a"
+      <label for="_anim_radio1_b62c4ab6fefc4cf8a934739556099401">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_b62c4ab6fefc4cf8a934739556099401"
              checked>
-      <label for="_anim_radio2_e63bab62581d40709c2aa40c42f9273a">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_e63bab62581d40709c2aa40c42f9273a"
+      <label for="_anim_radio2_b62c4ab6fefc4cf8a934739556099401">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_b62c4ab6fefc4cf8a934739556099401"
              >
-      <label for="_anim_radio3_e63bab62581d40709c2aa40c42f9273a">Reflect</label>
+      <label for="_anim_radio3_b62c4ab6fefc4cf8a934739556099401">Reflect</label>
     </form>
   </div>
 </div>
@@ -15493,9 +15547,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imge63bab62581d40709c2aa40c42f9273a";
-    var slider_id = "_anim_slidere63bab62581d40709c2aa40c42f9273a";
-    var loop_select_id = "_anim_loop_selecte63bab62581d40709c2aa40c42f9273a";
+    var img_id = "_anim_imgb62c4ab6fefc4cf8a934739556099401";
+    var slider_id = "_anim_sliderb62c4ab6fefc4cf8a934739556099401";
+    var loop_select_id = "_anim_loop_selectb62c4ab6fefc4cf8a934739556099401";
     var frames = new Array(152);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38463,7 +38517,7 @@ wJEIMACAIxFgAABHIsAAAI70fwF+Tc9DY5WOHQAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anime63bab62581d40709c2aa40c42f9273a = new Animation(frames, img_id, slider_id, 16.0,
+        animb62c4ab6fefc4cf8a934739556099401 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
