@@ -481,6 +481,84 @@ Measurements
 """
     assert desc == expected_desc
 
+def test_ode_eval_func():
+
+    sys = MultiDoFLinearSystem()
+
+    sys.constants['m1'] = 1.0  # kg
+    sys.constants['m2'] = 1.0  # kg
+    sys.constants['k1'] = 10.0  # N/m
+    sys.constants['k2'] = 10.0  # N/m
+
+    sys.coordinates['x1'] = 0.1  # m
+    sys.coordinates['x2'] = 0.2  # m
+    sys.speeds['v1'] = 0.01  # m/s
+    sys.speeds['v2'] = 0.02  # m/s
+
+    def coeff_func(m1, m2, k1, k2):
+
+        # mass matrix 2 x 2
+        M = np.array([[m1, 0],
+                      [0, m2]])
+
+        # damping matrix 2 x 2
+        C = np.zeros_like(M)
+
+        # stiffness matrix 2 x 2
+        K = np.array([[k1 + k2, -k2],
+                      [-k2, k2]])
+
+        return M, C, K
+
+    sys.canonical_coeffs_func = coeff_func
+
+    # should work with shape(2n,)
+    x = np.random.random(4)
+    t = 0.1
+    res = sys._ode_eval_func(x, t)
+    assert res.shape == (4,)
+    #np.testing.assert_allclose(res, x * t)
+    sys.coordinates['x1'] = 0.1
+    sys.coordinates['x2'] = 0.2
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
+    # should work with shape(1, 2n, 1)
+    x = np.random.random(4).reshape(1, 4, 1)
+    t = 0.1
+    res = sys._ode_eval_func(x, t)
+    assert res.shape == (1, 4, 1)
+    #np.testing.assert_allclose(res, x * t)
+    sys.coordinates['x1'] = 0.1
+    sys.coordinates['x2'] = 0.2
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
+    # should work with shape(m, 2n)
+    x = np.random.random(10 * 4).reshape(10, 4)
+    t = np.random.random(10)
+    res = sys._ode_eval_func(x, t)
+    assert res.shape == (10, 4)
+    #np.testing.assert_allclose(res, x * t[:, np.newaxis])
+    sys.coordinates['x1'] = 0.1
+    sys.coordinates['x2'] = 0.2
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
+
+    # should work with shape(m, 2n, 1)
+    x = np.random.random(10 * 4).reshape(10, 4, 1)
+    t = np.random.random(10)
+    res = sys._ode_eval_func(x, t)
+    assert res.shape == (10, 4, 1)
+    #np.testing.assert_allclose(res, x * t[:, np.newaxis, np.newaxis])
+    sys.coordinates['x1'] = 0.1
+    sys.coordinates['x2'] = 0.2
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
 
 def test_multi_dof_linear_system():
 
@@ -552,6 +630,7 @@ Measurements
     assert desc == expected_desc
 
     sys.free_response(2.0)
+    sys.free_response(2.0, integrator="lsoda")
 
     sys.constants['w1'] = np.pi / 10  # rad/s
     sys.constants['w2'] = np.pi / 20  # rad/s
@@ -593,3 +672,5 @@ Measurements
     traj = sys.forced_response(2.0)
 
     assert traj['x1'].sum() > 1E-10
+
+    traj = sys.forced_response(2.0, integrator="lsoda")

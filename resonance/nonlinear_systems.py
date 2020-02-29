@@ -126,6 +126,16 @@ class MultiDoFNonLinearSystem(_System):
         n = len(speed_names)
 
         def eval_rhs(x, t):
+            """
+            Parameters
+            ==========
+            x : ndarray
+            t : float or ndarray, shape(m,)
+
+            Returns
+            =======
+            xdot : ndarray
+            """
             # m : num time steps
             # n : num coordinates = num speeds
             # x is either:

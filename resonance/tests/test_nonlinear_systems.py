@@ -282,8 +282,6 @@ Measurements
 """
     assert desc == expected_desc
 
-    # TODO : would be nice to work with shape(2n,), otherwise lsoda won't work
-
     # should work with shape(2n,)
     x = np.random.random(4)
     t = 0.1
