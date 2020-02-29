@@ -13377,7 +13377,7 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |          ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
  |          argument will be ignored.
  |  
- |  free_response(self, final_time, initial_time=0.0, sample_rate=100, **kwargs)
+ |  free_response(self, final_time, initial_time=0.0, sample_rate=100, integrator=&#39;rungakutta4&#39;, **kwargs)
  |      Returns a data frame with monotonic time values as the index and
  |      columns for each coordinate and measurement at the time value for that
  |      row. Note that this data frame is stored on the system as the variable
@@ -13396,6 +13396,16 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |          The time values will be reported at the initial time and final
  |          time, i.e. inclusive, along with times space equally based on the
  |          sample rate.
+ |      integrator : string, optional
+ |          Either ``rungakutta4`` or ``lsoda``. The ``rungakutta4`` option is
+ |          a very simple implementation and the ``sample_rate`` directly
+ |          affects the accuracy and quality of the result. The ``lsoda`` makes
+ |          use of SciPy&#39;s ``odeint`` function which switches between two
+ |          integrators for stiff and non-stiff portions of the simulation and
+ |          is variable step so the sample rate does not affect the quality and
+ |          accuracy of the result. This has no affect on single degree of
+ |          freedom linear systems, as their solutions are computed
+ |          analytically.
  |      
  |      Returns
  |      =======
@@ -13984,7 +13994,7 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |          ``matplotlib.animation.FuncAnimation()``. The ``interval`` keyword
  |          argument will be ignored.
  |  
- |  free_response(self, final_time, initial_time=0.0, sample_rate=100, **kwargs)
+ |  free_response(self, final_time, initial_time=0.0, sample_rate=100, integrator=&#39;rungakutta4&#39;, **kwargs)
  |      Returns a data frame with monotonic time values as the index and
  |      columns for each coordinate and measurement at the time value for that
  |      row. Note that this data frame is stored on the system as the variable
@@ -14003,6 +14013,16 @@ class ClockPendulumSystem(SingleDoFLinearSystem)
  |          The time values will be reported at the initial time and final
  |          time, i.e. inclusive, along with times space equally based on the
  |          sample rate.
+ |      integrator : string, optional
+ |          Either ``rungakutta4`` or ``lsoda``. The ``rungakutta4`` option is
+ |          a very simple implementation and the ``sample_rate`` directly
+ |          affects the accuracy and quality of the result. The ``lsoda`` makes
+ |          use of SciPy&#39;s ``odeint`` function which switches between two
+ |          integrators for stiff and non-stiff portions of the simulation and
+ |          is variable step so the sample rate does not affect the quality and
+ |          accuracy of the result. This has no affect on single degree of
+ |          freedom linear systems, as their solutions are computed
+ |          analytically.
  |      
  |      Returns
  |      =======
@@ -15431,39 +15451,39 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_img3e6e16ed14b640009e0355060c9aff6d">
+  <img id="_anim_img0784a9c60e5d4deaa32bb6461eedea03">
   <div class="anim-controls">
-    <input id="_anim_slider3e6e16ed14b640009e0355060c9aff6d" type="range" class="anim-slider"
+    <input id="_anim_slider0784a9c60e5d4deaa32bb6461eedea03" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="anim3e6e16ed14b640009e0355060c9aff6d.set_frame(parseInt(this.value));"></input>
+           oninput="anim0784a9c60e5d4deaa32bb6461eedea03.set_frame(parseInt(this.value));"></input>
     <div class="anim-buttons">
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.slower()"><i class="fa fa-minus"></i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.first_frame()"><i class="fa fa-fast-backward">
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.first_frame()"><i class="fa fa-fast-backward">
           </i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.previous_frame()">
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.reverse_animation()">
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.pause_animation()"><i class="fa fa-pause">
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.pause_animation()"><i class="fa fa-pause">
           </i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.play_animation()"><i class="fa fa-play"></i>
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.play_animation()"><i class="fa fa-play"></i>
           </button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.next_frame()"><i class="fa fa-step-forward">
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.next_frame()"><i class="fa fa-step-forward">
           </i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.last_frame()"><i class="fa fa-fast-forward">
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.last_frame()"><i class="fa fa-fast-forward">
           </i></button>
-      <button onclick="anim3e6e16ed14b640009e0355060c9aff6d.faster()"><i class="fa fa-plus"></i></button>
+      <button onclick="anim0784a9c60e5d4deaa32bb6461eedea03.faster()"><i class="fa fa-plus"></i></button>
     </div>
-    <form action="#n" name="_anim_loop_select3e6e16ed14b640009e0355060c9aff6d" class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_3e6e16ed14b640009e0355060c9aff6d"
+    <form action="#n" name="_anim_loop_select0784a9c60e5d4deaa32bb6461eedea03" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_0784a9c60e5d4deaa32bb6461eedea03"
              >
-      <label for="_anim_radio1_3e6e16ed14b640009e0355060c9aff6d">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_3e6e16ed14b640009e0355060c9aff6d"
+      <label for="_anim_radio1_0784a9c60e5d4deaa32bb6461eedea03">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_0784a9c60e5d4deaa32bb6461eedea03"
              checked>
-      <label for="_anim_radio2_3e6e16ed14b640009e0355060c9aff6d">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_3e6e16ed14b640009e0355060c9aff6d"
+      <label for="_anim_radio2_0784a9c60e5d4deaa32bb6461eedea03">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_0784a9c60e5d4deaa32bb6461eedea03"
              >
-      <label for="_anim_radio3_3e6e16ed14b640009e0355060c9aff6d">Reflect</label>
+      <label for="_anim_radio3_0784a9c60e5d4deaa32bb6461eedea03">Reflect</label>
     </form>
   </div>
 </div>
@@ -15473,9 +15493,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_img3e6e16ed14b640009e0355060c9aff6d";
-    var slider_id = "_anim_slider3e6e16ed14b640009e0355060c9aff6d";
-    var loop_select_id = "_anim_loop_select3e6e16ed14b640009e0355060c9aff6d";
+    var img_id = "_anim_img0784a9c60e5d4deaa32bb6461eedea03";
+    var slider_id = "_anim_slider0784a9c60e5d4deaa32bb6461eedea03";
+    var loop_select_id = "_anim_loop_select0784a9c60e5d4deaa32bb6461eedea03";
     var frames = new Array(152);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38443,7 +38463,7 @@ wJEIMACAIxFgAABHIsAAAI70fwF+Tc9DY5WOHQAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        anim3e6e16ed14b640009e0355060c9aff6d = new Animation(frames, img_id, slider_id, 16.0,
+        anim0784a9c60e5d4deaa32bb6461eedea03 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
