@@ -59,10 +59,6 @@ class MultiDoFNonLinearSystem(_System):
         .. note:: The function has to return the derivatives of the states in
            the order of the ``state`` attribute.
 
-        .. warning:: Do not use measurements as a function argument. This may
-           cause causality issues and is not yet supported. You are unlikely to
-           get a correct answer if you use a measurement in this function.
-
         Example
         =======
         >>> sys = SingleDoFNonLinearSystem()
