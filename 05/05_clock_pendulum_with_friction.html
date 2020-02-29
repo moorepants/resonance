@@ -13258,10 +13258,6 @@ class ClockPendulumSystem(SingleDoFNonLinearSystem)
  |      .. note:: The function has to return the derivatives of the states in
  |         the order of the ``state`` attribute.
  |      
- |      .. warning:: Do not use measurements as a function argument. This may
- |         cause causality issues and is not yet supported. You are unlikely to
- |         get a correct answer if you use a measurement in this function.
- |      
  |      Example
  |      =======
  |      &gt;&gt;&gt; sys = SingleDoFNonLinearSystem()
@@ -15505,39 +15501,39 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_imgb62c4ab6fefc4cf8a934739556099401">
+  <img id="_anim_imga2327276b58b47ce8c805732d98d9cf9">
   <div class="anim-controls">
-    <input id="_anim_sliderb62c4ab6fefc4cf8a934739556099401" type="range" class="anim-slider"
+    <input id="_anim_slidera2327276b58b47ce8c805732d98d9cf9" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="animb62c4ab6fefc4cf8a934739556099401.set_frame(parseInt(this.value));"></input>
+           oninput="anima2327276b58b47ce8c805732d98d9cf9.set_frame(parseInt(this.value));"></input>
     <div class="anim-buttons">
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.slower()"><i class="fa fa-minus"></i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.first_frame()"><i class="fa fa-fast-backward">
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.first_frame()"><i class="fa fa-fast-backward">
           </i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.previous_frame()">
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.reverse_animation()">
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.pause_animation()"><i class="fa fa-pause">
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.pause_animation()"><i class="fa fa-pause">
           </i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.play_animation()"><i class="fa fa-play"></i>
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.play_animation()"><i class="fa fa-play"></i>
           </button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.next_frame()"><i class="fa fa-step-forward">
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.next_frame()"><i class="fa fa-step-forward">
           </i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.last_frame()"><i class="fa fa-fast-forward">
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.last_frame()"><i class="fa fa-fast-forward">
           </i></button>
-      <button onclick="animb62c4ab6fefc4cf8a934739556099401.faster()"><i class="fa fa-plus"></i></button>
+      <button onclick="anima2327276b58b47ce8c805732d98d9cf9.faster()"><i class="fa fa-plus"></i></button>
     </div>
-    <form action="#n" name="_anim_loop_selectb62c4ab6fefc4cf8a934739556099401" class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_b62c4ab6fefc4cf8a934739556099401"
+    <form action="#n" name="_anim_loop_selecta2327276b58b47ce8c805732d98d9cf9" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_a2327276b58b47ce8c805732d98d9cf9"
              >
-      <label for="_anim_radio1_b62c4ab6fefc4cf8a934739556099401">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_b62c4ab6fefc4cf8a934739556099401"
+      <label for="_anim_radio1_a2327276b58b47ce8c805732d98d9cf9">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_a2327276b58b47ce8c805732d98d9cf9"
              checked>
-      <label for="_anim_radio2_b62c4ab6fefc4cf8a934739556099401">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_b62c4ab6fefc4cf8a934739556099401"
+      <label for="_anim_radio2_a2327276b58b47ce8c805732d98d9cf9">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_a2327276b58b47ce8c805732d98d9cf9"
              >
-      <label for="_anim_radio3_b62c4ab6fefc4cf8a934739556099401">Reflect</label>
+      <label for="_anim_radio3_a2327276b58b47ce8c805732d98d9cf9">Reflect</label>
     </form>
   </div>
 </div>
@@ -15547,9 +15543,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imgb62c4ab6fefc4cf8a934739556099401";
-    var slider_id = "_anim_sliderb62c4ab6fefc4cf8a934739556099401";
-    var loop_select_id = "_anim_loop_selectb62c4ab6fefc4cf8a934739556099401";
+    var img_id = "_anim_imga2327276b58b47ce8c805732d98d9cf9";
+    var slider_id = "_anim_slidera2327276b58b47ce8c805732d98d9cf9";
+    var loop_select_id = "_anim_loop_selecta2327276b58b47ce8c805732d98d9cf9";
     var frames = new Array(152);
     
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAYAAADVKCZpAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\
@@ -38517,7 +38513,7 @@ wJEIMACAIxFgAABHIsAAAI70fwF+Tc9DY5WOHQAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        animb62c4ab6fefc4cf8a934739556099401 = new Animation(frames, img_id, slider_id, 16.0,
+        anima2327276b58b47ce8c805732d98d9cf9 = new Animation(frames, img_id, slider_id, 16.0,
                                  loop_select_id);
     }, 0);
   })()
