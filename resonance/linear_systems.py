@@ -197,6 +197,19 @@ class SingleDoFLinearSystem(_LinearSystem):
         return wn, z, wd
 
     def _solution_type(self):
+        """Returns a string giving the solution type based on the canonical
+        coefficients.
+
+        Returns
+        =======
+        str
+            - no_damping_unstable : k/m is negative
+            - no_damping : k/m is positive, stable
+            - underdamped
+            - overdamped
+            - critically_damped
+
+        """
 
         m, c, k = self.canonical_coefficients()
         omega_n = self._natural_frequency(m, k)
@@ -215,7 +228,7 @@ class SingleDoFLinearSystem(_LinearSystem):
             elif zeta > 1.0:
                 return 'overdamped'
             else:
-                msg = 'No valid simulation solution with these parameters.'
+                msg = 'No valid simulation solution with these constants.'
                 raise ValueError(msg)
 
     def _solution_func(self):
@@ -381,7 +394,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         return pos, vel, acc
 
-    def _generate_state_trajectories(self, times):
+    def _generate_state_trajectories(self, times, **kwargs):
 
         sol_func = self._solution_func()
 
@@ -626,7 +639,7 @@ class SingleDoFLinearSystem(_LinearSystem):
 
         if typ == 'no_damping':
             wn = self._natural_frequency(m, k)
-            if math.isclose(w, wn):
+            if math.isclose(w, wn):  # resonant frequency
                 X = fo / 2 / w
                 xss = X * t * np.sin(w*t)
                 vss = X * w * t * np.cos(w*t) + X * np.sin(w*t)
@@ -1002,16 +1015,42 @@ class MultiDoFLinearSystem(_MDNLS):
         A, B = self._form_A_B()
 
         def eval_rhs(x, t):
+            """
+            Parameters
+            ==========
+            x : ndarray, shape(2n,) or (1, 2n) or (1, 2n, 1) or (m, 2n) or (m, 2n, 1)
+                State at provided time value(s).
+            t : float or ndarray, shape(m,)
+                Time value(s).
+
+            Parameters
+            ==========
+            xdot : ndarray, shape(2n,) or (1, 2n, 1) or (m, 2n) or (m, 2n, 1)
+
+            """
+            squeeze_xdot = False
+            if len(x.shape) == 1:
+                x = np.expand_dims(x, 1)
+                squeeze_xdot = True
             u = self._eval_forcing(t)
             # This matrix mul is one of two forms:
             # (2n x 2n) * (2n x 1) + (2n x 2n) * (2n x 1)
             # (2n x 2n) * (m x 2n x 1) + (2n x 2n) * (m x 2n x 1)
-            return A @ x + B @ u
+            if squeeze_xdot:
+                return np.squeeze(A @ x + B @ u)
+            else:
+                if len(x.shape) == 2:
+                    if x.shape[0] == 1:
+                        return (A @ x.T + B @ u).T
+                    else:
+                        return (A @ x.T + B @ np.squeeze(u).T).T
+                else:
+                    return A @ x + B @ u
 
         return eval_rhs
 
     def forced_response(self, final_time, initial_time=0.0, sample_rate=100,
-                        **kwargs):
+                        integrator="rungakutta4", **kwargs):
         """Returns a data frame with monotonic time values as the index and
         columns for each coordinate and measurement at the time value for that
         row. Note that this data frame is stored on the system as the variable
@@ -1030,6 +1069,16 @@ class MultiDoFLinearSystem(_MDNLS):
             The time values will be reported at the initial time and final
             time, i.e. inclusive, along with times space equally based on the
             sample rate.
+        integrator : string, optional
+            Either ``rungakutta4`` or ``lsoda``. The ``rungakutta4`` option is
+            a very simple implementation and the ``sample_rate`` directly
+            affects the accuracy and quality of the result. The ``lsoda`` makes
+            use of SciPy's ``odeint`` function which switches between two
+            integrators for stiff and non-stiff portions of the simulation and
+            is variable step so the sample rate does not affect the quality and
+            accuracy of the result. This has no affect on single degree of
+            freedom linear systems, as their solutions are computed
+            analytically.
 
         Returns
         =======
@@ -1045,7 +1094,8 @@ class MultiDoFLinearSystem(_MDNLS):
         """
         self._compute_forcing = True
         traj = self.free_response(final_time, initial_time=initial_time,
-                                  sample_rate=sample_rate, **kwargs)
+                                  sample_rate=sample_rate,
+                                  integrator=integrator, **kwargs)
         self._compute_forcing = False
         self._time['t'] = 0.0
         return traj

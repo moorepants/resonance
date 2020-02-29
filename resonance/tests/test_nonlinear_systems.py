@@ -282,7 +282,17 @@ Measurements
 """
     assert desc == expected_desc
 
-    # TODO : would be nice to work with shape(2n,), otherwise lsoda won't work
+    # should work with shape(2n,)
+    x = np.random.random(4)
+    t = 0.1
+    res = sys._ode_eval_func(x, t)
+    assert res.shape == (4,)
+    np.testing.assert_allclose(res, x * t)
+    sys.coordinates['x2'] = 0.2
+    sys.coordinates['x1'] = 0.1
+    sys.speeds['v1'] = 0.01
+    sys.speeds['v2'] = 0.02
+    sys._time['t'] = 0.0
 
     # should work with shape(1, 2n)
     x = np.random.random(4).reshape(1, 4)
@@ -351,9 +361,13 @@ Measurements
     for s in sys.states.keys():
         assert s in traj.columns
 
-    # TODO : Failing
-    #traj2 = sys.free_response(5.0, integrator='lsoda')
-    #assert_frame_equal(traj, traj2, check_less_precise=True)
+    # NOTE : The two integrators do not give the same answer, but they can be
+    # compared to a low precision.
+    traj = sys.free_response(3.0)
+    traj2 = sys.free_response(3.0, integrator='lsoda')
+    # TODO : This check it not working even at low precision. The results are
+    # pretty different.
+    #assert_frame_equal(traj, traj2, check_less_precise=1)
 
 
 def test_measurements_in_diff_eq_func():

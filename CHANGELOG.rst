@@ -1,3 +1,8 @@
+0.22.0
+=====
+
+- Enabled the lsoda integrator option.
+
 0.21.0
 ======
 
