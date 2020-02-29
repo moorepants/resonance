@@ -814,12 +814,12 @@ class MultiDoFLinearSystem(_MDNLS):
         equilibrium.
 
         >>> from resonance.linear_systems import MultiDoFLinearSystem
-        >>> sys = MulitDoFLinearSystem()
+        >>> sys = MultiDoFLinearSystem()
         >>> sys.constants['g'] = 9.8  # m/s**2
         >>> sys.constants['l1'] = 1.0  # m
         >>> sys.constants['l2'] = 1.0  # m
-        >>> sys.constnats['m1'] = 0.5  # kg
-        >>> sys.constnats['m2'] = 0.5  # kg
+        >>> sys.constants['m1'] = 0.5  # kg
+        >>> sys.constants['m2'] = 0.5  # kg
         >>> sys.coordinates['theta1'] = 0.3  # rad
         >>> sys.coordinates['theta2'] = 0.0  # rad
         >>> sys.speeds['omega1'] = 0.0  # rad/s
@@ -828,7 +828,7 @@ class MultiDoFLinearSystem(_MDNLS):
         ...     # Represents a linear model of a simple double pendulum
         ...     M = np.array([[l1 * (m1 + m2), m2 * l2],
         ...                   [m2 * l2, m2 * l1]])
-        ...     C = 0.0
+        ...     C = np.zeros((2, 2))
         ...     K = np.array([[-g * (m1 + m2), 0],
         ...                   [0, -m2 * g]])
         ...     return M, C, K
@@ -899,7 +899,7 @@ class MultiDoFLinearSystem(_MDNLS):
         respect to theta1 and theta2.
 
         >>> from resonance.linear_systems import MultiDoFLinearSystem
-        >>> sys = MulitDoFLinearSystem()
+        >>> sys = MultiDoFLinearSystem()
         >>> sys.constants['g'] = 9.8  # m/s**2
         >>> sys.constants['l1'] = 1.0  # m
         >>> sys.constants['l2'] = 1.0  # m

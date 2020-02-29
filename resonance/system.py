@@ -368,6 +368,7 @@ Measurements
         Examples
         ========
 
+        >>> import matplotlib.pyplot as plt
         >>> from resonance.linear_systems import SingleDoFLinearSystem
         >>> sys = SingleDoFLinearSystem()
         >>> sys.constants['radius'] = 5.0
@@ -375,13 +376,13 @@ Measurements
         >>> sys.coordinates['center_x'] = 0.0
         >>> def plot(radius, center_x, center_y, time):
         ...     fig, ax = plt.subplots(1, 1)
-        ...     circle = Circle((center_x, center_y), radius=radius)
+        ...     circle = plt.Circle((center_x, center_y), radius=radius)
         ...     ax.add_patch(circle)
         ...     ax.set_title(time)
         ...     return fig, circle, ax
         ...
-        >>> sys.config_plot_function = plot
-        >>> sys.plot_configuration()
+        >>> sys.config_plot_func = plot
+        >>> sys.plot_configuration()  # doctest: +SKIP
 
         """
         return self._config_plot_func
@@ -407,6 +408,11 @@ Measurements
         >>> sys.constants['radius'] = 5.0
         >>> sys.constants['center_y'] = 10.0
         >>> sys.coordinates['center_x'] = 0.0
+        >>> sys.speeds['center_vx'] = 0.0
+        >>> def calc_coeffs():
+        ...     # dummy placeholder
+        ...     return 1.0, 1.0, 1.0
+        >>> sys.canonical_coeffs_func = calc_coeffs
         >>> def plot(radius, center_x, center_y, time):
         ...     fig, ax = plt.subplots(1, 1)
         ...     circle = Circle((center_x, center_y), radius=radius)
@@ -422,8 +428,23 @@ Measurements
         ...     ax.set_title(time)
         ...
         >>> sys.config_plot_update_func = update
-        >>> sys.free_response(1.0)
-        >>> sys.animate_configuration()
+        >>> sys.free_response(1.0)  #doctest: +SKIP
+              center_x  center_x_acc  center_vx
+        time
+        0.00       0.0           0.0        0.0
+        0.01       0.0           0.0        0.0
+        0.02       0.0           0.0        0.0
+        0.03       0.0           0.0        0.0
+        0.04       0.0           0.0        0.0
+        ...        ...           ...        ...
+        0.96       0.0           0.0        0.0
+        0.97       0.0           0.0        0.0
+        0.98       0.0           0.0        0.0
+        0.99       0.0           0.0        0.0
+        1.00       0.0           0.0        0.0
+
+        [101 rows x 3 columns]
+        >>> sys.animate_configuration()  #doctest: +SKIP
 
 
         """
@@ -577,6 +598,7 @@ Measurements
         -20.05
         >>> # Note that you should use NumPy functions to ensure your
         >>> # measurement is vectorized.
+        >>> sys.constants['force'] = 2.0
         >>> def force_mag(force):
         ...     return np.abs(force)
         ...
@@ -586,7 +608,7 @@ Measurements
         array([10.05, 20.05])
         >>> sys.add_measurement('fmag', force_mag)
         >>> sys.measurements['fmag']
-        20.05
+        2.0
 
         """
         if name.lower() == 'time':
