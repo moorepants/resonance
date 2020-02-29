@@ -72,15 +72,15 @@ class MultiDoFNonLinearSystem(_System):
         >>> sys.constants['omega_b'] = 0.1  # rad/s
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
-        >>> sys.states
-        {'theta': 0.3, 'omega': 0.0}  # note the order!
+        >>> sys.states  # note the order!
+        {'theta': 0.3, 'omega': 0.0}
         >>> def rhs(theta, omega, gravity, length, mass, omega_b, time):
         ...     # Represents a linear model of a simple pendulum under
         ...     # sinusoidal torquing.
         ...     #  m * l**2 ω' + m * g * l * sin(θ) = sin(ω_b * t)
         ...     thetad = omega
         ...     omegad = (np.sin(omega_b * time) -
-        ...               m*g*l*np.sin(theta)) / m / l**2
+        ...               mass*gravity*length*np.sin(theta)) / mass / length**2
         ...     return thetad, omegad  # in order of sys.states
         >>> sys.diff_eq_func = rhs
 

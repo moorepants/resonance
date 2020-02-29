@@ -74,12 +74,14 @@ def spring(xA, xB, yA, yB, w, n=1, x=None, y=None):
 
     Examples
     ========
+
     >>> import numpy as np
     >>> import matplotlib.pyplot as plt
     >>> from resonance.functions import spring
     >>> plt.axes().set_aspect('equal')
     >>> for angle in np.arange(0, 2*np.pi, np.pi/4):
-    ...     plt.plot(*spring(0.0, np.cos(angle), 0.0, np.sin(angle), 0.1, n=4))
+    ...     plt.plot(*spring(0.0, np.cos(angle),
+    ...                      0.0, np.sin(angle), 0.1, n=4))  # doctest: +SKIP
     ...
     >>> plt.show()
 

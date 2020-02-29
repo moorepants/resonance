@@ -68,12 +68,13 @@ class _LinearSystem(_System):
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> def coeffs(gravity, length, mass):
-        >>>     # Represents a linear model of a simple pendulum:
+        ...     # Represents a linear model of a simple pendulum:
         ...     #  m * l**2 ω' + m * g * l * θ = 0
         ...     I = mass * length**2
         ...     c = 0.0
         ...     k = mass * gravity * length
         ...     return I, c, k
+        ...
         >>> sys.canonical_coeffs_func = coeffs
 
         """
@@ -116,12 +117,13 @@ class _LinearSystem(_System):
         >>> sys.coordinates['theta'] = 0.3  # rad
         >>> sys.speeds['omega'] = 0.0  # rad/s
         >>> def coeffs(gravity, length, mass):
-        >>>     # Represents a linear model of a simple pendulum:
+        ...     # Represents a linear model of a simple pendulum:
         ...     #  m * l**2 ω' + m * g * l * θ = 0
         ...     I = mass * length**2
         ...     c = 0.0
         ...     k = mass * gravity * length
         ...     return I, c, k
+        ...
         >>> sys.canonical_coeffs_func = coeffs
         >>> sys.canonical_coefficients()
         (0.5, 0.0, 4.9)
@@ -807,15 +809,17 @@ class MultiDoFLinearSystem(_MDNLS):
 
         Example
         =======
+
         This is an example of a simple double pendulum linearized about its
         equilibrium.
 
-        >>> sys = MulitDoFLinearSystem()
+        >>> from resonance.linear_systems import MultiDoFLinearSystem
+        >>> sys = MultiDoFLinearSystem()
         >>> sys.constants['g'] = 9.8  # m/s**2
         >>> sys.constants['l1'] = 1.0  # m
         >>> sys.constants['l2'] = 1.0  # m
-        >>> sys.constnats['m1'] = 0.5  # kg
-        >>> sys.constnats['m2'] = 0.5  # kg
+        >>> sys.constants['m1'] = 0.5  # kg
+        >>> sys.constants['m2'] = 0.5  # kg
         >>> sys.coordinates['theta1'] = 0.3  # rad
         >>> sys.coordinates['theta2'] = 0.0  # rad
         >>> sys.speeds['omega1'] = 0.0  # rad/s
@@ -824,7 +828,7 @@ class MultiDoFLinearSystem(_MDNLS):
         ...     # Represents a linear model of a simple double pendulum
         ...     M = np.array([[l1 * (m1 + m2), m2 * l2],
         ...                   [m2 * l2, m2 * l1]])
-        ...     C = 0.0
+        ...     C = np.zeros((2, 2))
         ...     K = np.array([[-g * (m1 + m2), 0],
         ...                   [0, -m2 * g]])
         ...     return M, C, K
@@ -894,7 +898,8 @@ class MultiDoFLinearSystem(_MDNLS):
         equilibrium. The forcing function applies sinusoidal torquing with
         respect to theta1 and theta2.
 
-        >>> sys = MulitDoFLinearSystem()
+        >>> from resonance.linear_systems import MultiDoFLinearSystem
+        >>> sys = MultiDoFLinearSystem()
         >>> sys.constants['g'] = 9.8  # m/s**2
         >>> sys.constants['l1'] = 1.0  # m
         >>> sys.constants['l2'] = 1.0  # m

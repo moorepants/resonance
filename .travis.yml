@@ -33,7 +33,9 @@ script:
   - set -e
   # run tests on resonance lib
   - py.test --cov=resonance
-  # only build notebooks with latest versions of software
+  # TODO : doctest the docs/ directory too.
+  - py.test --doctest-modules resonance/
+  # only build notebooks with latest versions of dependencies
   - |
     if [[ $DEP_VERSIONS == "latest" ]]; then
       # execute notebooks, convert to html
