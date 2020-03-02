@@ -873,8 +873,8 @@ class MultiDoFLinearSystem(_MDNLS):
 
     @property
     def forcing_func(self):
-        """A function that returns the right hand side forcing vector of the
-        canonical second order linear ordinary differential equations. This
+        """A function that returns the right hand side forcing vector, F(t), of
+        the canonical second order linear ordinary differential equations. This
         equation looks like the following:
 
             Mv' + Cv + Kx = F(t)
@@ -892,11 +892,12 @@ class MultiDoFLinearSystem(_MDNLS):
 
         Example
         =======
+
         This is an example of a simple double pendulum linearized about its
         equilibrium. The angles, theta1 and theta2, are defined relative to the
         vertical and when both are zero the pendulum is in its hanging
-        equilibrium. The forcing function applies sinusoidal torquing with
-        respect to theta1 and theta2.
+        equilibrium. The forcing function applies sinusoidal torquing to each
+        pendulum arm with respect to the inertial reference frame.
 
         >>> from resonance.linear_systems import MultiDoFLinearSystem
         >>> sys = MultiDoFLinearSystem()
@@ -967,10 +968,11 @@ class MultiDoFLinearSystem(_MDNLS):
         num_coords = len(self.coordinates)
         num_speeds = len(self.speeds)
 
+        # Mv' + Cv + Kx = F(t)
         # A = [0         I     ] x = [coords]
         #     [-M^-1 K  -M^-1 C]     [speeds]
         # B = [0]    u = [0]
-        #     [M^-1]     [generalized forces]
+        #     [M^-1]     [generalized forces, F(t)]
 
         A = np.zeros((num_states, num_states))
         A[:num_coords, num_coords:] = np.eye(num_coords)
