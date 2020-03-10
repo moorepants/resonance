@@ -13,7 +13,7 @@ dependencies:
   - jupyter_sphinx
   - numpy >=1.13
   - scipy >=0.19
-  - matplotlib >=2.1
+  - matplotlib >=2.1,<3.2.0
   - pandas >=0.17
   - sympy >=1.1
   - notebook >=5.2
