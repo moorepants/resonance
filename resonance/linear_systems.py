@@ -1081,6 +1081,12 @@ class MultiDoFLinearSystem(_MDNLS):
             accuracy of the result. This has no affect on single degree of
             freedom linear systems, as their solutions are computed
             analytically.
+        **kwargs
+            Keyword arguments to be passed to the underlying integration
+            routine. For example, if ``integrator='lsoda'`` the keyword
+            arguments for ``scipy.integrate.odeint()`` can be supplied. See
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html
+            for the options.
 
         Returns
         =======

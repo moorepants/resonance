@@ -364,7 +364,7 @@ Measurements
     # NOTE : The two integrators do not give the same answer, but they can be
     # compared to a low precision.
     traj = sys.free_response(3.0)
-    traj2 = sys.free_response(3.0, integrator='lsoda')
+    traj2 = sys.free_response(3.0, integrator='lsoda', rtol=1.49012e-8)
     # TODO : This check it not working even at low precision. The results are
     # pretty different.
     #assert_frame_equal(traj, traj2, check_less_precise=1)

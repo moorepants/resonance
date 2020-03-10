@@ -685,4 +685,4 @@ Measurements
 
     assert traj['x1'].sum() > 1E-10
 
-    traj = sys.forced_response(2.0, integrator="lsoda")
+    traj = sys.forced_response(2.0, integrator="lsoda", full_output=True)

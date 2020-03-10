@@ -172,7 +172,15 @@ class MultiDoFNonLinearSystem(_System):
 
         return eval_rhs
 
-    def _integrate_equations_of_motion(self, times, integrator='rungakutta4'):
+    def _integrate_equations_of_motion(self, times, integrator='rungakutta4',
+                                       **kwargs):
+        """
+        Parameters
+        ==========
+        **kwargs
+            Any optional parameters for the selected integrator.
+
+        """
 
         x0 = list(self.coordinates.values())
         v0 = list(self.speeds.values())
@@ -191,13 +199,14 @@ class MultiDoFNonLinearSystem(_System):
         self._ode_eval_func = self._generate_array_rhs_eval_func()
 
         try:
-            traj = integrator_method(initial_conditions, times)
+            traj = integrator_method(initial_conditions, times,
+                                     **kwargs)
         except:
             raise
         else:  # integration succeeds
             return traj
 
-    def _integrate_with_lsoda(self, initial_conditions, times):
+    def _integrate_with_lsoda(self, initial_conditions, times, **kwargs):
         """This method should return the integration results in the form of
         odeint.
 
@@ -207,15 +216,24 @@ class MultiDoFNonLinearSystem(_System):
             The initial condition of each state.
         times : ndarray, shape(m,)
             The monotonically increasing time values.
+        **kwargs
+            Keyword arguments to be passed to ``scipy.integrate.odeint()``. See
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html
+            for the options.
 
         Returns
         =======
         x : ndarray, shape(m, n, 1)
-            Array containing the values of the state variables at the
-            specified time values in `t`.
+            Array containing the values of the state variables at the specified
+            time values in `t`.
 
         """
-        x = sp.integrate.odeint(self._ode_eval_func, initial_conditions, times)
+        res = sp.integrate.odeint(self._ode_eval_func, initial_conditions,
+                                  times, **kwargs)
+        if 'full_output' in kwargs:
+            x = res[0]
+        else:
+            x = res
         return np.expand_dims(x, 2)
 
     def _integrate_with_rungakutta4(self, initial_conditions, times):
@@ -255,7 +273,8 @@ class MultiDoFNonLinearSystem(_System):
             x[i] = _rk4(times[i], dt, x[i-1], self._ode_eval_func)
         return x
 
-    def _generate_state_trajectories(self, times, integrator='rungakutta4'):
+    def _generate_state_trajectories(self, times, integrator='rungakutta4',
+                                     **kwargs):
         """This method should return arrays for position, velocity, and
         acceleration of the coordinates."""
 
@@ -270,7 +289,7 @@ class MultiDoFNonLinearSystem(_System):
         try:
             # rows correspond to time, columns to states (m x 2n x 1)
             int_res = self._integrate_equations_of_motion(
-                times, integrator=integrator)
+                times, integrator=integrator, **kwargs)
 
             if int_res.shape != (len(times), len(self.states), 1):
                 msg = ('Shape of trajectory from integration does not have '
